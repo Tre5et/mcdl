@@ -1,5 +1,7 @@
 package net.treset;
 
+import net.treset.version.Version;
+
 import java.util.ArrayList;
 import java.util.List;
 
