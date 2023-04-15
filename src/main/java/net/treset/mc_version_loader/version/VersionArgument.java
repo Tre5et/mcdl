@@ -1,4 +1,6 @@
-package net.treset.version;
+package net.treset.mc_version_loader.version;
+
+import net.treset.mc_version_loader.FormatUtils;
 
 import java.util.List;
 
@@ -12,9 +14,9 @@ public class VersionArgument {
     public VersionArgument(String name, List<VersionRule> rules) {
         this.name = name;
         this.rules = rules;
-        this.replaced = name.startsWith("${") && name.endsWith("}");
-        this.replacementValue = replaced ? name.substring(2, name.length() - 1) : null;
-        this.gated = rules == null || rules.isEmpty();
+        this.replaced = FormatUtils.matches(name, "\\$\\{(.*)\\}");
+        this.replacementValue = FormatUtils.firstGroup(name, "\\$\\{(.*)\\}");
+        this.gated = rules != null && !rules.isEmpty();
     }
 
     public String getName() {

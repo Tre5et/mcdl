@@ -1,10 +1,10 @@
-package net.treset.version;
+package net.treset.mc_version_loader.version;
 
 public class VersionJavaVersion {
     public String component;
-    public String majorVersion;
+    public int majorVersion;
 
-    public VersionJavaVersion(String component, String majorVersion) {
+    public VersionJavaVersion(String component, int majorVersion) {
         this.component = component;
         this.majorVersion = majorVersion;
     }
@@ -17,11 +17,11 @@ public class VersionJavaVersion {
         this.component = component;
     }
 
-    public String getMajorVersion() {
+    public int getMajorVersion() {
         return majorVersion;
     }
 
-    public void setMajorVersion(String majorVersion) {
+    public void setMajorVersion(int majorVersion) {
         this.majorVersion = majorVersion;
     }
 }

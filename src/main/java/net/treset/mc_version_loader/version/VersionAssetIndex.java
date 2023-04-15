@@ -1,13 +1,13 @@
-package net.treset.version;
+package net.treset.mc_version_loader.version;
 
 public class VersionAssetIndex {
     private String id;
     private String cha1;
-    private String size;
-    private String totalSize;
+    private int size;
+    private int totalSize;
     private String url;
 
-    public VersionAssetIndex(String id, String cha1, String size, String totalSize, String url) {
+    public VersionAssetIndex(String id, String cha1, int size, int totalSize, String url) {
         this.id = id;
         this.cha1 = cha1;
         this.size = size;
@@ -31,19 +31,19 @@ public class VersionAssetIndex {
         this.cha1 = cha1;
     }
 
-    public String getSize() {
+    public int getSize() {
         return size;
     }
 
-    public void setSize(String size) {
+    public void setSize(int size) {
         this.size = size;
     }
 
-    public String getTotalSize() {
+    public int getTotalSize() {
         return totalSize;
     }
 
-    public void setTotalSize(String totalSize) {
+    public void setTotalSize(int totalSize) {
         this.totalSize = totalSize;
     }
 

@@ -1,4 +1,6 @@
-package net.treset.version;
+package net.treset.mc_version_loader.version;
+
+import java.util.Objects;
 
 public class Version {
     private int complianceLevel;
@@ -19,7 +21,7 @@ public class Version {
         this.time = time;
         this.type = type;
         this.url = versionManifestUrl;
-        this.snapshot = !type.equals("release");
+        this.snapshot = !Objects.equals(type, "release");
     }
 
     public Version(String id, String type, String url) {

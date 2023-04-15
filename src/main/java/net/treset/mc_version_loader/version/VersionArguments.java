@@ -1,4 +1,4 @@
-package net.treset.version;
+package net.treset.mc_version_loader.version;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +45,7 @@ public class VersionArguments {
             }
         }
         if(a.isReplaced()) {
+            outString.append(a.getName(), 0, Math.max(a.getName().indexOf(a.getReplacementValue()) - 2, 0)).append("%s").append(a.getName(), Math.min(a.getName().indexOf(a.getReplacementValue()) + a.getReplacementValue().length() + 2, a.getName().length()), a.getName().length()).append(" ");
             outKeys.add(a.getReplacementValue());
         } else {
             outString.append(a.getName()).append(" ");

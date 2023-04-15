@@ -1,4 +1,4 @@
-package net.treset.version;
+package net.treset.mc_version_loader.version;
 
 import java.util.List;
 
@@ -17,6 +17,15 @@ public class VersionLibrary {
         this.artifactSize = artifactSize;
         this.artifactUrl = artifactUrl;
         this.rules = rules;
+    }
+
+    public boolean isApplicable(List<VersionFeature> activeFeatures) {
+        for(VersionRule r : getRules()) {
+            if(!r.isCorrect(activeFeatures)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public String getName() {

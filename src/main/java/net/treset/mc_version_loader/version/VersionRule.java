@@ -1,6 +1,6 @@
-package net.treset.version;
+package net.treset.mc_version_loader.version;
 
-import net.treset.OsDetails;
+import net.treset.mc_version_loader.OsDetails;
 
 import java.util.List;
 import java.util.Objects;

@@ -1,4 +1,4 @@
-package net.treset.version;
+package net.treset.mc_version_loader.version;
 
 public enum VersionFeature {
     NONE,
