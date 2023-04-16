@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader;
 
+import net.treset.mc_version_loader.fabric.FabricLoaderData;
+import net.treset.mc_version_loader.fabric.FabricVersion;
+import net.treset.mc_version_loader.fabric.FabricVersionDetails;
 import net.treset.mc_version_loader.java.JavaManifest;
 import net.treset.mc_version_loader.java.JavaVersion;
 import net.treset.mc_version_loader.version.*;
@@ -9,17 +12,9 @@ import java.util.List;
 
 public class VersionLoader {
     public static void main(String[] args) {
-        List<Version> releases = getReleases();
-        for(Version r : releases) {
-            if(r.getId().equals("1.19.4")) {
-                VersionDetails details = JsonParser.parseVersionDetails(Sources.getFileFromUrl(r.getUrl()));
-                List<VersionLibrary> activeLibs = details.getActiveLibraries(new ArrayList<>());
-                String command = details.getArguments().getLaunchCommand("java", "file.jar", new ArrayList<>()).getLaunchCommand();
-                List<JavaVersion> java = JsonParser.parseJavaVersion(Sources.getJavaRuntimeJson(), details.getJavaVersion().getComponent());
-                JavaManifest javaManifest = JsonParser.parseJavaManifest(Sources.getFileFromUrl(java.get(0).getManifestUrl()));
-                break;
-            }
-        }
+        List<FabricVersion> versions = JsonParser.parseFabricManifest(Sources.getFabricForMinecraftVersion("1.19.4"));
+        FabricVersionDetails details = JsonParser.parseFabricVersion(Sources.getFabricVersion(versions.get(0).getMinecraftVersion(), versions.get(0).getLoaderVersion()));
+        return;
     }
 
     public static List<Version> getVersions() {

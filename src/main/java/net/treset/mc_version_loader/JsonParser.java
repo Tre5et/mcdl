@@ -3,6 +3,7 @@ package net.treset.mc_version_loader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.fabric.*;
 import net.treset.mc_version_loader.java.JavaDownload;
 import net.treset.mc_version_loader.java.JavaFile;
 import net.treset.mc_version_loader.java.JavaManifest;
@@ -106,7 +107,81 @@ public class JsonParser {
         return new JavaManifest(files);
     }
 
-    public static JavaFile parseJavaFile(String name, JsonObject fileObj) {
+    public static List<FabricVersion> parseFabricManifest(String manifestJson) {
+        JsonArray manifestArray = getAsJsonArray(parseJson(manifestJson));
+        List<FabricVersion> versions = new ArrayList<>();
+        if(manifestArray != null) {
+            for(JsonElement v : manifestArray) {
+                JsonObject vObj = getAsJsonObject(v);
+                versions.add(new FabricVersion(
+                        getAsString(getAsJsonObject(vObj, "intermediary"), "version"),
+                        getAsString(getAsJsonObject(vObj, "loader"), "version")
+                ));
+            }
+        }
+        return versions;
+    }
+
+    public static FabricVersionDetails parseFabricVersion(String versionJson) {
+        JsonObject versionObj = getAsJsonObject(parseJson(versionJson));
+        return new FabricVersionDetails(
+                parseFabricIntermediary(getAsJsonObject(versionObj, "intermediary")),
+                parseFabricLauncherMeta(getAsJsonObject(versionObj, "launcherMeta")),
+                parseFabricLoader(getAsJsonObject(versionObj, "loader"))
+        );
+    }
+
+    private static FabricIntermediaryData parseFabricIntermediary(JsonObject intermediaryObj) {
+        return new FabricIntermediaryData(
+                getAsString(intermediaryObj, "maven"),
+                getAsBoolean(intermediaryObj, "stable"),
+                getAsString(intermediaryObj, "version")
+        );
+    }
+
+    private static FabricLauncherMeta parseFabricLauncherMeta(JsonObject launcherMetaObj) {
+        JsonObject librariesObj = getAsJsonObject(launcherMetaObj, "libraries");
+        JsonObject mainClassObj = getAsJsonObject(launcherMetaObj, "mainClass");
+
+        return new FabricLauncherMeta(
+                parseFabricLibraries(getAsJsonArray(librariesObj, "client")),
+                parseFabricLibraries(getAsJsonArray(librariesObj, "common")),
+                parseFabricLibraries(getAsJsonArray(librariesObj, "server")),
+                getAsString(mainClassObj, "client"),
+                getAsString(mainClassObj, "server"),
+                getAsInt(launcherMetaObj, "version")
+        );
+    }
+
+    private static FabricLoaderData parseFabricLoader(JsonObject loaderObj) {
+        return new FabricLoaderData(
+                getAsInt(loaderObj, "build"),
+                getAsString(loaderObj, "maven"),
+                getAsString(loaderObj, "separator"),
+                getAsBoolean(loaderObj, "stable"),
+                getAsString(loaderObj, "version")
+        );
+    }
+
+    private static List<FabricLibrary> parseFabricLibraries(JsonArray libraryArray) {
+        List<FabricLibrary> libraries = new ArrayList<>();
+        if(libraryArray != null) {
+            for(JsonElement e : libraryArray) {
+                JsonObject eObj = getAsJsonObject(e);
+                libraries.add(parseFabricLibrary(eObj));
+            }
+        }
+        return libraries;
+    }
+
+    private static FabricLibrary parseFabricLibrary(JsonObject libraryObj) {
+        return new FabricLibrary(
+                getAsString(libraryObj, "name"),
+                getAsString(libraryObj, "url")
+        );
+    }
+
+    private static JavaFile parseJavaFile(String name, JsonObject fileObj) {
         JsonObject downloadsObj = getAsJsonObject(fileObj, "downloads");
         JsonObject lzmaObj = getAsJsonObject(downloadsObj, "lzma");
         JsonObject rawObj = getAsJsonObject(downloadsObj, "raw");
@@ -120,7 +195,7 @@ public class JsonParser {
         );
     }
 
-    public static JavaDownload parseJavaDownload(JsonObject downloadsObj) {
+    private static JavaDownload parseJavaDownload(JsonObject downloadsObj) {
         return new JavaDownload(
                 getAsString(downloadsObj, "sha1"),
                 getAsInt(downloadsObj, "size"),
