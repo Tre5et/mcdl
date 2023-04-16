@@ -11,9 +11,14 @@ public class Sources {
     private static final Logger LOGGER = Logger.getLogger(Sources.class.toString());
 
     private static final String VERSION_MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
+    private static final String JAVA_RUNTIME_URL = "https://launchermeta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
 
-    public static String getVersionManifest() {
+    public static String getVersionManifestJson() {
         return getFileFromUrl(VERSION_MANIFEST_URL);
+    }
+
+    public static String getJavaRuntimeJson() {
+        return getFileFromUrl(JAVA_RUNTIME_URL);
     }
 
     public static String getFileFromUrl(String url) {

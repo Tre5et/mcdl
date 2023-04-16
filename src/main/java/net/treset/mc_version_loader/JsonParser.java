@@ -3,10 +3,16 @@ package net.treset.mc_version_loader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.java.JavaDownload;
+import net.treset.mc_version_loader.java.JavaFile;
+import net.treset.mc_version_loader.java.JavaManifest;
+import net.treset.mc_version_loader.java.JavaVersion;
 import net.treset.mc_version_loader.version.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -54,6 +60,71 @@ public class JsonParser {
                 parseVersionDownloads(getAsJsonObject(versionObj, "downloads")),
                 parseLibraries(getAsJsonArray(versionObj, "libraries")),
                 parseVersionLogging(getAsJsonObject(versionObj, "logging"))
+        );
+    }
+
+    public static List<JavaVersion> parseJavaVersion(String jsonData, String javaComponent, String osIdentifier) {
+        JsonObject dataObj = getAsJsonObject(parseJson(jsonData));
+        JsonObject osObj = getAsJsonObject(dataObj, osIdentifier);
+        JsonArray javaArray = getAsJsonArray(osObj, javaComponent);
+        List<JavaVersion> out = new ArrayList<>();
+        if(javaArray != null) {
+            for(JsonElement j : javaArray) {
+                JsonObject jObj = getAsJsonObject(j);
+                JsonObject availabilityObj = getAsJsonObject(jObj, "availability");
+                JsonObject manifestObj = getAsJsonObject(jObj, "manifest");
+                JsonObject versionObj = getAsJsonObject(jObj, "version");
+                out.add(new JavaVersion(
+                        getAsInt(availabilityObj, "group"),
+                        getAsInt(availabilityObj, "progress"),
+                        getAsString(manifestObj, "sha1"),
+                        getAsInt(manifestObj, "size"),
+                        getAsString(manifestObj, "url"),
+                        getAsString(versionObj, "name"),
+                        getAsString(versionObj, "released")
+                ));
+            }
+        }
+        return out;
+    }
+
+    public static List<JavaVersion> parseJavaVersion(String jsonData, String javaName) {
+        return parseJavaVersion(jsonData, javaName, OsDetails.getJavaIdentifier());
+    }
+
+    public static JavaManifest parseJavaManifest(String dataJson) {
+        JsonObject dataObj = getAsJsonObject(parseJson(dataJson));
+        JsonObject filesObj = getAsJsonObject(dataObj, "files");
+        Set<Map.Entry<String, JsonElement>> membersSet = getMembers(filesObj);
+        List<JavaFile> files = new ArrayList<>();
+        if(membersSet != null) {
+            for(Map.Entry<String, JsonElement> m : membersSet) {
+                JsonObject mObj = getAsJsonObject(m.getValue());
+                files.add(parseJavaFile(m.getKey(), mObj));
+            }
+        }
+        return new JavaManifest(files);
+    }
+
+    public static JavaFile parseJavaFile(String name, JsonObject fileObj) {
+        JsonObject downloadsObj = getAsJsonObject(fileObj, "downloads");
+        JsonObject lzmaObj = getAsJsonObject(downloadsObj, "lzma");
+        JsonObject rawObj = getAsJsonObject(downloadsObj, "raw");
+
+        return new JavaFile(
+                name,
+                getAsBoolean(fileObj, "executable"),
+                getAsString(fileObj, "type"),
+                parseJavaDownload(lzmaObj),
+                parseJavaDownload(rawObj)
+        );
+    }
+
+    public static JavaDownload parseJavaDownload(JsonObject downloadsObj) {
+        return new JavaDownload(
+                getAsString(downloadsObj, "sha1"),
+                getAsInt(downloadsObj, "size"),
+                getAsString(downloadsObj, "url")
         );
     }
 
@@ -196,10 +267,10 @@ public class JsonParser {
         if(featuresObj != null) {
             if(featuresObj.has("has_custom_resolution")) {
                 feature = VersionFeature.HAS_CUSTOM_RESOLUTION;
-                featureValue = getAsBool(featuresObj, "has_custom_resolution");
+                featureValue = getAsBoolean(featuresObj, "has_custom_resolution");
             } else if(featuresObj.has("is_demo_user")) {
                 feature = VersionFeature.IS_DEMO_USER;
-                featureValue = getAsBool(featuresObj, "is_demo_user");
+                featureValue = getAsBoolean(featuresObj, "is_demo_user");
             }
         }
         JsonObject osObj = getAsJsonObject(ruleObj, "os");
@@ -289,7 +360,7 @@ public class JsonParser {
         return -1;
     }
 
-    public static boolean getAsBool(JsonObject obj, String memberName) {
+    public static boolean getAsBoolean(JsonObject obj, String memberName) {
         if(obj != null && obj.get(memberName) != null && obj.get(memberName).isJsonPrimitive()) {
             if (obj.getAsJsonPrimitive(memberName).isBoolean()) {
                 return obj.getAsJsonPrimitive(memberName).getAsBoolean();
@@ -297,6 +368,13 @@ public class JsonParser {
         }
         LOGGER.log(Level.WARNING, "Unable to read requested boolean property " + memberName);
         return false;
+    }
+
+    public static Set<Map.Entry<String, JsonElement>> getMembers(JsonObject obj) {
+        if(obj == null) {
+            return null;
+        }
+        return obj.entrySet();
     }
 
 

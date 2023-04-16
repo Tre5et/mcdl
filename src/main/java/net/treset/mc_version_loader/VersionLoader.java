@@ -1,5 +1,7 @@
 package net.treset.mc_version_loader;
 
+import net.treset.mc_version_loader.java.JavaManifest;
+import net.treset.mc_version_loader.java.JavaVersion;
 import net.treset.mc_version_loader.version.*;
 
 import java.util.ArrayList;
@@ -13,13 +15,15 @@ public class VersionLoader {
                 VersionDetails details = JsonParser.parseVersionDetails(Sources.getFileFromUrl(r.getUrl()));
                 List<VersionLibrary> activeLibs = details.getActiveLibraries(new ArrayList<>());
                 String command = details.getArguments().getLaunchCommand("java", "file.jar", new ArrayList<>()).getLaunchCommand();
+                List<JavaVersion> java = JsonParser.parseJavaVersion(Sources.getJavaRuntimeJson(), details.getJavaVersion().getComponent());
+                JavaManifest javaManifest = JsonParser.parseJavaManifest(Sources.getFileFromUrl(java.get(0).getManifestUrl()));
                 break;
             }
         }
     }
 
     public static List<Version> getVersions() {
-        return JsonParser.parseVersionManifest(Sources.getVersionManifest());
+        return JsonParser.parseVersionManifest(Sources.getVersionManifestJson());
     }
 
     public static List<Version> getReleases() {
