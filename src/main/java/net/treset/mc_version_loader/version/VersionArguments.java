@@ -35,7 +35,7 @@ public class VersionArguments {
         if(a.isGated()) {
             boolean shouldBeAdded = true;
             for(VersionRule r : a.getRules()) {
-                if(!r.isCorrect(features)) {
+                if(!r.isApplicable(features)) {
                     shouldBeAdded = false;
                     break;
                 }

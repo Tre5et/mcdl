@@ -26,7 +26,7 @@ public class VersionLoader {
         List<Version> releases = new ArrayList<>();
         List<Version> versions = getVersions();
         for(Version v : versions) {
-            if(!v.isSnapshot()) {
+            if(v.isRelease()) {
                 releases.add(v);
             }
         }

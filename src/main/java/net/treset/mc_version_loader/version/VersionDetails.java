@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.version;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class VersionDetails {
     private String id;
@@ -44,6 +45,10 @@ public class VersionDetails {
             }
         }
         return activeLibraries;
+    }
+
+    public boolean isRelease() {
+        return Objects.equals(getType(), "release");
     }
 
     public String getId() {

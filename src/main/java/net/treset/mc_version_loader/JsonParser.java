@@ -17,19 +17,19 @@ public class JsonParser {
         List<Version> out = new ArrayList<>();
 
         JsonElement manifest = parseJson(manifestJson);
-        JsonObject manifestObj = toJsonObject(manifest);
-        JsonArray versionArray = resolvePropertyJsonArray(manifestObj, "versions");
+        JsonObject manifestObj = getAsJsonObject(manifest);
+        JsonArray versionArray = getAsJsonArray(manifestObj, "versions");
         if(versionArray != null) {
             for (JsonElement e : versionArray) {
-                JsonObject versionObj = toJsonObject(e);
+                JsonObject versionObj = getAsJsonObject(e);
                 out.add(new Version(
-                        resolvePropertyInt(versionObj, "complianceLevel"),
-                        resolvePropertyString(versionObj, "id"),
-                        resolvePropertyString(versionObj, "releaseTime"),
-                        resolvePropertyString(versionObj, "sha1"),
-                        resolvePropertyString(versionObj, "time"),
-                        resolvePropertyString(versionObj, "type"),
-                        resolvePropertyString(versionObj, "url")
+                        getAsInt(versionObj, "complianceLevel"),
+                        getAsString(versionObj, "id"),
+                        getAsString(versionObj, "releaseTime"),
+                        getAsString(versionObj, "sha1"),
+                        getAsString(versionObj, "time"),
+                        getAsString(versionObj, "type"),
+                        getAsString(versionObj, "url")
                 ));
             }
         }
@@ -38,44 +38,44 @@ public class JsonParser {
     }
 
     public static VersionDetails parseVersionDetails(String jsonData) {
-        JsonObject versionObj = toJsonObject(parseJson(jsonData));
+        JsonObject versionObj = getAsJsonObject(parseJson(jsonData));
         return new VersionDetails(
-                resolvePropertyString(versionObj, "id"),
-                resolvePropertyString(versionObj, "assets"),
-                resolvePropertyInt(versionObj, "complianceLevel"),
-                resolvePropertyString(versionObj, "mainClass"),
-                resolvePropertyInt(versionObj, "minimumLauncherVersion"),
-                resolvePropertyString(versionObj, "releaseTime"),
-                resolvePropertyString(versionObj, "time"),
-                resolvePropertyString(versionObj, "type"),
-                parseVersionArguments(resolvePropertyJsonObject(versionObj, "arguments")),
-                parseVersionJavaVersion(resolvePropertyJsonObject(versionObj, "javaVersion")),
-                parseVersionAssetIndex(resolvePropertyJsonObject(versionObj, "assetIndex")),
-                parseVersionDownloads(resolvePropertyJsonObject(versionObj, "downloads")),
-                parseLibraries(resolvePropertyJsonArray(versionObj, "libraries")),
-                parseVersionLogging(resolvePropertyJsonObject(versionObj, "logging"))
+                getAsString(versionObj, "id"),
+                getAsString(versionObj, "assets"),
+                getAsInt(versionObj, "complianceLevel"),
+                getAsString(versionObj, "mainClass"),
+                getAsInt(versionObj, "minimumLauncherVersion"),
+                getAsString(versionObj, "releaseTime"),
+                getAsString(versionObj, "time"),
+                getAsString(versionObj, "type"),
+                parseVersionArguments(getAsJsonObject(versionObj, "arguments")),
+                parseVersionJavaVersion(getAsJsonObject(versionObj, "javaVersion")),
+                parseVersionAssetIndex(getAsJsonObject(versionObj, "assetIndex")),
+                parseVersionDownloads(getAsJsonObject(versionObj, "downloads")),
+                parseLibraries(getAsJsonArray(versionObj, "libraries")),
+                parseVersionLogging(getAsJsonObject(versionObj, "logging"))
         );
     }
 
     private static VersionLogging parseVersionLogging(JsonObject loggingObj) {
-        JsonObject clientObj = resolvePropertyJsonObject(loggingObj, "client");
-        JsonObject fileObj = resolvePropertyJsonObject(clientObj, "file");
+        JsonObject clientObj = getAsJsonObject(loggingObj, "client");
+        JsonObject fileObj = getAsJsonObject(clientObj, "file");
 
         return new VersionLogging(
-                resolvePropertyString(clientObj, "argument"),
-                resolvePropertyString(fileObj, "id"),
-                resolvePropertyString(fileObj, "sha1"),
-                resolvePropertyInt(fileObj, "size"),
-                resolvePropertyString(fileObj, "url"),
-                resolvePropertyString(clientObj, "type")
+                getAsString(clientObj, "argument"),
+                getAsString(fileObj, "id"),
+                getAsString(fileObj, "sha1"),
+                getAsInt(fileObj, "size"),
+                getAsString(fileObj, "url"),
+                getAsString(clientObj, "type")
         );
     }
 
     private static VersionDownloads parseVersionDownloads(JsonObject downloadsObj) {
-        JsonObject clientObj = resolvePropertyJsonObject(downloadsObj, "client");
-        JsonObject clientMappingsObj = resolvePropertyJsonObject(downloadsObj, "client_mappings");
-        JsonObject serverObj = resolvePropertyJsonObject(downloadsObj, "server");
-        JsonObject serverMappingsObj = resolvePropertyJsonObject(downloadsObj, "server_mappings");
+        JsonObject clientObj = getAsJsonObject(downloadsObj, "client");
+        JsonObject clientMappingsObj = getAsJsonObject(downloadsObj, "client_mappings");
+        JsonObject serverObj = getAsJsonObject(downloadsObj, "server");
+        JsonObject serverMappingsObj = getAsJsonObject(downloadsObj, "server_mappings");
 
 
 
@@ -89,9 +89,9 @@ public class JsonParser {
 
     private static VersionDownloads.Downloads parseVersionDownload(JsonObject downloadObj) {
         return new VersionDownloads.Downloads(
-                resolvePropertyString(downloadObj, "sha1"),
-                resolvePropertyInt(downloadObj, "size"),
-                resolvePropertyString(downloadObj, "url")
+                getAsString(downloadObj, "sha1"),
+                getAsInt(downloadObj, "size"),
+                getAsString(downloadObj, "url")
         );
     }
 
@@ -99,52 +99,52 @@ public class JsonParser {
         List<VersionLibrary> libraries = new ArrayList<>();
         if(librariesArray != null) {
             for(JsonElement l : librariesArray) {
-                libraries.add(parseVersionLibrary(toJsonObject(l)));
+                libraries.add(parseVersionLibrary(getAsJsonObject(l)));
             }
         }
         return libraries;
     }
 
     private static VersionLibrary parseVersionLibrary(JsonObject libraryObj) {
-        JsonObject artifactObj = resolvePropertyJsonObject(resolvePropertyJsonObject(libraryObj, "downloads"), "artifact");
-        JsonArray rulesArray = resolvePropertyJsonArray(libraryObj, "rules");
+        JsonObject artifactObj = getAsJsonObject(getAsJsonObject(libraryObj, "downloads"), "artifact");
+        JsonArray rulesArray = getAsJsonArray(libraryObj, "rules");
         List<VersionRule> rules = new ArrayList<>();
         if(rulesArray != null) {
             for(JsonElement e: rulesArray) {
-                rules.add(parseRule(toJsonObject(e)));
+                rules.add(parseRule(getAsJsonObject(e)));
             }
         }
 
         return new VersionLibrary(
-                resolvePropertyString(libraryObj, "name"),
-                resolvePropertyString(artifactObj, "path"),
-                resolvePropertyString(artifactObj, "sha1"),
-                resolvePropertyInt(artifactObj, "size"),
-                resolvePropertyString(artifactObj, "url"),
+                getAsString(libraryObj, "name"),
+                getAsString(artifactObj, "path"),
+                getAsString(artifactObj, "sha1"),
+                getAsInt(artifactObj, "size"),
+                getAsString(artifactObj, "url"),
                 rules
         );
     }
 
     public static VersionJavaVersion parseVersionJavaVersion(JsonObject javaVersionObj) {
         return new VersionJavaVersion(
-                resolvePropertyString(javaVersionObj, "component"),
-                resolvePropertyInt(javaVersionObj, "majorVersion")
+                getAsString(javaVersionObj, "component"),
+                getAsInt(javaVersionObj, "majorVersion")
         );
     }
 
     public static VersionAssetIndex parseVersionAssetIndex(JsonObject assetIndexObj) {
         return new VersionAssetIndex(
-                resolvePropertyString(assetIndexObj, "id"),
-                resolvePropertyString(assetIndexObj, "sha1"),
-                resolvePropertyInt(assetIndexObj, "size"),
-                resolvePropertyInt(assetIndexObj, "totalSize"),
-                resolvePropertyString(assetIndexObj, "url")
+                getAsString(assetIndexObj, "id"),
+                getAsString(assetIndexObj, "sha1"),
+                getAsInt(assetIndexObj, "size"),
+                getAsInt(assetIndexObj, "totalSize"),
+                getAsString(assetIndexObj, "url")
         );
     }
 
     public static VersionArguments parseVersionArguments(JsonObject argumentsObj) {
-        JsonArray gameArgumentArray = resolvePropertyJsonArray(argumentsObj, "game");
-        JsonArray jvmArgumentArray = resolvePropertyJsonArray(argumentsObj, "jvm");
+        JsonArray gameArgumentArray = getAsJsonArray(argumentsObj, "game");
+        JsonArray jvmArgumentArray = getAsJsonArray(argumentsObj, "jvm");
 
         List<VersionArgument> gameArguments = parseArguments(gameArgumentArray);
         List<VersionArgument> jvmArguments = parseArguments(jvmArgumentArray);
@@ -156,24 +156,28 @@ public class JsonParser {
         List<VersionArgument> arguments = new ArrayList<>();
         if(argumentArray != null) {
             for (JsonElement e : argumentArray) {
-                String ruleString = toString(e);
+                String ruleString = getAsString(e);
                 if (ruleString != null) {
                     arguments.add(new VersionArgument(ruleString, null));
                 } else {
-                    JsonObject eObj = toJsonObject(e);
-                    JsonArray rules = resolvePropertyJsonArray(eObj, "rules");
+                    JsonObject eObj = getAsJsonObject(e);
+                    JsonArray rules = getAsJsonArray(eObj, "rules");
                     List<VersionRule> currentRules = new ArrayList<>();
                     if (rules != null) {
                         for (JsonElement r : rules) {
-                            JsonObject rObj = toJsonObject(r);
+                            JsonObject rObj = getAsJsonObject(r);
                             currentRules.add(parseRule(rObj));
                         }
                     }
-                    JsonArray values = resolvePropertyJsonArray(eObj, "value");
+                    JsonArray values = getAsJsonArray(eObj, "value");
                     if (values != null) {
                         for (JsonElement v : values) {
-                            arguments.add(new VersionArgument(toString(v), currentRules));
+                            arguments.add(new VersionArgument(getAsString(v), currentRules));
                         }
+                    }
+                    String value = getAsString(eObj, "value");
+                    if(value != null) {
+                        arguments.add(new VersionArgument(value, currentRules));
                     }
                 }
 
@@ -186,30 +190,30 @@ public class JsonParser {
         if(ruleObj == null) {
             return new VersionRule(null, null, null, null, null, false);
         }
-        JsonObject featuresObj = resolvePropertyJsonObject(ruleObj, "features");
+        JsonObject featuresObj = getAsJsonObject(ruleObj, "features");
         VersionFeature feature = VersionFeature.NONE;
         boolean featureValue = false;
         if(featuresObj != null) {
             if(featuresObj.has("has_custom_resolution")) {
                 feature = VersionFeature.HAS_CUSTOM_RESOLUTION;
-                featureValue = resolvePropertyBool(featuresObj, "has_custom_resolution");
+                featureValue = getAsBool(featuresObj, "has_custom_resolution");
             } else if(featuresObj.has("is_demo_user")) {
                 feature = VersionFeature.IS_DEMO_USER;
-                featureValue = resolvePropertyBool(featuresObj, "is_demo_user");
+                featureValue = getAsBool(featuresObj, "is_demo_user");
             }
         }
-        JsonObject osObj = resolvePropertyJsonObject(ruleObj, "os");
+        JsonObject osObj = getAsJsonObject(ruleObj, "os");
         return new VersionRule(
-                resolvePropertyString(ruleObj, "action"),
-                resolvePropertyString(osObj, "name"),
-                resolvePropertyString(osObj, "arch"),
-                resolvePropertyString(osObj, "version"),
+                getAsString(ruleObj, "action"),
+                getAsString(osObj, "name"),
+                getAsString(osObj, "arch"),
+                getAsString(osObj, "version"),
                 feature,
                 featureValue
         );
     }
 
-    public static JsonObject toJsonObject(JsonElement element) {
+    public static JsonObject getAsJsonObject(JsonElement element) {
         if(element != null && element.isJsonObject()) {
             return element.getAsJsonObject();
         }
@@ -217,7 +221,7 @@ public class JsonParser {
         return null;
     }
 
-    public static JsonArray toJsonArray(JsonElement element) {
+    public static JsonArray getAsJsonArray(JsonElement element) {
         if(element != null && element.isJsonArray()) {
             return element.getAsJsonArray();
         }
@@ -225,7 +229,7 @@ public class JsonParser {
         return null;
     }
 
-    public static String toString(JsonElement element) {
+    public static String getAsString(JsonElement element) {
         if(element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
             return element.getAsJsonPrimitive().getAsString();
         }
@@ -233,7 +237,7 @@ public class JsonParser {
         return null;
     }
 
-    public static int toInt(JsonElement element) {
+    public static int getAsInt(JsonElement element) {
         if(element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
             return element.getAsJsonPrimitive().getAsInt();
         }
@@ -241,7 +245,7 @@ public class JsonParser {
         return -1;
     }
 
-    public static boolean toBoolean(JsonElement element) {
+    public static boolean getAsBoolean(JsonElement element) {
         if(element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isBoolean()) {
             return element.getAsJsonPrimitive().getAsBoolean();
         }
@@ -249,49 +253,49 @@ public class JsonParser {
         return false;
     }
 
-    public static JsonObject resolvePropertyJsonObject(JsonObject obj, String propertyName) {
-        if(obj != null && obj.get(propertyName) != null && obj.get(propertyName).isJsonObject()) {
-            return obj.getAsJsonObject(propertyName);
+    public static JsonObject getAsJsonObject(JsonObject obj, String memberName) {
+        if(obj != null && obj.get(memberName) != null && obj.get(memberName).isJsonObject()) {
+            return obj.getAsJsonObject(memberName);
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested json object " + propertyName);
+        LOGGER.log(Level.WARNING, "Unable to read requested json object " + memberName);
         return null;
     }
 
-    public static JsonArray resolvePropertyJsonArray(JsonObject obj, String propertyName) {
-        if(obj != null && obj.get(propertyName) != null && obj.get(propertyName).isJsonArray()) {
-            return obj.getAsJsonArray(propertyName);
+    public static JsonArray getAsJsonArray(JsonObject obj, String memberName) {
+        if(obj != null && obj.get(memberName) != null && obj.get(memberName).isJsonArray()) {
+            return obj.getAsJsonArray(memberName);
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested json array " + propertyName);
+        LOGGER.log(Level.WARNING, "Unable to read requested json array " + memberName);
         return null;
     }
 
-    public static String resolvePropertyString(JsonObject obj, String propertyName) {
-        if(obj != null && obj.get(propertyName) != null && obj.get(propertyName).isJsonPrimitive()) {
-            if (obj.getAsJsonPrimitive(propertyName).isString()) {
-                return obj.getAsJsonPrimitive(propertyName).getAsString();
+    public static String getAsString(JsonObject obj, String memberName) {
+        if(obj != null && obj.get(memberName) != null && obj.get(memberName).isJsonPrimitive()) {
+            if (obj.getAsJsonPrimitive(memberName).isString()) {
+                return obj.getAsJsonPrimitive(memberName).getAsString();
             }
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested string property " + propertyName);
+        LOGGER.log(Level.WARNING, "Unable to read requested string property " + memberName);
         return null;
     }
 
-    public static int resolvePropertyInt(JsonObject obj, String propertyName) {
-        if(obj != null && obj.get(propertyName) != null && obj.get(propertyName).isJsonPrimitive()) {
-            if (obj.getAsJsonPrimitive(propertyName).isNumber()) {
-                return obj.getAsJsonPrimitive(propertyName).getAsInt();
+    public static int getAsInt(JsonObject obj, String memberName) {
+        if(obj != null && obj.get(memberName) != null && obj.get(memberName).isJsonPrimitive()) {
+            if (obj.getAsJsonPrimitive(memberName).isNumber()) {
+                return obj.getAsJsonPrimitive(memberName).getAsInt();
             }
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested int property " + propertyName);
+        LOGGER.log(Level.WARNING, "Unable to read requested int property " + memberName);
         return -1;
     }
 
-    public static boolean resolvePropertyBool(JsonObject obj, String propertyName) {
-        if(obj != null && obj.get(propertyName) != null && obj.get(propertyName).isJsonPrimitive()) {
-            if (obj.getAsJsonPrimitive(propertyName).isBoolean()) {
-                return obj.getAsJsonPrimitive(propertyName).getAsBoolean();
+    public static boolean getAsBool(JsonObject obj, String memberName) {
+        if(obj != null && obj.get(memberName) != null && obj.get(memberName).isJsonPrimitive()) {
+            if (obj.getAsJsonPrimitive(memberName).isBoolean()) {
+                return obj.getAsJsonPrimitive(memberName).getAsBoolean();
             }
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested boolean property " + propertyName);
+        LOGGER.log(Level.WARNING, "Unable to read requested boolean property " + memberName);
         return false;
     }
 

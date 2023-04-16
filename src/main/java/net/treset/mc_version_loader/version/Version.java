@@ -10,8 +10,6 @@ public class Version {
     private String time;
     private String type;
     private String url;
-    private boolean snapshot;
-    private VersionDetails details;
 
     public Version(int complianceLevel, String id, String releaseTime, String cha1, String time, String type, String versionManifestUrl) {
         this.complianceLevel = complianceLevel;
@@ -21,11 +19,14 @@ public class Version {
         this.time = time;
         this.type = type;
         this.url = versionManifestUrl;
-        this.snapshot = !Objects.equals(type, "release");
     }
 
     public Version(String id, String type, String url) {
         this(-1, id, null, null, null, type, url);
+    }
+
+    public boolean isRelease() {
+        return Objects.equals(getType(), "release");
     }
 
     public int getComplianceLevel() {
@@ -74,7 +75,6 @@ public class Version {
 
     public void setType(String type) {
         this.type = type;
-        this.snapshot = !type.equals("release");
     }
 
     public String getUrl() {
@@ -85,23 +85,8 @@ public class Version {
         this.url = url;
     }
 
-    public boolean isSnapshot() {
-        return snapshot;
-    }
-
-    public VersionDetails getDetails() {
-        if(details == null) {
-            loadDetails();
-        }
-        return details;
-    }
-
-    private void loadDetails() {
-
-    }
-
     @Override
     public String toString() {
-        return "\nVersion: " + getId() + ", snapshot: "+ isSnapshot() + ", url: " + getUrl();
+        return "\nVersion: " + getId() + ", snapshot: "+ !isRelease() + ", url: " + getUrl();
     }
 }

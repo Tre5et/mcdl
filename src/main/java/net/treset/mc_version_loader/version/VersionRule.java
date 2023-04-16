@@ -24,25 +24,25 @@ public class VersionRule {
         this.featureState = featureState;
     }
 
-    public boolean isCorrect(List<VersionFeature> activeFeatures) {
+    public boolean isApplicable(List<VersionFeature> activeFeatures) {
         if(!isAllow()) {
             return false;
         }
 
-        if(getFeature() != null && getFeature() != VersionFeature.NONE) {
-            return activeFeatures.contains(getFeature()) == getFeatureState();
+        if(getFeature() != null && getFeature() != VersionFeature.NONE && activeFeatures.contains(getFeature()) != getFeatureState()) {
+            return false;
         }
 
-        if(getOsName() != null) {
-            return OsDetails.isOsName(getOsName());
+        if(getOsName() != null && !OsDetails.isOsName(getOsName())) {
+            return false;
         }
-        if(getOsVersion() != null) {
-            return OsDetails.isOsVersion(getOsVersion());
+        if(getOsVersion() != null && !OsDetails.isOsVersion(getOsVersion())) {
+            return false;
         }
-        if(getOsArch() != null) {
-            return OsDetails.isOsArch(getOsArch());
+        if(getOsArch() != null && !OsDetails.isOsArch(getOsArch())) {
+            return false;
         }
-        return false;
+        return true;
     }
 
     public String getAction() {

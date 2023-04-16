@@ -21,7 +21,7 @@ public class VersionLibrary {
 
     public boolean isApplicable(List<VersionFeature> activeFeatures) {
         for(VersionRule r : getRules()) {
-            if(!r.isCorrect(activeFeatures)) {
+            if(!r.isApplicable(activeFeatures)) {
                 return false;
             }
         }
