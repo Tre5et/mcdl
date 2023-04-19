@@ -1,12 +1,12 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
 import java.util.List;
 
-public class VersionLaunchCommand {
+public class MinecraftLaunchCommand {
     private String launchCommand;
     private List<String> replacementKeys;
 
-    public VersionLaunchCommand(String launchCommand, List<String> replacementKeys) {
+    public MinecraftLaunchCommand(String launchCommand, List<String> replacementKeys) {
         this.launchCommand = launchCommand;
         this.replacementKeys = replacementKeys;
     }

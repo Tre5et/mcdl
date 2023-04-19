@@ -1,4 +1,6 @@
-package net.treset.mc_version_loader;
+package net.treset.mc_version_loader.os;
+
+import net.treset.mc_version_loader.format.FormatUtils;
 
 public class OsDetails {
 

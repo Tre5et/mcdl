@@ -1,10 +1,10 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class VersionDetails {
+public class MinecraftVersionDetails {
     private String id;
     private String assets;
     private int complianceLevel;
@@ -13,14 +13,14 @@ public class VersionDetails {
     private String releaseTime;
     private String time;
     private String type;
-    private VersionArguments arguments;
-    private VersionJavaVersion javaVersion;
-    private VersionAssetIndex assetIndex;
-    private VersionDownloads downloads;
-    private List<VersionLibrary> libraries;
-    private VersionLogging logging;
+    private MinecraftLaunchArguments arguments;
+    private MinecraftJavaVersion javaVersion;
+    private MinecraftAssetIndex assetIndex;
+    private MinecraftFileDownloads downloads;
+    private List<MinecraftLibrary> libraries;
+    private MinecraftLogging logging;
 
-    public VersionDetails(String id, String assets, int complianceLevel, String mainClass, int minimumLauncherVersion, String releaseTime, String time, String type, VersionArguments command, VersionJavaVersion javaVersion, VersionAssetIndex assetIndex, VersionDownloads downloads, List<VersionLibrary> libraries, VersionLogging logging) {
+    public MinecraftVersionDetails(String id, String assets, int complianceLevel, String mainClass, int minimumLauncherVersion, String releaseTime, String time, String type, MinecraftLaunchArguments command, MinecraftJavaVersion javaVersion, MinecraftAssetIndex assetIndex, MinecraftFileDownloads downloads, List<MinecraftLibrary> libraries, MinecraftLogging logging) {
         this.id = id;
         this.assets = assets;
         this.complianceLevel = complianceLevel;
@@ -37,9 +37,9 @@ public class VersionDetails {
         this.logging = logging;
     }
 
-    public List<VersionLibrary> getActiveLibraries(List<VersionFeature> activeFeatures) {
-        List<VersionLibrary> activeLibraries = new ArrayList<>();
-        for(VersionLibrary l : getLibraries()) {
+    public List<MinecraftLibrary> getActiveLibraries(List<MinecraftLaunchFeature> activeFeatures) {
+        List<MinecraftLibrary> activeLibraries = new ArrayList<>();
+        for(MinecraftLibrary l : getLibraries()) {
             if(l.isApplicable(activeFeatures)) {
                 activeLibraries.add(l);
             }
@@ -115,51 +115,51 @@ public class VersionDetails {
         this.type = type;
     }
 
-    public VersionArguments getArguments() {
+    public MinecraftLaunchArguments getArguments() {
         return arguments;
     }
 
-    public void setArguments(VersionArguments arguments) {
+    public void setArguments(MinecraftLaunchArguments arguments) {
         this.arguments = arguments;
     }
 
-    public VersionJavaVersion getJavaVersion() {
+    public MinecraftJavaVersion getJavaVersion() {
         return javaVersion;
     }
 
-    public void setJavaVersion(VersionJavaVersion javaVersion) {
+    public void setJavaVersion(MinecraftJavaVersion javaVersion) {
         this.javaVersion = javaVersion;
     }
 
-    public VersionAssetIndex getAssetIndex() {
+    public MinecraftAssetIndex getAssetIndex() {
         return assetIndex;
     }
 
-    public void setAssetIndex(VersionAssetIndex assetIndex) {
+    public void setAssetIndex(MinecraftAssetIndex assetIndex) {
         this.assetIndex = assetIndex;
     }
 
-    public VersionDownloads getDownloads() {
+    public MinecraftFileDownloads getDownloads() {
         return downloads;
     }
 
-    public void setDownloads(VersionDownloads downloads) {
+    public void setDownloads(MinecraftFileDownloads downloads) {
         this.downloads = downloads;
     }
 
-    public List<VersionLibrary> getLibraries() {
+    public List<MinecraftLibrary> getLibraries() {
         return libraries;
     }
 
-    public void setLibraries(List<VersionLibrary> libraries) {
+    public void setLibraries(List<MinecraftLibrary> libraries) {
         this.libraries = libraries;
     }
 
-    public VersionLogging getLogging() {
+    public MinecraftLogging getLogging() {
         return logging;
     }
 
-    public void setLogging(VersionLogging logging) {
+    public void setLogging(MinecraftLogging logging) {
         this.logging = logging;
     }
 }

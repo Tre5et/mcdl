@@ -1,8 +1,8 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
 import java.util.Objects;
 
-public class Version {
+public class MinecraftVersion {
     private int complianceLevel;
     private String id;
     private String releaseTime;
@@ -11,7 +11,7 @@ public class Version {
     private String type;
     private String url;
 
-    public Version(int complianceLevel, String id, String releaseTime, String cha1, String time, String type, String versionManifestUrl) {
+    public MinecraftVersion(int complianceLevel, String id, String releaseTime, String cha1, String time, String type, String versionManifestUrl) {
         this.complianceLevel = complianceLevel;
         this.id = id;
         this.releaseTime = releaseTime;
@@ -21,7 +21,7 @@ public class Version {
         this.url = versionManifestUrl;
     }
 
-    public Version(String id, String type, String url) {
+    public MinecraftVersion(String id, String type, String url) {
         this(-1, id, null, null, null, type, url);
     }
 

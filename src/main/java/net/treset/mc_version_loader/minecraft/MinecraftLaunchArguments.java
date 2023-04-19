@@ -1,19 +1,19 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class VersionArguments {
-    private List<VersionArgument> game;
-    private List<VersionArgument> jvm;
+public class MinecraftLaunchArguments {
+    private List<MinecraftLaunchArgument> game;
+    private List<MinecraftLaunchArgument> jvm;
 
-    public VersionArguments(List<VersionArgument> game, List<VersionArgument> jvm) {
+    public MinecraftLaunchArguments(List<MinecraftLaunchArgument> game, List<MinecraftLaunchArgument> jvm) {
         this.game = game;
         this.jvm = jvm;
     }
 
-    public VersionLaunchCommand getLaunchCommand(String javaBaseDir, String gameLaunchFile, String mainClass, String libsDir, List<VersionLibrary> libraries, List<VersionFeature> features) {
+    public MinecraftLaunchCommand getLaunchCommand(String javaBaseDir, String gameLaunchFile, String mainClass, String libsDir, List<MinecraftLibrary> libraries, List<MinecraftLaunchFeature> features) {
 
 
         StringBuilder outString = new StringBuilder();
@@ -21,7 +21,7 @@ public class VersionArguments {
 
         List<String> outKeys = new ArrayList<>();
 
-        for(VersionArgument a : getJvm()) {
+        for(MinecraftLaunchArgument a : getJvm()) {
             if(a.isReplaced() && Objects.equals(a.getReplacementValue(), "classpath")) {
                 outString.append(buildClasspathString(gameLaunchFile, mainClass, libsDir, libraries));
             } else {
@@ -29,20 +29,20 @@ public class VersionArguments {
             }
         }
 
-        for(VersionArgument a : getGame()) {
+        for(MinecraftLaunchArgument a : getGame()) {
             addArgument(features, outString, outKeys, a);
         }
 
-        return new VersionLaunchCommand(outString.toString(), outKeys);
+        return new MinecraftLaunchCommand(outString.toString(), outKeys);
     }
 
-    private String buildClasspathString(String gameLaunchFile, String mainClass, String libsDir, List<VersionLibrary> libraries) {
+    private String buildClasspathString(String gameLaunchFile, String mainClass, String libsDir, List<MinecraftLibrary> libraries) {
         if(libsDir.endsWith("/")) {
             libsDir = libsDir.substring(0, libsDir.length() - 1);
         }
         StringBuilder out = new StringBuilder();
         out.append("\"").append(gameLaunchFile);
-        for(VersionLibrary l : libraries) {
+        for(MinecraftLibrary l : libraries) {
             if(l.getArtifactPath() != null && !l.getArtifactPath().isBlank()) {
                 out.append(";").append(libsDir).append("/").append(l.getArtifactPath());
             }
@@ -51,10 +51,10 @@ public class VersionArguments {
         return out.toString();
     }
 
-    private void addArgument(List<VersionFeature> features, StringBuilder outString, List<String> outKeys, VersionArgument a) {
+    private void addArgument(List<MinecraftLaunchFeature> features, StringBuilder outString, List<String> outKeys, MinecraftLaunchArgument a) {
         if(a.isGated()) {
             boolean shouldBeAdded = true;
-            for(VersionRule r : a.getRules()) {
+            for(MinecraftRule r : a.getRules()) {
                 if(!r.isApplicable(features)) {
                     shouldBeAdded = false;
                     break;
@@ -72,19 +72,19 @@ public class VersionArguments {
         }
     }
 
-    public List<VersionArgument> getGame() {
+    public List<MinecraftLaunchArgument> getGame() {
         return game;
     }
 
-    public void setGame(List<VersionArgument> game) {
+    public void setGame(List<MinecraftLaunchArgument> game) {
         this.game = game;
     }
 
-    public List<VersionArgument> getJvm() {
+    public List<MinecraftLaunchArgument> getJvm() {
         return jvm;
     }
 
-    public void setJvm(List<VersionArgument> jvm) {
+    public void setJvm(List<MinecraftLaunchArgument> jvm) {
         this.jvm = jvm;
     }
 }

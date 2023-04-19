@@ -1,12 +1,12 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
-public class VersionDownloads {
+public class MinecraftFileDownloads {
     private Downloads client;
     private Downloads clientMappings;
     private Downloads server;
     private Downloads serverMappings;
 
-    public VersionDownloads(Downloads client, Downloads clientMappings, Downloads server, Downloads serverMappings) {
+    public MinecraftFileDownloads(Downloads client, Downloads clientMappings, Downloads server, Downloads serverMappings) {
         this.client = client;
         this.clientMappings = clientMappings;
         this.server = server;

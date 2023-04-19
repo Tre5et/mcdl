@@ -1,20 +1,20 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
-import net.treset.mc_version_loader.OsDetails;
+import net.treset.mc_version_loader.os.OsDetails;
 
 import java.util.List;
 import java.util.Objects;
 
-public class VersionRule {
+public class MinecraftRule {
     private String action;
     private boolean allow;
     private String osName;
     private String osArch;
     private String osVersion;
-    private VersionFeature feature;
+    private MinecraftLaunchFeature feature;
     private boolean featureState;
 
-    public VersionRule(String action, String osName, String osArch, String osVersion, VersionFeature feature, boolean featureState) {
+    public MinecraftRule(String action, String osName, String osArch, String osVersion, MinecraftLaunchFeature feature, boolean featureState) {
         this.action = action;
         this.allow = Objects.equals(action, "allow");
         this.osName = osName;
@@ -24,12 +24,12 @@ public class VersionRule {
         this.featureState = featureState;
     }
 
-    public boolean isApplicable(List<VersionFeature> activeFeatures) {
+    public boolean isApplicable(List<MinecraftLaunchFeature> activeFeatures) {
         if(!isAllow()) {
             return false;
         }
 
-        if(getFeature() != null && getFeature() != VersionFeature.NONE && activeFeatures.contains(getFeature()) != getFeatureState()) {
+        if(getFeature() != null && getFeature() != MinecraftLaunchFeature.NONE && activeFeatures.contains(getFeature()) != getFeatureState()) {
             return false;
         }
 
@@ -85,11 +85,11 @@ public class VersionRule {
         this.osVersion = osVersion;
     }
 
-    public VersionFeature getFeature() {
+    public MinecraftLaunchFeature getFeature() {
         return feature;
     }
 
-    public void setFeature(VersionFeature feature) {
+    public void setFeature(MinecraftLaunchFeature feature) {
         this.feature = feature;
     }
 

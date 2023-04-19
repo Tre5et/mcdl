@@ -1,10 +1,10 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
-public class VersionJavaVersion {
+public class MinecraftJavaVersion {
     public String component;
     public int majorVersion;
 
-    public VersionJavaVersion(String component, int majorVersion) {
+    public MinecraftJavaVersion(String component, int majorVersion) {
         this.component = component;
         this.majorVersion = majorVersion;
     }

@@ -1,6 +1,6 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
-public class VersionLogging {
+public class MinecraftLogging {
     private String clientArgument;
     private String clientFileId;
     private String clientFileSha1;
@@ -8,7 +8,7 @@ public class VersionLogging {
     private String clientFileUrl;
     private String clientType;
 
-    public VersionLogging(String clientArgument, String clientFileId, String clientFileSha1, int clientFileSize, String clientFileUrl, String clientType) {
+    public MinecraftLogging(String clientArgument, String clientFileId, String clientFileSha1, int clientFileSize, String clientFileUrl, String clientType) {
         this.clientArgument = clientArgument;
         this.clientFileId = clientFileId;
         this.clientFileSha1 = clientFileSha1;

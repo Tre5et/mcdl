@@ -1,16 +1,16 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
 import java.util.List;
 
-public class VersionLibrary {
+public class MinecraftLibrary {
     private String name;
     private String artifactPath;
     private String artifactSha1;
     private int artifactSize;
     private String artifactUrl;
-    private List<VersionRule> rules;
+    private List<MinecraftRule> rules;
 
-    public VersionLibrary(String name, String artifactPath, String artifactSha1, int artifactSize, String artifactUrl, List<VersionRule> rules) {
+    public MinecraftLibrary(String name, String artifactPath, String artifactSha1, int artifactSize, String artifactUrl, List<MinecraftRule> rules) {
         this.name = name;
         this.artifactPath = artifactPath;
         this.artifactSha1 = artifactSha1;
@@ -19,8 +19,8 @@ public class VersionLibrary {
         this.rules = rules;
     }
 
-    public boolean isApplicable(List<VersionFeature> activeFeatures) {
-        for(VersionRule r : getRules()) {
+    public boolean isApplicable(List<MinecraftLaunchFeature> activeFeatures) {
+        for(MinecraftRule r : getRules()) {
             if(!r.isApplicable(activeFeatures)) {
                 return false;
             }
@@ -68,11 +68,11 @@ public class VersionLibrary {
         this.artifactUrl = artifactUrl;
     }
 
-    public List<VersionRule> getRules() {
+    public List<MinecraftRule> getRules() {
         return rules;
     }
 
-    public void setRules(List<VersionRule> rules) {
+    public void setRules(List<MinecraftRule> rules) {
         this.rules = rules;
     }
 }

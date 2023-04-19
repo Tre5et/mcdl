@@ -1,13 +1,13 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
-public class VersionAssetIndex {
+public class MinecraftAssetIndex {
     private String id;
     private String cha1;
     private int size;
     private int totalSize;
     private String url;
 
-    public VersionAssetIndex(String id, String cha1, int size, int totalSize, String url) {
+    public MinecraftAssetIndex(String id, String cha1, int size, int totalSize, String url) {
         this.id = id;
         this.cha1 = cha1;
         this.size = size;

@@ -1,4 +1,4 @@
-package net.treset.mc_version_loader;
+package net.treset.mc_version_loader.format;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

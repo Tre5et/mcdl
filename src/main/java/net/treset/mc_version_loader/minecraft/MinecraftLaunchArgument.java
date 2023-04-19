@@ -1,17 +1,17 @@
-package net.treset.mc_version_loader.version;
+package net.treset.mc_version_loader.minecraft;
 
-import net.treset.mc_version_loader.FormatUtils;
+import net.treset.mc_version_loader.format.FormatUtils;
 
 import java.util.List;
 
-public class VersionArgument {
+public class MinecraftLaunchArgument {
     private String name;
     private boolean replaced;
     private String replacementValue;
     private boolean gated;
-    private List<VersionRule> rules;
+    private List<MinecraftRule> rules;
 
-    public VersionArgument(String name, List<VersionRule> rules) {
+    public MinecraftLaunchArgument(String name, List<MinecraftRule> rules) {
         this.name = name;
         this.rules = rules;
         this.replaced = FormatUtils.matches(name, "\\$\\{(.*)\\}");
@@ -51,11 +51,11 @@ public class VersionArgument {
         this.gated = gated;
     }
 
-    public List<VersionRule> getRules() {
+    public List<MinecraftRule> getRules() {
         return rules;
     }
 
-    public void setRules(List<VersionRule> rules) {
+    public void setRules(List<MinecraftRule> rules) {
         this.rules = rules;
     }
 }
