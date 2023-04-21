@@ -11,6 +11,10 @@ public class ManifestTypeUtils {
         return LauncherManifestType.UNKNOWN;
     }
 
+    public static LauncherManifestType getLauncherManifestType(String type) {
+        return getLauncherManifestType(type, getDefaultConversion());
+    }
+
     public static Map<String, LauncherManifestType> getDefaultConversion() {
         return Map.of(
                 "launcher", LauncherManifestType.LAUNCHER

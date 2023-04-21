@@ -13,36 +13,23 @@ import net.treset.mc_version_loader.java.JavaVersion;
 import net.treset.mc_version_loader.json.FabricJsonParser;
 import net.treset.mc_version_loader.json.JavaJsonParser;
 import net.treset.mc_version_loader.json.MinecraftVersionJsonParser;
+import net.treset.mc_version_loader.launcher.LauncherLaunchArgument;
 import net.treset.mc_version_loader.minecraft.*;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class VersionLoader {
     public static void main(String[] args) {
 
-        List<MinecraftVersion> mcVersions = getReleases();
-        MinecraftVersion minecraftVersion = null;
-        for(MinecraftVersion v : mcVersions) {
-            if(v.getId().equals("1.19.4")) {
-                minecraftVersion = v;
-                break;
-            }
-        }
-        MinecraftVersionDetails mcDetails = MinecraftVersionJsonParser.parseVersionDetails(Sources.getFileFromUrl(minecraftVersion.getUrl()));
-        List<FabricVersion> fabricVersions = FabricJsonParser.parseFabricManifest(Sources.getFabricForMinecraftVersion("1.19.4"));
+        LauncherLaunchArgument arg = new LauncherLaunchArgument("test${replace1}tesssst${replace2}${replace3}", null, null, null);
+        boolean valid = arg.isActive(new ArrayList<>());
+        boolean done = arg.isFinished();
 
-        FabricVersionDetails details = FabricJsonParser.parseFabricVersion(Sources.getFabricVersion(fabricVersions.get(0).getMinecraftVersion(), fabricVersions.get(0).getLoaderVersion()));
-        File fabricPath = new File("./downloads/fabric-client");
-        fabricPath.mkdirs();
-        FabricFileDownloader.downloadFabricLoader(fabricPath, details.getLoader());
-
-        File fabricLibraryPath = new File("./downloads/fabric-libraries");
-        fabricLibraryPath.mkdirs();
-        for(FabricLibrary l : details.getLauncherMeta().getLibrariesCommon()) {
-            FabricFileDownloader.downloadFabricLibrary(fabricLibraryPath, l);
-        }
+        arg.replace(Map.of("replace1", "value1", "replace3", "value3", "replace2", "value2"));
+        done = arg.isFinished();
 
         return;
     }
