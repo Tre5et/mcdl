@@ -1,7 +1,9 @@
 package net.treset.mc_version_loader;
 
+import net.treset.mc_version_loader.fabric.FabricLibrary;
 import net.treset.mc_version_loader.fabric.FabricVersion;
 import net.treset.mc_version_loader.fabric.FabricVersionDetails;
+import net.treset.mc_version_loader.files.FabricFileDownloader;
 import net.treset.mc_version_loader.files.JavaFileDownloader;
 import net.treset.mc_version_loader.files.MinecraftVersionFileDownloader;
 import net.treset.mc_version_loader.files.Sources;
@@ -31,25 +33,17 @@ public class VersionLoader {
         MinecraftVersionDetails mcDetails = MinecraftVersionJsonParser.parseVersionDetails(Sources.getFileFromUrl(minecraftVersion.getUrl()));
         List<FabricVersion> fabricVersions = FabricJsonParser.parseFabricManifest(Sources.getFabricForMinecraftVersion("1.19.4"));
 
-        JavaVersion javaVersion = JavaJsonParser.parseJavaVersion(Sources.getJavaRuntimeJson(), mcDetails.getJavaVersion().getComponent()).get(0);
-        JavaManifest javaManifest = JavaJsonParser.parseJavaManifest(Sources.getFileFromUrl(javaVersion.getManifestUrl()));
-        File javaDir = new File("./downloads/java");
-        javaDir.mkdirs();
-        for(JavaFile f : javaManifest.getFiles()) {
-            JavaFileDownloader.downloadJavaFile(f, javaDir);
+        FabricVersionDetails details = FabricJsonParser.parseFabricVersion(Sources.getFabricVersion(fabricVersions.get(0).getMinecraftVersion(), fabricVersions.get(0).getLoaderVersion()));
+        File fabricPath = new File("./downloads/fabric-client");
+        fabricPath.mkdirs();
+        FabricFileDownloader.downloadFabricLoader(fabricPath, details.getLoader());
+
+        File fabricLibraryPath = new File("./downloads/fabric-libraries");
+        fabricLibraryPath.mkdirs();
+        for(FabricLibrary l : details.getLauncherMeta().getLibrariesCommon()) {
+            FabricFileDownloader.downloadFabricLibrary(fabricLibraryPath, l);
         }
 
-        File clientDir = new File("./downloads/client");
-        clientDir.mkdirs();
-        MinecraftVersionFileDownloader.downloadVersionDownload(mcDetails.getDownloads().getClient(), clientDir);
-        File libsDir = new File("./downloads/libraries");
-        libsDir.mkdirs();
-        for(MinecraftLibrary l : mcDetails.getLibraries()) {
-            MinecraftVersionFileDownloader.downloadVersionLibrary(l, libsDir);
-        }
-        MinecraftLaunchCommand launchCommand = mcDetails.getArguments().getLaunchCommand("java", "client.jar", mcDetails.getMainClass(), "../libraries" , mcDetails.getLibraries(), new ArrayList<>());
-        System.out.println(launchCommand.getLaunchCommand());
-        FabricVersionDetails details = FabricJsonParser.parseFabricVersion(Sources.getFabricVersion(fabricVersions.get(0).getMinecraftVersion(), fabricVersions.get(0).getLoaderVersion()));
         return;
     }
 

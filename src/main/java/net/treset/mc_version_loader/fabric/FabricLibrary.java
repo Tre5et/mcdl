@@ -3,6 +3,8 @@ package net.treset.mc_version_loader.fabric;
 public class FabricLibrary {
     private String name;
     private String url;
+    private String localPath;
+    private String localFileName;
 
     public FabricLibrary(String name, String url) {
         this.name = name;
@@ -23,5 +25,21 @@ public class FabricLibrary {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getLocalPath() {
+        return localPath;
+    }
+
+    public void setLocalPath(String localPath) {
+        this.localPath = localPath;
+    }
+
+    public String getLocalFileName() {
+        return localFileName;
+    }
+
+    public void setLocalFileName(String localFileName) {
+        this.localFileName = localFileName;
     }
 }
