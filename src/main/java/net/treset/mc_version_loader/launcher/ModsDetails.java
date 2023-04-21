@@ -3,11 +3,13 @@ package net.treset.mc_version_loader.launcher;
 import java.util.List;
 
 public class ModsDetails {
-    String modsType;
-    List<LauncherMod> mods;
+    private String modsType;
+    private String modsVersion;
+    private List<LauncherMod> mods;
 
-    public ModsDetails(String modsType, List<LauncherMod> mods) {
+    public ModsDetails(String modsType, String modsVersion, List<LauncherMod> mods) {
         this.modsType = modsType;
+        this.modsVersion = modsVersion;
         this.mods = mods;
     }
 
@@ -17,6 +19,14 @@ public class ModsDetails {
 
     public void setModsType(String modsType) {
         this.modsType = modsType;
+    }
+
+    public String getModsVersion() {
+        return modsVersion;
+    }
+
+    public void setModsVersion(String modsVersion) {
+        this.modsVersion = modsVersion;
     }
 
     public List<LauncherMod> getMods() {

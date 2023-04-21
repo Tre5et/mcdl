@@ -1,10 +1,10 @@
 package net.treset.mc_version_loader.launcher;
 
 public class LauncherModDownload {
-    String date;
-    String provider;
-    String url;
-    String version;
+    private String date;
+    private String provider;
+    private String url;
+    private String version;
 
     public LauncherModDownload(String date, String provider, String url, String version) {
         this.date = date;

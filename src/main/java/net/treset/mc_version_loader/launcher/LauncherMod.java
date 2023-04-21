@@ -3,11 +3,11 @@ package net.treset.mc_version_loader.launcher;
 import java.util.List;
 
 public class LauncherMod {
-    String currentProvider;
-    boolean enabled;
-    String id;
-    String name;
-    List<LauncherModDownload> downloads;
+    private String currentProvider;
+    private boolean enabled;
+    private String id;
+    private String name;
+    private List<LauncherModDownload> downloads;
 
     public LauncherMod(String currentProvider, boolean enabled, String id, String name, List<LauncherModDownload> downloads) {
         this.currentProvider = currentProvider;

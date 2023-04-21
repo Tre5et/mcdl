@@ -3,14 +3,14 @@ package net.treset.mc_version_loader.launcher;
 import java.util.List;
 
 public class VersionDetails {
-    String assets;
-    String depends;
-    List<LauncherLaunchArgument> gameArguments;
-    List<LauncherLaunchArgument> jvmArguments;
-    String java;
-    List<String> libraries;
-    String mainClass;
-    String mainFile;
+    private String assets;
+    private String depends;
+    private List<LauncherLaunchArgument> gameArguments;
+    private List<LauncherLaunchArgument> jvmArguments;
+    private String java;
+    private List<String> libraries;
+    private String mainClass;
+    private String mainFile;
 
     public VersionDetails(String assets, String depends, List<LauncherLaunchArgument> gameArguments, List<LauncherLaunchArgument> jvmArguments, String java, List<String> libraries, String mainClass, String mainFile) {
         this.assets = assets;

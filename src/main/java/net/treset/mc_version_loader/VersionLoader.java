@@ -12,8 +12,9 @@ import net.treset.mc_version_loader.java.JavaManifest;
 import net.treset.mc_version_loader.java.JavaVersion;
 import net.treset.mc_version_loader.json.FabricJsonParser;
 import net.treset.mc_version_loader.json.JavaJsonParser;
+import net.treset.mc_version_loader.json.LauncherJsonParser;
 import net.treset.mc_version_loader.json.MinecraftVersionJsonParser;
-import net.treset.mc_version_loader.launcher.LauncherLaunchArgument;
+import net.treset.mc_version_loader.launcher.*;
 import net.treset.mc_version_loader.minecraft.*;
 
 import java.io.File;
@@ -23,14 +24,6 @@ import java.util.Map;
 
 public class VersionLoader {
     public static void main(String[] args) {
-
-        LauncherLaunchArgument arg = new LauncherLaunchArgument("test${replace1}tesssst${replace2}${replace3}", null, null, null);
-        boolean valid = arg.isActive(new ArrayList<>());
-        boolean done = arg.isFinished();
-
-        arg.replace(Map.of("replace1", "value1", "replace3", "value3", "replace2", "value2"));
-        done = arg.isFinished();
-
         return;
     }
 

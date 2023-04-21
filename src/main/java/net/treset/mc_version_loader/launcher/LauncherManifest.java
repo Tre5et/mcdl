@@ -12,10 +12,6 @@ public class LauncherManifest {
     private List<String> includedFiles;
     private List<String> components;
 
-    public LauncherManifest(String type, String id, String details, String prefix, String name, List<String> includedFiles, List<String> components) {
-        this(type, ManifestTypeUtils.getDefaultConversion(), id, details, prefix, name, includedFiles, components);
-    }
-
     public LauncherManifest(String type, Map<String, LauncherManifestType> typeConversion, String id, String details, String prefix, String name, List<String> includedFiles, List<String> components) {
         this.type = ManifestTypeUtils.getLauncherManifestType(type, typeConversion);
         this.id = id;

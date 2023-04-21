@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.Objects;
 
 public class LauncherLaunchArgument {
-    String argument;
-    String feature;
-    String osName;
-    String osVersion;
-    String parsedArgument;
-    List<String> replacementValues;
+    private String argument;
+    private String feature;
+    private String osName;
+    private String osVersion;
+    private String parsedArgument;
+    private List<String> replacementValues;
 
     public LauncherLaunchArgument(String argument, String feature, String osName, String osVersion) {
         this.argument = argument;
