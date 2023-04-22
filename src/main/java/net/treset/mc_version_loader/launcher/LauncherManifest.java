@@ -13,7 +13,7 @@ public class LauncherManifest {
     private List<String> components;
 
     public LauncherManifest(String type, Map<String, LauncherManifestType> typeConversion, String id, String details, String prefix, String name, List<String> includedFiles, List<String> components) {
-        this.type = ManifestTypeUtils.getLauncherManifestType(type, typeConversion);
+        this.type = LauncherManifestTypeUtils.getLauncherManifestType(type, typeConversion);
         this.id = id;
         this.details = details;
         this.prefix = prefix;

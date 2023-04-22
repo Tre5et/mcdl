@@ -2,7 +2,7 @@ package net.treset.mc_version_loader.launcher;
 
 import java.util.List;
 
-public class VersionDetails {
+public class LauncherVersionDetails {
     private String assets;
     private String depends;
     private List<LauncherLaunchArgument> gameArguments;
@@ -12,7 +12,7 @@ public class VersionDetails {
     private String mainClass;
     private String mainFile;
 
-    public VersionDetails(String assets, String depends, List<LauncherLaunchArgument> gameArguments, List<LauncherLaunchArgument> jvmArguments, String java, List<String> libraries, String mainClass, String mainFile) {
+    public LauncherVersionDetails(String assets, String depends, List<LauncherLaunchArgument> gameArguments, List<LauncherLaunchArgument> jvmArguments, String java, List<String> libraries, String mainClass, String mainFile) {
         this.assets = assets;
         this.depends = depends;
         this.gameArguments = gameArguments;

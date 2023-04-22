@@ -26,7 +26,7 @@ public class LauncherJsonParser {
     }
 
     public static LauncherManifest parseLauncherManifest(String json) {
-        return parseLauncherManifest(json, ManifestTypeUtils.getDefaultConversion());
+        return parseLauncherManifest(json, LauncherManifestTypeUtils.getDefaultConversion());
     }
 
     public static LauncherDetails parseLauncherDetails(String json) {
@@ -59,9 +59,9 @@ public class LauncherJsonParser {
         );
     }
 
-    public static InstanceDetails parseInstanceDetails(String json) {
+    public static LaucherInstanceDetails parseInstanceDetails(String json) {
         JsonObject instanceObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
-        return new InstanceDetails(
+        return new LaucherInstanceDetails(
                 parseFeatures(JsonUtils.getAsJsonObject(instanceObj, "features")),
                 parseJsonStringArray(JsonUtils.getAsJsonArray(instanceObj, "ignored_files")),
                 parseArguments(JsonUtils.getAsJsonArray(instanceObj, "jvm_arguments")),
@@ -73,9 +73,9 @@ public class LauncherJsonParser {
         );
     }
 
-    public static VersionDetails parseVersionDetails(String json) {
+    public static LauncherVersionDetails parseVersionDetails(String json) {
         JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
-        return new VersionDetails(
+        return new LauncherVersionDetails(
                 JsonUtils.getAsString(versionObj, "assets"),
                 JsonUtils.getAsString(versionObj, "depends"),
                 parseArguments(JsonUtils.getAsJsonArray(versionObj, "game_arguments")),
@@ -87,9 +87,9 @@ public class LauncherJsonParser {
         );
     }
 
-    public static ModsDetails parseModsDetails(String json) {
+    public static LauncherModsDetails parseModsDetails(String json) {
         JsonObject modsObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
-        return new ModsDetails(
+        return new LauncherModsDetails(
                 JsonUtils.getAsString(modsObj, "mods_type"),
                 JsonUtils.getAsString(modsObj, "mods_version"),
                 parseMods(JsonUtils.getAsJsonArray(modsObj, "mods"))

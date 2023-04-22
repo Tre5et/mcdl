@@ -1,9 +1,8 @@
 package net.treset.mc_version_loader.launcher;
 
 import java.util.List;
-import java.util.Map;
 
-public class InstanceDetails {
+public class LaucherInstanceDetails {
     private List<LauncherFeature> features;
     private List<String> ignoredFiles;
     private List<LauncherLaunchArgument> jvm_arguments;
@@ -13,7 +12,7 @@ public class InstanceDetails {
     private String savesComponent;
     private String versionComponent;
 
-    public InstanceDetails(List<LauncherFeature> features, List<String> ignoredFiles, List<LauncherLaunchArgument> jvm_arguments, String modsComponent, String optionsComponent, String resourcePacksComponent, String savesComponent, String versionComponent) {
+    public LaucherInstanceDetails(List<LauncherFeature> features, List<String> ignoredFiles, List<LauncherLaunchArgument> jvm_arguments, String modsComponent, String optionsComponent, String resourcePacksComponent, String savesComponent, String versionComponent) {
         this.features = features;
         this.ignoredFiles = ignoredFiles;
         this.jvm_arguments = jvm_arguments;
