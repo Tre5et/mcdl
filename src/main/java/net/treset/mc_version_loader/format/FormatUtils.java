@@ -40,7 +40,7 @@ public class FormatUtils {
             return null;
         }
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-        return (LocalDateTime)formatter.parse(time);
+        return LocalDateTime.from(formatter.parse(time));
     }
 
     public static String fromLocalDateTime(LocalDateTime time) {
@@ -57,5 +57,50 @@ public class FormatUtils {
 
     public static String formatVersionComparison(String input) {
         return formatModComparison(input).replaceAll("[a-zA-Z]", "").replaceAll("-", "").replaceAll("\\+", "");
+    }
+
+    public static String curseforgeModLoaderToModLoader(int cfModLoader) {
+        switch (cfModLoader) {
+            case 0 -> {
+                return null;
+            }
+            case 1 -> {
+                return "forge";
+            }
+            case 2 -> {
+                return "cauldron";
+            }
+            case 3 -> {
+                return "liteloader";
+            }
+            case 4 -> {
+                return "fabric";
+            }
+            case 5 -> {
+                return "quilt";
+            }
+        }
+        return null;
+    }
+
+    public static int modLoaderToCurseforgeModLoader(String modLoader) {
+        switch (modLoader) {
+            case "forge" -> {
+                return 1;
+            }
+            case "cauldron" -> {
+                return 2;
+            }
+            case "liteloader" -> {
+                return 3;
+            }
+            case "fabric" -> {
+                return 4;
+            }
+            case "quilt" -> {
+                return 5;
+            }
+        }
+        return 0;
     }
 }

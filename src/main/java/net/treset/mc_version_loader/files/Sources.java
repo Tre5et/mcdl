@@ -172,7 +172,7 @@ public class Sources {
             url.append(URLEncoder.encode(p.getKey(), StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8)).append("&");
         }
         try {
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(new URI(url.toString()));
+            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(new URI(url.substring(0, url.length() - 1)));
             for(Map.Entry<String, String> h : headers) {
                 requestBuilder.header(h.getKey(), h.getValue());
             }

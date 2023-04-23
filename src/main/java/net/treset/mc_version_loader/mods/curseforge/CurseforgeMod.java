@@ -193,25 +193,9 @@ public class CurseforgeMod extends GenericModData {
                 if(out.size() >= 2) {
                     break;
                 }
-                switch (f.getModLoader()) {
-                    case 0 -> {
-                        if (!out.contains("fabric")) {
-                            out.add("fabric");
-                        }
-                        if (!out.contains("forge")) {
-                            out.add("forge");
-                        }
-                    }
-                    case 1 -> {
-                        if (!out.contains("forge")) {
-                            out.add("forge");
-                        }
-                    }
-                    case 4 -> {
-                        if (!out.contains("fabric")) {
-                            out.add("fabric");
-                        }
-                    }
+                String loader = FormatUtils.curseforgeModLoaderToModLoader(f.getModLoader());
+                if(!out.contains(loader)) {
+                    out.add(loader);
                 }
             }
         }
@@ -230,7 +214,16 @@ public class CurseforgeMod extends GenericModData {
 
     @Override
     public List<ModVersionData> getVersions() {
-        List<CurseforgeFile> files = VersionLoader.getCurseforgeVersions(id, this, null, -1);
+        return getVersions(null, 0);
+    }
+
+    @Override
+    public List<ModVersionData> getVersions(String gameVersion, String modLoader) {
+        return getVersions(gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
+    }
+
+    public List<ModVersionData> getVersions(String gameVersion, int modLoader) {
+        List<CurseforgeFile> files = VersionLoader.getCurseforgeVersions(id, this, gameVersion, modLoader);
         return List.copyOf(files);
     }
 

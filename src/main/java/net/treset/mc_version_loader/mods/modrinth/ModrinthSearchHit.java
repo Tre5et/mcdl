@@ -153,7 +153,12 @@ public class ModrinthSearchHit extends GenericModData {
 
     @Override
     public List<ModVersionData> getVersions() {
-        List<ModrinthVersion> modrinthVersions = VersionLoader.getModrinthVersion(projectId, this, List.of(), List.of());
+        return getVersions(null, null);
+    }
+
+    @Override
+    public List<ModVersionData> getVersions(String gameVersion, String modLoader) {
+        List<ModrinthVersion> modrinthVersions = VersionLoader.getModrinthVersion(projectId, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader));
         return new ArrayList<>(modrinthVersions);
     }
 

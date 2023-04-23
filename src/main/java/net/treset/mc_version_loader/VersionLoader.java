@@ -1,23 +1,27 @@
 package net.treset.mc_version_loader;
 
 import net.treset.mc_version_loader.files.Sources;
+import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.minecraft.*;
+import net.treset.mc_version_loader.mods.CombinedModData;
 import net.treset.mc_version_loader.mods.ModData;
+import net.treset.mc_version_loader.mods.ModVersionData;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFile;
+import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearch;
+import net.treset.mc_version_loader.mods.modrinth.ModrinthSearchHit;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
+import java.util.*;
 
 public class VersionLoader {
     public static void main(String[] args) {
-        ModrinthSearch search = searchModrinth("vanillaconfig", List.of("1.19.4"), List.of("fabric"), 20, -1);
-        List<ModrinthVersion> versions = getModrinthVersion(search.getHits().get(0).getProjectId(), search.getHits().get(0), List.of("1.19.4"), List.of("fabric"));
-        CurseforgeSearch cfSearch = searchCurseforge("vanillaconfig", "1.19.4", 4, 20, 0);
-        List<CurseforgeFile> cfVersions = getCurseforgeVersions(cfSearch.getData().get(0).getId(), cfSearch.getData().get(0), "1.19.4", 4);
+        List<ModData> mods = searchCombinedMods("sodium", "1.19.4", "fabric", 20, 0);
+
         return;
     }
 
@@ -34,6 +38,32 @@ public class VersionLoader {
             }
         }
         return releases;
+    }
+
+    public static List<ModData> searchCombinedMods(String query, String gameVersion, String modLoader, int limit, int offset) {
+        LocalDateTime startTime = LocalDateTime.now();
+        ModrinthSearch search = searchModrinth(query, List.of(gameVersion), List.of(modLoader), limit, offset);
+        CurseforgeSearch cfSearch = searchCurseforge(query, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader), limit, offset);
+        List<ModData> combinedMods = new ArrayList<>();
+        Set<ModData> toRemove = new HashSet<>();
+        List<ModrinthSearchHit> mh = search.getHits();
+        List<CurseforgeMod> ch = cfSearch.getData();
+        for(ModrinthSearchHit m : mh) {
+            for(CurseforgeMod c : ch) {
+                if(m.isSame(c)) {
+                    combinedMods.add(new CombinedModData(m, c, gameVersion, modLoader));
+                    toRemove.add(m);
+                    toRemove.add(c);
+                    break;
+                }
+            }
+        }
+        mh.removeAll(toRemove);
+        ch.remove(toRemove);
+        combinedMods.addAll(mh);
+        combinedMods.addAll(ch);
+        System.out.println("Took" + LocalDateTime.now().until(startTime, ChronoUnit.MILLIS));
+        return combinedMods;
     }
 
     public static ModrinthSearch searchModrinth(String query, List<String> versions, List<String> loaders, int limit, int offset) {

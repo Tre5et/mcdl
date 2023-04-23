@@ -6,7 +6,7 @@ import java.util.List;
 
 public abstract class GenericModData implements ModData {
     @Override
-    public boolean isEqual(ModData otherMod) {
+    public boolean isSame(ModData otherMod) {
         return FormatUtils.formatModComparison(this.getSlug()).equals(FormatUtils.formatModComparison(otherMod.getSlug())) || FormatUtils.formatModComparison(this.getName()).equals(FormatUtils.formatModComparison(otherMod.getName()));
     }
 

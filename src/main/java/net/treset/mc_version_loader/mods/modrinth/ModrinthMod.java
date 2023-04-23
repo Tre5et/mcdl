@@ -148,7 +148,12 @@ public class ModrinthMod extends GenericModData {
 
     @Override
     public List<ModVersionData> getVersions() {
-        List<ModrinthVersion> modrinthVersions = VersionLoader.getModrinthVersion(id, this, List.of(), List.of());
+        return getVersions(null, null);
+    }
+
+    @Override
+    public List<ModVersionData> getVersions(String gameVersion, String modLoader) {
+        List<ModrinthVersion> modrinthVersions = VersionLoader.getModrinthVersion(id, this, List.of(gameVersion), List.of(modLoader));
         return new ArrayList<>(modrinthVersions);
     }
 

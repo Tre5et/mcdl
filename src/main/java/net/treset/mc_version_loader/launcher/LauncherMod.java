@@ -4,20 +4,25 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.mods.ModData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LauncherMod {
     private String currentProvider;
+    private String description;
     private boolean enabled;
+    private String iconUrl;
     private String id;
     private String name;
     private List<LauncherModDownload> downloads;
 
-    public LauncherMod(String currentProvider, boolean enabled, String id, String name, List<LauncherModDownload> downloads) {
+    public LauncherMod(String currentProvider, String description, boolean enabled, String iconUrl, String id, String name, List<LauncherModDownload> downloads) {
         this.currentProvider = currentProvider;
+        this.description = description;
         this.enabled = enabled;
+        this.iconUrl = iconUrl;
         this.id = id;
         this.name = name;
         this.downloads = downloads;
@@ -26,7 +31,9 @@ public class LauncherMod {
     public static LauncherMod fromJson(JsonObject modObj) {
         return new LauncherMod(
             JsonUtils.getAsString(modObj, "current_provider"),
+            JsonUtils.getAsString(modObj, "description"),
             JsonUtils.getAsBoolean(modObj, "enabled"),
+            JsonUtils.getAsString(modObj, "icon_url"),
             JsonUtils.getAsString(modObj, "id"),
             JsonUtils.getAsString(modObj, "name"),
             LauncherModDownload.parseDownloads(JsonUtils.getAsJsonArray(modObj, "downloads"))
@@ -52,12 +59,28 @@ public class LauncherMod {
         this.currentProvider = currentProvider;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
     }
 
     public String getId() {

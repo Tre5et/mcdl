@@ -7,6 +7,7 @@ import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.GenericModVersion;
 import net.treset.mc_version_loader.mods.ModData;
+import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -154,5 +155,11 @@ public class ModrinthVersion extends GenericModVersion {
     @Override
     public ModData getParentMod() {
         return parent;
+    }
+
+    @Override
+    public boolean setParentMod(ModData parent) {
+        this.parent = parent;
+        return true;
     }
 }

@@ -187,6 +187,12 @@ public class CurseforgeFile extends GenericModVersion {
         return parentMod;
     }
 
+    @Override
+    public boolean setParentMod(ModData parentMod) {
+        this.parentMod = parentMod;
+        return true;
+    }
+
     public int getAlternateFileId() {
         return alternateFileId;
     }
@@ -337,9 +343,5 @@ public class CurseforgeFile extends GenericModVersion {
 
     public void setSortableGameVersions(List<CurseforgeSortableGameVersion> sortableGameVersions) {
         this.sortableGameVersions = sortableGameVersions;
-    }
-
-    public void setParentMod(ModData parentMod) {
-        this.parentMod = parentMod;
     }
 }

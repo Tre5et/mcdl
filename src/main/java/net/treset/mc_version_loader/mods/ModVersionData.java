@@ -15,6 +15,7 @@ public interface ModVersionData {
     boolean supportsGameVersion(String version);
     List<ModData> getRequiredDependencies();
     ModData getParentMod();
+    boolean setParentMod(ModData parent);
 
-    boolean isEqual(ModVersionData otherVersion);
+    boolean isSame(ModVersionData otherVersion);
 }

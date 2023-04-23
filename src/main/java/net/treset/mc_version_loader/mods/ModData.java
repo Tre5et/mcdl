@@ -18,6 +18,7 @@ public interface ModData {
     String getSlug();
     String getName();
     List<ModVersionData> getVersions();
+    List<ModVersionData> getVersions(String gameVersion, String modLoader);
 
-    boolean isEqual(ModData otherMod);
+    boolean isSame(ModData otherMod);
 }

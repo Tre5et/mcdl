@@ -11,13 +11,13 @@ import java.util.List;
 public class LauncherModDownload {
     private String date;
     private String provider;
-    private String url;
+    private String id;
     private String version;
 
-    public LauncherModDownload(String date, String provider, String url, String version) {
+    public LauncherModDownload(String date, String provider, String id, String version) {
         this.date = date;
         this.provider = provider;
-        this.url = url;
+        this.id = id;
         this.version = version;
     }
 
@@ -25,7 +25,7 @@ public class LauncherModDownload {
         return new LauncherModDownload(
                 JsonUtils.getAsString(downloadObj, "date"),
                 JsonUtils.getAsString(downloadObj, "provider"),
-                JsonUtils.getAsString(downloadObj, "url"),
+                JsonUtils.getAsString(downloadObj, "id"),
                 JsonUtils.getAsString(downloadObj, "version")
         );
     }
@@ -57,12 +57,12 @@ public class LauncherModDownload {
         this.provider = provider;
     }
 
-    public String getUrl() {
-        return url;
+    public String getId() {
+        return id;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getVersion() {
