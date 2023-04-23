@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.fabric;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 public class FabricLoaderData {
     private int build;
     private String maven;
@@ -13,6 +16,16 @@ public class FabricLoaderData {
         this.separator = separator;
         this.stable = stable;
         this.version = version;
+    }
+
+    public static FabricLoaderData fromJson(JsonObject loaderObj) {
+        return new FabricLoaderData(
+                JsonUtils.getAsInt(loaderObj, "build"),
+                JsonUtils.getAsString(loaderObj, "maven"),
+                JsonUtils.getAsString(loaderObj, "separator"),
+                JsonUtils.getAsBoolean(loaderObj, "stable"),
+                JsonUtils.getAsString(loaderObj, "version")
+        );
     }
 
     public int getBuild() {

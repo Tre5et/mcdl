@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 public class MinecraftAssetIndex {
     private String id;
     private String cha1;
@@ -13,6 +16,16 @@ public class MinecraftAssetIndex {
         this.size = size;
         this.totalSize = totalSize;
         this.url = url;
+    }
+
+    public static MinecraftAssetIndex fromJson(JsonObject assetIndexObj) {
+        return new MinecraftAssetIndex(
+                JsonUtils.getAsString(assetIndexObj, "id"),
+                JsonUtils.getAsString(assetIndexObj, "sha1"),
+                JsonUtils.getAsInt(assetIndexObj, "size"),
+                JsonUtils.getAsInt(assetIndexObj, "totalSize"),
+                JsonUtils.getAsString(assetIndexObj, "url")
+        );
     }
 
     public String getId() {

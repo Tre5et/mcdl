@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.fabric;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 public class FabricIntermediaryData {
     private String maven;
     private boolean stable;
@@ -9,6 +12,14 @@ public class FabricIntermediaryData {
         this.maven = maven;
         this.stable = stable;
         this.version = version;
+    }
+
+    public static FabricIntermediaryData fromJson(JsonObject intermediaryObj) {
+        return new FabricIntermediaryData(
+                JsonUtils.getAsString(intermediaryObj, "maven"),
+                JsonUtils.getAsBoolean(intermediaryObj, "stable"),
+                JsonUtils.getAsString(intermediaryObj, "version")
+        );
     }
 
     public String getMaven() {

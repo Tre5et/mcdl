@@ -1,5 +1,13 @@
 package net.treset.mc_version_loader.fabric;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class FabricLibrary {
     private String name;
     private String url;
@@ -9,6 +17,24 @@ public class FabricLibrary {
     public FabricLibrary(String name, String url) {
         this.name = name;
         this.url = url;
+    }
+
+    public static FabricLibrary fromJson(JsonObject libraryObj) {
+        return new FabricLibrary(
+                JsonUtils.getAsString(libraryObj, "name"),
+                JsonUtils.getAsString(libraryObj, "url")
+        );
+    }
+
+    public static List<FabricLibrary> parseFabricLibraries(JsonArray libraryArray) {
+        List<FabricLibrary> libraries = new ArrayList<>();
+        if(libraryArray != null) {
+            for(JsonElement e : libraryArray) {
+                JsonObject eObj = JsonUtils.getAsJsonObject(e);
+                libraries.add(fromJson(eObj));
+            }
+        }
+        return libraries;
     }
 
     public String getName() {

@@ -1,8 +1,20 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
-import java.util.List;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.mods.GenericModVersion;
+import net.treset.mc_version_loader.mods.ModData;
 
-public class CurseforgeFile {
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ForkJoinPool;
+
+public class CurseforgeFile extends GenericModVersion {
     private int alternateFileId;
     private List<CurseforgeDependency> dependencies;
     private String displayName;
@@ -23,8 +35,9 @@ public class CurseforgeFile {
     private List<CurseforgeModule> modules;
     private int releaseType;
     private List<CurseforgeSortableGameVersion> sortableGameVersions;
+    private ModData parentMod;
 
-    public CurseforgeFile(int alternateFileId, List<CurseforgeDependency> dependencies, String displayName, int downloadCount, String downloadUrl, String fileDate, int fileFingerprint, int fileLength, String fileName, int fileStatus, int gameId, List<String> gameVersions, List<CurseforgeHash> hashes, int id, boolean isAvailable, boolean isServerPack, int modId, List<CurseforgeModule> modules, int releaseType, List<CurseforgeSortableGameVersion> sortableGameVersions) {
+    public CurseforgeFile(int alternateFileId, List<CurseforgeDependency> dependencies, String displayName, int downloadCount, String downloadUrl, String fileDate, int fileFingerprint, int fileLength, String fileName, int fileStatus, int gameId, List<String> gameVersions, List<CurseforgeHash> hashes, int id, boolean isAvailable, boolean isServerPack, int modId, List<CurseforgeModule> modules, int releaseType, List<CurseforgeSortableGameVersion> sortableGameVersions, ModData parentMod) {
         this.alternateFileId = alternateFileId;
         this.dependencies = dependencies;
         this.displayName = displayName;
@@ -45,6 +58,133 @@ public class CurseforgeFile {
         this.modules = modules;
         this.releaseType = releaseType;
         this.sortableGameVersions = sortableGameVersions;
+        this.parentMod = parentMod;
+    }
+
+    public static CurseforgeFile fromJson(JsonObject fileObj, ModData parentMod) {
+        return new CurseforgeFile(
+                JsonUtils.getAsInt(fileObj, "alternateFileId"),
+                CurseforgeDependency.parseCurseforgeDependencies(JsonUtils.getAsJsonArray(fileObj, "dependencies")),
+                JsonUtils.getAsString(fileObj, "displayName"),
+                JsonUtils.getAsInt(fileObj, "downloadCount"),
+                JsonUtils.getAsString(fileObj, "downloadUrl"),
+                JsonUtils.getAsString(fileObj, "fileDate"),
+                JsonUtils.getAsInt(fileObj, "fileFingerprint"),
+                JsonUtils.getAsInt(fileObj, "fileLength"),
+                JsonUtils.getAsString(fileObj, "fileName"),
+                JsonUtils.getAsInt(fileObj, "fileStatus"),
+                JsonUtils.getAsInt(fileObj, "gameId"),
+                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(fileObj, "gameVersions")),
+                CurseforgeHash.parseCursefprgeHashes(JsonUtils.getAsJsonArray(fileObj, "hashes")),
+                JsonUtils.getAsInt(fileObj, "id"),
+                JsonUtils.getAsBoolean(fileObj, "isAvailable"),
+                JsonUtils.getAsBoolean(fileObj, "isServerPack"),
+                JsonUtils.getAsInt(fileObj, "modId"),
+                CurseforgeModule.parseCurseforgeModules(JsonUtils.getAsJsonArray(fileObj, "modules")),
+                JsonUtils.getAsInt(fileObj, "releaseType"),
+                CurseforgeSortableGameVersion.parseCurseforgeSortableGameVersion(JsonUtils.getAsJsonArray(fileObj, "sortableGameVersions")),
+                parentMod
+        );
+    }
+
+    public static List<CurseforgeFile> parseCurseforgeFiles(JsonArray filesArray, ModData parentMod) {
+        List<CurseforgeFile> files = new ArrayList<>();
+        if(filesArray != null) {
+            for(JsonElement e : filesArray) {
+                files.add(fromJson(JsonUtils.getAsJsonObject(e), parentMod));
+            }
+        }
+        return files;
+    }
+
+    public static List<CurseforgeFile> parseCurseforgeFiles(String json, ModData parentMod) {
+        JsonObject filesObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
+        return parseCurseforgeFiles(JsonUtils.getAsJsonArray(filesObj, "data"), parentMod);
+    }
+
+
+    @Override
+    public LocalDateTime getDatePublished() {
+        return FormatUtils.parseLocalDateTime(fileDate);
+    }
+
+    @Override
+    public int getDownloads() {
+        return downloadCount;
+    }
+
+    @Override
+    public String getName() {
+        return displayName;
+    }
+
+    @Override
+    public String getVersionNumber() {
+        return getName().replaceAll("[a-zA-Z]", "").trim().replaceAll("\\s*", "-");
+    }
+
+    @Override
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    @Override
+    public List<String> getModLoaders() {
+        if(gameVersions == null) {
+            return null;
+        }
+        List<String> out = new ArrayList<>();
+        for(String v : gameVersions) {
+            char[] chars = v.toCharArray();
+            boolean loader = true;
+            for(char c : chars) {
+                if(Character.isDigit(c)) {
+                    loader = false;
+                    break;
+                }
+            }
+            if(loader) {
+                out.add(v.toLowerCase());
+            }
+        }
+        return out;
+    }
+
+    @Override
+    public List<String> getGameVersions() {
+        if(gameVersions == null) {
+            return null;
+        }
+        List<String> out = new ArrayList<>();
+        for(String v : gameVersions) {
+            char[] chars = v.toCharArray();
+            for(char c : chars) {
+                if(Character.isDigit(c)) {
+                    out.add(v.toLowerCase());
+                    break;
+                }
+            }
+        }
+        return out;
+    }
+
+    @Override
+    public List<ModData> getRequiredDependencies() {
+        if(dependencies == null) {
+            return null;
+        }
+        List<ModData> out = new ArrayList<>();
+        for(CurseforgeDependency d : dependencies) {
+            if(d != null && d.getRelationType() == 3) {
+                // TODO
+            }
+        }
+        return out;
+    }
+
+    @Override
+    public ModData getParentMod() {
+        return parentMod;
     }
 
     public int getAlternateFileId() {
@@ -77,10 +217,6 @@ public class CurseforgeFile {
 
     public void setDownloadCount(int downloadCount) {
         this.downloadCount = downloadCount;
-    }
-
-    public String getDownloadUrl() {
-        return downloadUrl;
     }
 
     public void setDownloadUrl(String downloadUrl) {
@@ -133,10 +269,6 @@ public class CurseforgeFile {
 
     public void setGameId(int gameId) {
         this.gameId = gameId;
-    }
-
-    public List<String> getGameVersions() {
-        return gameVersions;
     }
 
     public void setGameVersions(List<String> gameVersions) {
@@ -205,5 +337,9 @@ public class CurseforgeFile {
 
     public void setSortableGameVersions(List<CurseforgeSortableGameVersion> sortableGameVersions) {
         this.sortableGameVersions = sortableGameVersions;
+    }
+
+    public void setParentMod(ModData parentMod) {
+        this.parentMod = parentMod;
     }
 }

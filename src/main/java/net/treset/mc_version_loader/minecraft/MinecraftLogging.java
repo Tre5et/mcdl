@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 public class MinecraftLogging {
     private String clientArgument;
     private String clientFileId;
@@ -15,6 +18,20 @@ public class MinecraftLogging {
         this.clientFileSize = clientFileSize;
         this.clientFileUrl = clientFileUrl;
         this.clientType = clientType;
+    }
+
+    public static MinecraftLogging fromJson(JsonObject loggingObj) {
+        JsonObject clientObj = JsonUtils.getAsJsonObject(loggingObj, "client");
+        JsonObject fileObj = JsonUtils.getAsJsonObject(clientObj, "file");
+
+        return new MinecraftLogging(
+                JsonUtils.getAsString(clientObj, "argument"),
+                JsonUtils.getAsString(fileObj, "id"),
+                JsonUtils.getAsString(fileObj, "sha1"),
+                JsonUtils.getAsInt(fileObj, "size"),
+                JsonUtils.getAsString(fileObj, "url"),
+                JsonUtils.getAsString(clientObj, "type")
+        );
     }
 
     public String getClientArgument() {

@@ -1,6 +1,10 @@
 package net.treset.mc_version_loader.launcher;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.os.OsDetails;
 
 import java.util.ArrayList;
@@ -23,6 +27,26 @@ public class LauncherLaunchArgument {
         this.osVersion = osVersion;
         replacementValues = FormatUtils.findMatches(argument, "\\$\\{([a-zA-z_\\-\\d]*)\\}");
         parsedArgument = argument;
+    }
+
+    public static LauncherLaunchArgument fromJson(JsonObject argumentObj) {
+        return new LauncherLaunchArgument(
+                JsonUtils.getAsString(argumentObj, "argument"),
+                JsonUtils.getAsString(argumentObj, "feature"),
+                JsonUtils.getAsString(argumentObj, "os_name"),
+                JsonUtils.getAsString(argumentObj, "os_version")
+        );
+    }
+
+    public static List<LauncherLaunchArgument> parseArguments(JsonArray argumentsArray) {
+        if(argumentsArray == null) {
+            return null;
+        }
+        List<LauncherLaunchArgument> out = new ArrayList<>();
+        for(JsonElement e : argumentsArray) {
+            out.add(fromJson(JsonUtils.getAsJsonObject(e)));
+        }
+        return out;
     }
 
     public boolean replace(Map<String, String> replacements) {

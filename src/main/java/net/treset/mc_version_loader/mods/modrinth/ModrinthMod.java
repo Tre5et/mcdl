@@ -1,10 +1,12 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
+import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.mods.GenericModData;
 import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ModrinthMod extends GenericModData {
@@ -146,8 +148,8 @@ public class ModrinthMod extends GenericModData {
 
     @Override
     public List<ModVersionData> getVersions() {
-        // TODO
-        return null;
+        List<ModrinthVersion> modrinthVersions = VersionLoader.getModrinthVersion(id, this, List.of(), List.of());
+        return new ArrayList<>(modrinthVersions);
     }
 
     public List<String> getAdditionalCategories() {

@@ -4,6 +4,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -113,5 +115,16 @@ public class JsonUtils {
             LOGGER.log(Level.WARNING, "Unable to parse json", e);
         }
         return null;
+    }
+
+    public static List<String> parseJsonStringArray(JsonArray jsonStringArray) {
+        if(jsonStringArray == null) {
+            return null;
+        }
+        List<String> out = new ArrayList<>();
+        for(JsonElement e : jsonStringArray) {
+            out.add(getAsString(e));
+        }
+        return out;
     }
 }

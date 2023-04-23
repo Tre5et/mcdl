@@ -1,5 +1,13 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class CurseforgeCategory {
     private int classId;
     private String dateModified;
@@ -23,6 +31,31 @@ public class CurseforgeCategory {
         this.parentCategoryId = parentCategoryId;
         this.slug = slug;
         this.url = url;
+    }
+
+    public static CurseforgeCategory fromJson(JsonObject categoryObj) {
+        return new CurseforgeCategory(
+                JsonUtils.getAsInt(categoryObj, "classId"),
+                JsonUtils.getAsString(categoryObj, "dateModified"),
+                JsonUtils.getAsInt(categoryObj, "gameId"),
+                JsonUtils.getAsString(categoryObj, "iconUrl"),
+                JsonUtils.getAsInt(categoryObj, "id"),
+                JsonUtils.getAsBoolean(categoryObj, "isClass"),
+                JsonUtils.getAsString(categoryObj, "name"),
+                JsonUtils.getAsInt(categoryObj, "parentCategoryId"),
+                JsonUtils.getAsString(categoryObj, "slug"),
+                JsonUtils.getAsString(categoryObj, "url")
+        );
+    }
+
+    public static List<CurseforgeCategory> parseCurseforgeCategories(JsonArray categoriesArray) {
+        List<CurseforgeCategory> categories = new ArrayList<>();
+        if(categoriesArray != null) {
+            for(JsonElement e : categoriesArray) {
+                categories.add(fromJson(JsonUtils.getAsJsonObject(e)));
+            }
+        }
+        return categories;
     }
 
     public int getClassId() {

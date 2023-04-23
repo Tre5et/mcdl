@@ -1,5 +1,7 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.os.OsDetails;
 
 import java.util.List;
@@ -22,6 +24,33 @@ public class MinecraftRule {
         this.osVersion = osVersion;
         this.feature = feature;
         this.featureState = featureState;
+    }
+
+    public static MinecraftRule fromJson(JsonObject ruleObj) {
+        if(ruleObj == null) {
+            return new MinecraftRule(null, null, null, null, null, false);
+        }
+        JsonObject featuresObj = JsonUtils.getAsJsonObject(ruleObj, "features");
+        MinecraftLaunchFeature feature = MinecraftLaunchFeature.NONE;
+        boolean featureValue = false;
+        if(featuresObj != null) {
+            if(featuresObj.has("has_custom_resolution")) {
+                feature = MinecraftLaunchFeature.HAS_CUSTOM_RESOLUTION;
+                featureValue = JsonUtils.getAsBoolean(featuresObj, "has_custom_resolution");
+            } else if(featuresObj.has("is_demo_user")) {
+                feature = MinecraftLaunchFeature.IS_DEMO_USER;
+                featureValue = JsonUtils.getAsBoolean(featuresObj, "is_demo_user");
+            }
+        }
+        JsonObject osObj = JsonUtils.getAsJsonObject(ruleObj, "os");
+        return new MinecraftRule(
+                JsonUtils.getAsString(ruleObj, "action"),
+                JsonUtils.getAsString(osObj, "name"),
+                JsonUtils.getAsString(osObj, "arch"),
+                JsonUtils.getAsString(osObj, "version"),
+                feature,
+                featureValue
+        );
     }
 
     public boolean isApplicable(List<MinecraftLaunchFeature> activeFeatures) {

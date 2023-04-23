@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 public class ModrinthVersionFile {
     private String fileType;
     private String filename;
@@ -17,6 +20,19 @@ public class ModrinthVersionFile {
         this.primary = primary;
         this.size = size;
         this.url = url;
+    }
+
+    public static ModrinthVersionFile fromJson(JsonObject fileObj) {
+        JsonObject hashesObj = JsonUtils.getAsJsonObject(fileObj, "hashes");
+        return new ModrinthVersionFile(
+            JsonUtils.getAsString(fileObj, "file_type"),
+            JsonUtils.getAsString(fileObj, "filename"),
+            JsonUtils.getAsString(hashesObj, "sha1"),
+            JsonUtils.getAsString(hashesObj, "sha512"),
+            JsonUtils.getAsBoolean(fileObj, "primary"),
+            JsonUtils.getAsInt(fileObj, "size"),
+            JsonUtils.getAsString(fileObj, "url")
+        );
     }
 
     public String getFileType() {

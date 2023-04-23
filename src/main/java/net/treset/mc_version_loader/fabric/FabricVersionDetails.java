@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.fabric;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 public class FabricVersionDetails {
     private FabricIntermediaryData intermediary;
     private FabricLauncherMeta launcherMeta;
@@ -9,6 +12,15 @@ public class FabricVersionDetails {
         this.intermediary = intermediary;
         this.launcherMeta = launcherMeta;
         this.loader = loader;
+    }
+
+    public static FabricVersionDetails fromJson(String versionJson) {
+        JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(versionJson));
+        return new FabricVersionDetails(
+                FabricIntermediaryData.fromJson(JsonUtils.getAsJsonObject(versionObj, "intermediary")),
+                FabricLauncherMeta.fromJson(JsonUtils.getAsJsonObject(versionObj, "launcherMeta")),
+                FabricLoaderData.fromJson(JsonUtils.getAsJsonObject(versionObj, "loader"))
+        );
     }
 
     public FabricIntermediaryData getIntermediary() {

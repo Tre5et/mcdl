@@ -1,5 +1,13 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class CurseforgeImage {
     private String description;
     private int id;
@@ -15,6 +23,27 @@ public class CurseforgeImage {
         this.thumbnailUrl = thumbnailUrl;
         this.title = title;
         this.url = url;
+    }
+
+    public static CurseforgeImage fromJson(JsonObject imageObj) {
+        return new CurseforgeImage(
+                JsonUtils.getAsString(imageObj, "description"),
+                JsonUtils.getAsInt(imageObj, "id"),
+                JsonUtils.getAsInt(imageObj, "modId"),
+                JsonUtils.getAsString(imageObj, "thumbnailUrl"),
+                JsonUtils.getAsString(imageObj, "title"),
+                JsonUtils.getAsString(imageObj, "url")
+        );
+    }
+
+    public static List<CurseforgeImage> parseCurseforgeImages(JsonArray imageArray) {
+        List<CurseforgeImage> images = new ArrayList<>();
+        if(imageArray != null) {
+            for(JsonElement e : imageArray) {
+                images.add(fromJson(JsonUtils.getAsJsonObject(e)));
+            }
+        }
+        return images;
     }
 
     public String getDescription() {

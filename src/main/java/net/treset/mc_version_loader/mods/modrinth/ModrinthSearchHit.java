@@ -1,11 +1,15 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.GenericModData;
 import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class ModrinthSearchHit extends GenericModData {
     private String author;
@@ -54,65 +58,103 @@ public class ModrinthSearchHit extends GenericModData {
         this.versions = versions;
     }
 
-    // TODO
+    public static ModrinthSearchHit fromJson(JsonObject hitObj) {
+        return new ModrinthSearchHit(
+                JsonUtils.getAsString(hitObj, "author"),
+                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(hitObj, "categories")),
+                JsonUtils.getAsString(hitObj, "client_side"),
+                JsonUtils.getAsInt(hitObj, "color"),
+                JsonUtils.getAsString(hitObj, "date_created"),
+                JsonUtils.getAsString(hitObj, "date_modified"),
+                JsonUtils.getAsString(hitObj, "description"),
+                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(hitObj, "display_categories")),
+                JsonUtils.getAsInt(hitObj, "downloads"),
+                JsonUtils.getAsString(hitObj, "featured_gallery"),
+                JsonUtils.getAsInt(hitObj, "follows"),
+                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(hitObj, "gallery")),
+                JsonUtils.getAsString(hitObj, "icon_url"),
+                JsonUtils.getAsString(hitObj, "latest_version"),
+                JsonUtils.getAsString(hitObj, "license"),
+                JsonUtils.getAsString(hitObj, "project_id"),
+                JsonUtils.getAsString(hitObj, "project_type"),
+                JsonUtils.getAsString(hitObj, "server_side"),
+                JsonUtils.getAsString(hitObj, "slug"),
+                JsonUtils.getAsString(hitObj, "title"),
+                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(hitObj, "versions"))
+        );
+    }
+
     @Override
     public List<String> getAuthors() {
-        return null;
+        return List.of(author);
     }
 
     @Override
     public List<String> getCategories() {
-        return null;
+        return categories;
     }
 
     @Override
     public LocalDateTime getDateCreated() {
-        return null;
+        return FormatUtils.parseLocalDateTime(dateCreated);
     }
 
     @Override
     public LocalDateTime getDateModified() {
-        return null;
+        return FormatUtils.parseLocalDateTime(dateModified);
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return description;
     }
 
     @Override
     public int getDownloadsCount() {
-        return 0;
+        return downloads;
     }
 
     @Override
     public String getIconUrl() {
-        return null;
+        return iconUrl;
     }
 
     @Override
     public List<String> getGameVersions() {
-        return null;
+        return versions;
     }
 
     @Override
     public List<String> getModLoaders() {
-        return null;
+        if(categories == null) {
+            return null;
+        }
+        List<String> out = new ArrayList<>();
+        for(String c : categories) {
+            if(out.size() >= 2) {
+                break;
+            }
+            if(c != null && (c.equals("fabric") || c.equals("forge"))) {
+                out.add(c);
+            }
+        }
+        return out;
     }
 
     @Override
     public String getSlug() {
-        return null;
+        return slug;
     }
 
     @Override
     public String getName() {
-        return null;
+        return name;
     }
 
     @Override
     public List<ModVersionData> getVersions() {
-        return null;
+        List<ModrinthVersion> modrinthVersions = VersionLoader.getModrinthVersion(projectId, this, List.of(), List.of());
+        return new ArrayList<>(modrinthVersions);
     }
 
     public String getAuthor() {

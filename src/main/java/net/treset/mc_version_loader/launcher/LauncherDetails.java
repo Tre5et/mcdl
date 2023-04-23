@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.launcher;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,6 +57,36 @@ public class LauncherDetails {
         this.versionComponentType = versionComponentType;
         this.versionDir = versionDir;
         this.versionType = versionType;
+    }
+
+    public static LauncherDetails fromJson(String json) {
+        JsonObject launcherDetailsObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
+        return new LauncherDetails(
+                JsonUtils.getAsString(launcherDetailsObj, "active_instance"),
+                JsonUtils.getAsString(launcherDetailsObj, "assets_dir"),
+                JsonUtils.getAsString(launcherDetailsObj, "gamedata_dir"),
+                JsonUtils.getAsString(launcherDetailsObj, "gamedata_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "instance_component_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "instances_dir"),
+                JsonUtils.getAsString(launcherDetailsObj, "instances_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "java_component_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "javas_dir"),
+                JsonUtils.getAsString(launcherDetailsObj, "javas_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "libraries_dir"),
+                JsonUtils.getAsString(launcherDetailsObj, "mods_component_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "mods_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "options_component_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "options_dir"),
+                JsonUtils.getAsString(launcherDetailsObj, "options_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "resourcepacks_component_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "resourcepacks_dir"),
+                JsonUtils.getAsString(launcherDetailsObj, "resourcepacks_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "saves_component_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "saves_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "version_component_type"),
+                JsonUtils.getAsString(launcherDetailsObj, "versions_dir"),
+                JsonUtils.getAsString(launcherDetailsObj, "versions_type")
+        );
     }
 
     public Map<String, LauncherManifestType> getTypeConversion() {

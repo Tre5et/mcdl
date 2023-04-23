@@ -1,5 +1,12 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class MinecraftVersion {
@@ -23,6 +30,33 @@ public class MinecraftVersion {
 
     public MinecraftVersion(String id, String type, String url) {
         this(-1, id, null, null, null, type, url);
+    }
+
+    public static MinecraftVersion fromJson(JsonObject versionObj) {
+        return new MinecraftVersion(
+                JsonUtils.getAsInt(versionObj, "complianceLevel"),
+                JsonUtils.getAsString(versionObj, "id"),
+                JsonUtils.getAsString(versionObj, "releaseTime"),
+                JsonUtils.getAsString(versionObj, "sha1"),
+                JsonUtils.getAsString(versionObj, "time"),
+                JsonUtils.getAsString(versionObj, "type"),
+                JsonUtils.getAsString(versionObj, "url")
+        );
+    }
+
+    public static List<MinecraftVersion> parseVersionManifest(String manifestJson) {
+        List<MinecraftVersion> out = new ArrayList<>();
+
+        JsonElement manifest = JsonUtils.parseJson(manifestJson);
+        JsonObject manifestObj = JsonUtils.getAsJsonObject(manifest);
+        JsonArray versionArray = JsonUtils.getAsJsonArray(manifestObj, "versions");
+        if(versionArray != null) {
+            for (JsonElement v : versionArray) {
+                out.add(fromJson(JsonUtils.getAsJsonObject(v)));
+            }
+        }
+
+        return out;
     }
 
     public boolean isRelease() {

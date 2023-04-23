@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.launcher;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +23,24 @@ public class LauncherManifest {
         this.name = name;
         this.includedFiles = includedFiles;
         this.components = components;
+    }
+
+    public static LauncherManifest fromJson(String json, Map<String, LauncherManifestType> typeConversion) {
+        JsonObject manifestObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
+        return new LauncherManifest(
+                JsonUtils.getAsString(manifestObj, "type"),
+                typeConversion,
+                JsonUtils.getAsString(manifestObj, "id"),
+                JsonUtils.getAsString(manifestObj, "details"),
+                JsonUtils.getAsString(manifestObj, "prefix"),
+                JsonUtils.getAsString(manifestObj, "name"),
+                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(manifestObj, "included_files")),
+                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(manifestObj, "components"))
+        );
+    }
+
+    public static LauncherManifest fromJson(String json) {
+        return fromJson(json, LauncherManifestTypeUtils.getDefaultConversion());
     }
 
     public LauncherManifestType getType() {

@@ -1,15 +1,21 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class CurseforgeSearch {
-    private List<CurseforgeSearchData> data;
+    private List<CurseforgeMod> data;
     private int paginationIndex;
     private int pageSize;
     private int resultsCount;
     private int totalResults;
 
-    public CurseforgeSearch(List<CurseforgeSearchData> data, int paginationIndex, int pageSize, int resultsCount, int totalResults) {
+    public CurseforgeSearch(List<CurseforgeMod> data, int paginationIndex, int pageSize, int resultsCount, int totalResults) {
         this.data = data;
         this.paginationIndex = paginationIndex;
         this.pageSize = pageSize;
@@ -17,11 +23,33 @@ public class CurseforgeSearch {
         this.totalResults = totalResults;
     }
 
-    public List<CurseforgeSearchData> getData() {
+    public static CurseforgeSearch fromJson(String json) {
+        JsonObject searchObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
+        JsonObject paginationObj = JsonUtils.getAsJsonObject(searchObj, "pagination");
+        return new CurseforgeSearch(
+                parseCurseforgeMods(JsonUtils.getAsJsonArray(searchObj, "data")),
+                JsonUtils.getAsInt(paginationObj, "index"),
+                JsonUtils.getAsInt(paginationObj, "pageSize"),
+                JsonUtils.getAsInt(paginationObj, "resultCount"),
+                JsonUtils.getAsInt(paginationObj, "totalCount")
+        );
+    }
+
+    private static List<CurseforgeMod> parseCurseforgeMods(JsonArray modsArray) {
+        List<CurseforgeMod> mods = new ArrayList<>();
+        if(modsArray != null) {
+            for(JsonElement e : modsArray) {
+                mods.add(CurseforgeMod.fromJson(JsonUtils.getAsJsonObject(e)));
+            }
+        }
+        return mods;
+    }
+
+    public List<CurseforgeMod> getData() {
         return data;
     }
 
-    public void setData(List<CurseforgeSearchData> data) {
+    public void setData(List<CurseforgeMod> data) {
         this.data = data;
     }
 

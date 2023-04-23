@@ -1,5 +1,13 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class CurseforgeFileIndex {
     private int fileId;
     private String filename;
@@ -15,6 +23,27 @@ public class CurseforgeFileIndex {
         this.gameVersionTypeId = gameVersionTypeId;
         this.modLoader = modLoader;
         this.releaseType = releaseType;
+    }
+
+    public static CurseforgeFileIndex fromJson(JsonObject indexObj) {
+        return new CurseforgeFileIndex(
+                JsonUtils.getAsInt(indexObj, "fileId"),
+                JsonUtils.getAsString(indexObj, "filename"),
+                JsonUtils.getAsString(indexObj, "gameVersion"),
+                JsonUtils.getAsInt(indexObj, "gameVersionTypeId"),
+                JsonUtils.getAsInt(indexObj, "modLoader"),
+                JsonUtils.getAsInt(indexObj, "releaseType")
+        );
+    }
+
+    public static List<CurseforgeFileIndex> parseCurseforgeFileIndexes(JsonArray indexArray) {
+        List<CurseforgeFileIndex> indexes = new ArrayList<>();
+        if(indexArray != null) {
+            for(JsonElement e : indexArray) {
+                indexes.add(fromJson(JsonUtils.getAsJsonObject(e)));
+            }
+        }
+        return indexes;
     }
 
     public int getFileId() {

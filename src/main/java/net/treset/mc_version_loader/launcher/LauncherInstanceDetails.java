@@ -1,8 +1,11 @@
 package net.treset.mc_version_loader.launcher;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 import java.util.List;
 
-public class LaucherInstanceDetails {
+public class LauncherInstanceDetails {
     private List<LauncherFeature> features;
     private List<String> ignoredFiles;
     private List<LauncherLaunchArgument> jvm_arguments;
@@ -12,7 +15,7 @@ public class LaucherInstanceDetails {
     private String savesComponent;
     private String versionComponent;
 
-    public LaucherInstanceDetails(List<LauncherFeature> features, List<String> ignoredFiles, List<LauncherLaunchArgument> jvm_arguments, String modsComponent, String optionsComponent, String resourcePacksComponent, String savesComponent, String versionComponent) {
+    public LauncherInstanceDetails(List<LauncherFeature> features, List<String> ignoredFiles, List<LauncherLaunchArgument> jvm_arguments, String modsComponent, String optionsComponent, String resourcePacksComponent, String savesComponent, String versionComponent) {
         this.features = features;
         this.ignoredFiles = ignoredFiles;
         this.jvm_arguments = jvm_arguments;
@@ -21,6 +24,20 @@ public class LaucherInstanceDetails {
         this.resourcePacksComponent = resourcePacksComponent;
         this.savesComponent = savesComponent;
         this.versionComponent = versionComponent;
+    }
+
+    public static LauncherInstanceDetails fromJson(String json) {
+        JsonObject instanceObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
+        return new LauncherInstanceDetails(
+                LauncherFeature.parseFeatures(JsonUtils.getAsJsonObject(instanceObj, "features")),
+                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(instanceObj, "ignored_files")),
+                LauncherLaunchArgument.parseArguments(JsonUtils.getAsJsonArray(instanceObj, "jvm_arguments")),
+                JsonUtils.getAsString(instanceObj, "mods_component"),
+                JsonUtils.getAsString(instanceObj, "options_component"),
+                JsonUtils.getAsString(instanceObj, "resourcepacks_component"),
+                JsonUtils.getAsString(instanceObj, "saves_component"),
+                JsonUtils.getAsString(instanceObj, "version_component")
+        );
     }
 
     public List<LauncherFeature> getFeatures() {

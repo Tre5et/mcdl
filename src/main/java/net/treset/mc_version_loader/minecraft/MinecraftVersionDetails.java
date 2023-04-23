@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +38,26 @@ public class MinecraftVersionDetails {
         this.downloads = downloads;
         this.libraries = libraries;
         this.logging = logging;
+    }
+
+    public static MinecraftVersionDetails fromJson(String jsonData) {
+        JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(jsonData));
+        return new MinecraftVersionDetails(
+                JsonUtils.getAsString(versionObj, "id"),
+                JsonUtils.getAsString(versionObj, "assets"),
+                JsonUtils.getAsInt(versionObj, "complianceLevel"),
+                JsonUtils.getAsString(versionObj, "mainClass"),
+                JsonUtils.getAsInt(versionObj, "minimumLauncherVersion"),
+                JsonUtils.getAsString(versionObj, "releaseTime"),
+                JsonUtils.getAsString(versionObj, "time"),
+                JsonUtils.getAsString(versionObj, "type"),
+                MinecraftLaunchArguments.fromJson(JsonUtils.getAsJsonObject(versionObj, "arguments")),
+                MinecraftJavaVersion.fromJson(JsonUtils.getAsJsonObject(versionObj, "javaVersion")),
+                MinecraftAssetIndex.fromJson(JsonUtils.getAsJsonObject(versionObj, "assetIndex")),
+                MinecraftFileDownloads.fromJson(JsonUtils.getAsJsonObject(versionObj, "downloads")),
+                MinecraftLibrary.parseLibraries(JsonUtils.getAsJsonArray(versionObj, "libraries")),
+                MinecraftLogging.fromJson(JsonUtils.getAsJsonObject(versionObj, "logging"))
+        );
     }
 
     public List<MinecraftLibrary> getActiveLibraries(List<MinecraftLaunchFeature> activeFeatures) {

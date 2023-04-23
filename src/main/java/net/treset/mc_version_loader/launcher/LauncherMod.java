@@ -1,5 +1,11 @@
 package net.treset.mc_version_loader.launcher;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class LauncherMod {
@@ -15,6 +21,27 @@ public class LauncherMod {
         this.id = id;
         this.name = name;
         this.downloads = downloads;
+    }
+
+    public static LauncherMod fromJson(JsonObject modObj) {
+        return new LauncherMod(
+            JsonUtils.getAsString(modObj, "current_provider"),
+            JsonUtils.getAsBoolean(modObj, "enabled"),
+            JsonUtils.getAsString(modObj, "id"),
+            JsonUtils.getAsString(modObj, "name"),
+            LauncherModDownload.parseDownloads(JsonUtils.getAsJsonArray(modObj, "downloads"))
+        );
+    }
+
+    public static List<LauncherMod> parseMods(JsonArray modsArray) {
+        if(modsArray == null) {
+            return null;
+        }
+        List<LauncherMod> out = new ArrayList<>();
+        for(JsonElement e : modsArray) {
+            out.add(fromJson(JsonUtils.getAsJsonObject(e)));
+        }
+        return out;
     }
 
     public String getCurrentProvider() {

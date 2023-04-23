@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 public class MinecraftFileDownloads {
     private Downloads client;
     private Downloads clientMappings;
@@ -11,6 +14,22 @@ public class MinecraftFileDownloads {
         this.clientMappings = clientMappings;
         this.server = server;
         this.serverMappings = serverMappings;
+    }
+
+    public static MinecraftFileDownloads fromJson(JsonObject downloadsObj) {
+        JsonObject clientObj = JsonUtils.getAsJsonObject(downloadsObj, "client");
+        JsonObject clientMappingsObj = JsonUtils.getAsJsonObject(downloadsObj, "client_mappings");
+        JsonObject serverObj = JsonUtils.getAsJsonObject(downloadsObj, "server");
+        JsonObject serverMappingsObj = JsonUtils.getAsJsonObject(downloadsObj, "server_mappings");
+
+
+
+        return new MinecraftFileDownloads(
+                Downloads.parseVersionDownload(clientObj),
+                Downloads.parseVersionDownload(clientMappingsObj),
+                Downloads.parseVersionDownload(serverObj),
+                Downloads.parseVersionDownload(serverMappingsObj)
+        );
     }
 
     public Downloads getClient() {
@@ -54,6 +73,14 @@ public class MinecraftFileDownloads {
             this.sha1 = sha1;
             this.size = size;
             this.url = url;
+        }
+
+        public static Downloads parseVersionDownload(JsonObject downloadObj) {
+            return new Downloads(
+                    JsonUtils.getAsString(downloadObj, "sha1"),
+                    JsonUtils.getAsInt(downloadObj, "size"),
+                    JsonUtils.getAsString(downloadObj, "url")
+            );
         }
 
         public String getSha1() {

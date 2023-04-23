@@ -56,6 +56,6 @@ public class FormatUtils {
     }
 
     public static String formatVersionComparison(String input) {
-        return formatModComparison(input).replaceAll("[a-zA-Z]", "");
+        return formatModComparison(input).replaceAll("[a-zA-Z]", "").replaceAll("-", "").replaceAll("\\+", "");
     }
 }

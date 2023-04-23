@@ -1,5 +1,13 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class CurseforgeSortableGameVersion {
     private String gameVersion;
     private String gameVersionName;
@@ -13,6 +21,26 @@ public class CurseforgeSortableGameVersion {
         this.gameVersionPadded = gameVersionPadded;
         this.gameVersionReleaseDate = gameVersionReleaseDate;
         this.gameVersionTypeId = gameVersionTypeId;
+    }
+
+    public static CurseforgeSortableGameVersion fromJson(JsonObject versionObj) {
+        return new CurseforgeSortableGameVersion(
+                JsonUtils.getAsString(versionObj, "gameVersion"),
+                JsonUtils.getAsString(versionObj, "gameVersionName"),
+                JsonUtils.getAsString(versionObj, "gameVersionPadded"),
+                JsonUtils.getAsString(versionObj, "gameVersionReleaseDate"),
+                JsonUtils.getAsInt(versionObj, "gameVersionTypeId")
+        );
+    }
+
+    public static List<CurseforgeSortableGameVersion> parseCurseforgeSortableGameVersion(JsonArray versionArray) {
+        List<CurseforgeSortableGameVersion> versions = new ArrayList<>();
+        if(versionArray != null) {
+            for(JsonElement e : versionArray) {
+                versions.add(fromJson(JsonUtils.getAsJsonObject(e)));
+            }
+        }
+        return versions;
     }
 
     public String getGameVersion() {

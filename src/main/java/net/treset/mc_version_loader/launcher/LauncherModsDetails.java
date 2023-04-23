@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.launcher;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 import java.util.List;
 
 public class LauncherModsDetails {
@@ -11,6 +14,15 @@ public class LauncherModsDetails {
         this.modsType = modsType;
         this.modsVersion = modsVersion;
         this.mods = mods;
+    }
+
+    public static LauncherModsDetails fromJson(String json) {
+        JsonObject modsObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
+        return new LauncherModsDetails(
+                JsonUtils.getAsString(modsObj, "mods_type"),
+                JsonUtils.getAsString(modsObj, "mods_version"),
+                LauncherMod.parseMods(JsonUtils.getAsJsonArray(modsObj, "mods"))
+        );
     }
 
     public String getModsType() {

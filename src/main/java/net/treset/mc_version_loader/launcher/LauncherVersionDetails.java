@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.launcher;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 import java.util.List;
 
 public class LauncherVersionDetails {
@@ -21,6 +24,20 @@ public class LauncherVersionDetails {
         this.libraries = libraries;
         this.mainClass = mainClass;
         this.mainFile = mainFile;
+    }
+
+    public static LauncherVersionDetails fromJson(String json) {
+        JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
+        return new LauncherVersionDetails(
+                JsonUtils.getAsString(versionObj, "assets"),
+                JsonUtils.getAsString(versionObj, "depends"),
+                LauncherLaunchArgument.parseArguments(JsonUtils.getAsJsonArray(versionObj, "game_arguments")),
+                LauncherLaunchArgument.parseArguments(JsonUtils.getAsJsonArray(versionObj, "jvm_arguments")),
+                JsonUtils.getAsString(versionObj, "java"),
+                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(versionObj, "libraries")),
+                JsonUtils.getAsString(versionObj, "main_class"),
+                JsonUtils.getAsString(versionObj, "main_file")
+        );
     }
 
     public String getAssets() {

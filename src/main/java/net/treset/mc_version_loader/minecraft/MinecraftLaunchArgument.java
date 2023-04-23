@@ -1,7 +1,12 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.json.JsonUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MinecraftLaunchArgument {
@@ -17,6 +22,40 @@ public class MinecraftLaunchArgument {
         this.replaced = FormatUtils.matches(name, "\\$\\{(.*)\\}");
         this.replacementValue = FormatUtils.firstGroup(name, "\\$\\{(.*)\\}");
         this.gated = rules != null && !rules.isEmpty();
+    }
+
+    public static List<MinecraftLaunchArgument> parseArguments(JsonArray argumentArray) {
+        List<MinecraftLaunchArgument> arguments = new ArrayList<>();
+        if(argumentArray != null) {
+            for (JsonElement e : argumentArray) {
+                String ruleString = JsonUtils.getAsString(e);
+                if (ruleString != null) {
+                    arguments.add(new MinecraftLaunchArgument(ruleString, null));
+                } else {
+                    JsonObject eObj = JsonUtils.getAsJsonObject(e);
+                    JsonArray rules = JsonUtils.getAsJsonArray(eObj, "rules");
+                    List<MinecraftRule> currentRules = new ArrayList<>();
+                    if (rules != null) {
+                        for (JsonElement r : rules) {
+                            JsonObject rObj = JsonUtils.getAsJsonObject(r);
+                            currentRules.add(MinecraftRule.fromJson(rObj));
+                        }
+                    }
+                    JsonArray values = JsonUtils.getAsJsonArray(eObj, "value");
+                    if (values != null) {
+                        for (JsonElement v : values) {
+                            arguments.add(new MinecraftLaunchArgument(JsonUtils.getAsString(v), currentRules));
+                        }
+                    }
+                    String value = JsonUtils.getAsString(eObj, "value");
+                    if(value != null) {
+                        arguments.add(new MinecraftLaunchArgument(value, currentRules));
+                    }
+                }
+
+            }
+        }
+        return arguments;
     }
 
     public String getName() {

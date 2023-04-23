@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.fabric;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 import java.util.List;
 
 public class FabricLauncherMeta {
@@ -17,6 +20,20 @@ public class FabricLauncherMeta {
         this.mainClassClient = mainClassClient;
         this.mainClassServer = mainClassServer;
         this.version = version;
+    }
+
+    public static FabricLauncherMeta fromJson(JsonObject launcherMetaObj) {
+        JsonObject librariesObj = JsonUtils.getAsJsonObject(launcherMetaObj, "libraries");
+        JsonObject mainClassObj = JsonUtils.getAsJsonObject(launcherMetaObj, "mainClass");
+
+        return new FabricLauncherMeta(
+                FabricLibrary.parseFabricLibraries(JsonUtils.getAsJsonArray(librariesObj, "client")),
+                FabricLibrary.parseFabricLibraries(JsonUtils.getAsJsonArray(librariesObj, "common")),
+                FabricLibrary.parseFabricLibraries(JsonUtils.getAsJsonArray(librariesObj, "server")),
+                JsonUtils.getAsString(mainClassObj, "client"),
+                JsonUtils.getAsString(mainClassObj, "server"),
+                JsonUtils.getAsInt(launcherMetaObj, "version")
+        );
     }
 
     public List<FabricLibrary> getLibrariesClient() {

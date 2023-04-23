@@ -1,5 +1,9 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,6 +15,16 @@ public class MinecraftLaunchArguments {
     public MinecraftLaunchArguments(List<MinecraftLaunchArgument> game, List<MinecraftLaunchArgument> jvm) {
         this.game = game;
         this.jvm = jvm;
+    }
+
+    public static MinecraftLaunchArguments fromJson(JsonObject argumentsObj) {
+        JsonArray gameArgumentArray = JsonUtils.getAsJsonArray(argumentsObj, "game");
+        JsonArray jvmArgumentArray = JsonUtils.getAsJsonArray(argumentsObj, "jvm");
+
+        List<MinecraftLaunchArgument> gameArguments = MinecraftLaunchArgument.parseArguments(gameArgumentArray);
+        List<MinecraftLaunchArgument> jvmArguments = MinecraftLaunchArgument.parseArguments(jvmArgumentArray);
+
+        return new MinecraftLaunchArguments(gameArguments, jvmArguments);
     }
 
     public MinecraftLaunchCommand getLaunchCommand(String javaBaseDir, String gameLaunchFile, String mainClass, String libsDir, List<MinecraftLibrary> libraries, List<MinecraftLaunchFeature> features) {

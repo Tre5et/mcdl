@@ -1,5 +1,8 @@
 package net.treset.mc_version_loader.java;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
 import java.util.Objects;
 
 public class JavaFile {
@@ -15,6 +18,20 @@ public class JavaFile {
         this.type = type;
         this.lzma = lzma;
         this.raw = raw;
+    }
+
+    public static JavaFile fromJson(String name, JsonObject fileObj) {
+        JsonObject downloadsObj = JsonUtils.getAsJsonObject(fileObj, "downloads");
+        JsonObject lzmaObj = JsonUtils.getAsJsonObject(downloadsObj, "lzma");
+        JsonObject rawObj = JsonUtils.getAsJsonObject(downloadsObj, "raw");
+
+        return new JavaFile(
+                name,
+                JsonUtils.getAsBoolean(fileObj, "executable"),
+                JsonUtils.getAsString(fileObj, "type"),
+                JavaDownload.fromJson(lzmaObj),
+                JavaDownload.fromJson(rawObj)
+        );
     }
 
     public boolean isFile() {

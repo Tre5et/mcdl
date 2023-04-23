@@ -1,5 +1,11 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class MinecraftLibrary {
@@ -17,6 +23,36 @@ public class MinecraftLibrary {
         this.artifactSize = artifactSize;
         this.artifactUrl = artifactUrl;
         this.rules = rules;
+    }
+
+    public static MinecraftLibrary fromJson(JsonObject libraryObj) {
+        JsonObject artifactObj = JsonUtils.getAsJsonObject(JsonUtils.getAsJsonObject(libraryObj, "downloads"), "artifact");
+        JsonArray rulesArray = JsonUtils.getAsJsonArray(libraryObj, "rules");
+        List<MinecraftRule> rules = new ArrayList<>();
+        if(rulesArray != null) {
+            for(JsonElement e: rulesArray) {
+                rules.add(MinecraftRule.fromJson(JsonUtils.getAsJsonObject(e)));
+            }
+        }
+
+        return new MinecraftLibrary(
+                JsonUtils.getAsString(libraryObj, "name"),
+                JsonUtils.getAsString(artifactObj, "path"),
+                JsonUtils.getAsString(artifactObj, "sha1"),
+                JsonUtils.getAsInt(artifactObj, "size"),
+                JsonUtils.getAsString(artifactObj, "url"),
+                rules
+        );
+    }
+
+    public static List<MinecraftLibrary> parseLibraries(JsonArray librariesArray) {
+        List<MinecraftLibrary> libraries = new ArrayList<>();
+        if(librariesArray != null) {
+            for(JsonElement l : librariesArray) {
+                libraries.add(fromJson(JsonUtils.getAsJsonObject(l)));
+            }
+        }
+        return libraries;
     }
 
     public boolean isApplicable(List<MinecraftLaunchFeature> activeFeatures) {
