@@ -18,16 +18,6 @@ public class FabricLoaderData {
         this.version = version;
     }
 
-    public static FabricLoaderData fromJson(JsonObject loaderObj) {
-        return new FabricLoaderData(
-                JsonUtils.getAsInt(loaderObj, "build"),
-                JsonUtils.getAsString(loaderObj, "maven"),
-                JsonUtils.getAsString(loaderObj, "separator"),
-                JsonUtils.getAsBoolean(loaderObj, "stable"),
-                JsonUtils.getAsString(loaderObj, "version")
-        );
-    }
-
     public int getBuild() {
         return build;
     }

@@ -31,26 +31,26 @@ public class MinecraftVersionFileDownloader {
     }
 
     public static boolean downloadVersionLibrary(MinecraftLibrary library, File baseDir) {
-        if(library == null || library.getArtifactUrl() == null || library.getArtifactUrl().isBlank() || library.getArtifactPath() == null || library.getArtifactPath().isBlank() || baseDir == null || !baseDir.isDirectory()) {
+        if(library == null || library.getDownloads().getArtifacts().getUrl() == null || library.getDownloads().getArtifacts().getUrl().isBlank() || library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             LOGGER.log(Level.WARNING, "Unable to start library download; unmet requirements");
             return false;
         }
 
         URL downloadUrl;
         try {
-            downloadUrl = new URL(library.getArtifactUrl());
+            downloadUrl = new URL(library.getDownloads().getArtifacts().getUrl());
         } catch (MalformedURLException e) {
             LOGGER.log(Level.WARNING, "Unable to convert download url", e);
             return false;
         }
 
-        File outDir = new File(baseDir, library.getArtifactPath().substring(0, library.getArtifactPath().lastIndexOf('/')));
+        File outDir = new File(baseDir,library.getDownloads().getArtifacts().getPath().substring(0, library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
         if(!outDir.isDirectory() && !outDir.mkdirs()) {
             LOGGER.log(Level.WARNING, "Unable to make required dirs");
             return false;
         }
 
-        File outFile = new File(outDir, library.getArtifactPath().substring(library.getArtifactPath().lastIndexOf('/')));
+        File outFile = new File(outDir, library.getDownloads().getArtifacts().getPath().substring(library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
         return FileUtils.downloadFile(downloadUrl, outFile);
     }
 }

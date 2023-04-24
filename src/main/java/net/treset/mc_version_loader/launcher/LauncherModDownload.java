@@ -21,26 +21,6 @@ public class LauncherModDownload {
         this.version = version;
     }
 
-    public static LauncherModDownload fromJson(JsonObject downloadObj) {
-        return new LauncherModDownload(
-                JsonUtils.getAsString(downloadObj, "date"),
-                JsonUtils.getAsString(downloadObj, "provider"),
-                JsonUtils.getAsString(downloadObj, "id"),
-                JsonUtils.getAsString(downloadObj, "version")
-        );
-    }
-
-    public static List<LauncherModDownload> parseDownloads(JsonArray downloadsArray) {
-        if(downloadsArray == null) {
-            return null;
-        }
-        List<LauncherModDownload> out = new ArrayList<>();
-        for(JsonElement e : downloadsArray) {
-            out.add(fromJson(JsonUtils.getAsJsonObject(e)));
-        }
-        return out;
-    }
-
     public String getDate() {
         return date;
     }

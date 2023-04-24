@@ -6,74 +6,30 @@ import net.treset.mc_version_loader.json.JsonUtils;
 import java.util.List;
 
 public class FabricLauncherMeta {
-    private List<FabricLibrary> librariesClient;
-    private List<FabricLibrary> librariesCommon;
-    private List<FabricLibrary> librariesServer;
-    private String mainClassClient;
-    private String mainClassServer;
+    private FabricLauncherMetaLibraries libraries;
+    private FabricLauncherMetaMainClass mainClass;
     private int version;
 
-    public FabricLauncherMeta(List<FabricLibrary> librariesClient, List<FabricLibrary> librariesCommon, List<FabricLibrary> librariesServer, String mainClassClient, String mainClassServer, int version) {
-        this.librariesClient = librariesClient;
-        this.librariesCommon = librariesCommon;
-        this.librariesServer = librariesServer;
-        this.mainClassClient = mainClassClient;
-        this.mainClassServer = mainClassServer;
+    public FabricLauncherMeta(FabricLauncherMetaLibraries libraries, FabricLauncherMetaMainClass mainClass, int version) {
+        this.libraries = libraries;
+        this.mainClass = mainClass;
         this.version = version;
     }
 
-    public static FabricLauncherMeta fromJson(JsonObject launcherMetaObj) {
-        JsonObject librariesObj = JsonUtils.getAsJsonObject(launcherMetaObj, "libraries");
-        JsonObject mainClassObj = JsonUtils.getAsJsonObject(launcherMetaObj, "mainClass");
-
-        return new FabricLauncherMeta(
-                FabricLibrary.parseFabricLibraries(JsonUtils.getAsJsonArray(librariesObj, "client")),
-                FabricLibrary.parseFabricLibraries(JsonUtils.getAsJsonArray(librariesObj, "common")),
-                FabricLibrary.parseFabricLibraries(JsonUtils.getAsJsonArray(librariesObj, "server")),
-                JsonUtils.getAsString(mainClassObj, "client"),
-                JsonUtils.getAsString(mainClassObj, "server"),
-                JsonUtils.getAsInt(launcherMetaObj, "version")
-        );
+    public FabricLauncherMetaLibraries getLibraries() {
+        return libraries;
     }
 
-    public List<FabricLibrary> getLibrariesClient() {
-        return librariesClient;
+    public void setLibraries(FabricLauncherMetaLibraries libraries) {
+        this.libraries = libraries;
     }
 
-    public void setLibrariesClient(List<FabricLibrary> librariesClient) {
-        this.librariesClient = librariesClient;
+    public FabricLauncherMetaMainClass getMainClass() {
+        return mainClass;
     }
 
-    public List<FabricLibrary> getLibrariesCommon() {
-        return librariesCommon;
-    }
-
-    public void setLibrariesCommon(List<FabricLibrary> librariesCommon) {
-        this.librariesCommon = librariesCommon;
-    }
-
-    public List<FabricLibrary> getLibrariesServer() {
-        return librariesServer;
-    }
-
-    public void setLibrariesServer(List<FabricLibrary> librariesServer) {
-        this.librariesServer = librariesServer;
-    }
-
-    public String getMainClassClient() {
-        return mainClassClient;
-    }
-
-    public void setMainClassClient(String mainClassClient) {
-        this.mainClassClient = mainClassClient;
-    }
-
-    public String getMainClassServer() {
-        return mainClassServer;
-    }
-
-    public void setMainClassServer(String mainClassServer) {
-        this.mainClassServer = mainClassServer;
+    public void setMainClass(FabricLauncherMetaMainClass mainClass) {
+        this.mainClass = mainClass;
     }
 
     public int getVersion() {

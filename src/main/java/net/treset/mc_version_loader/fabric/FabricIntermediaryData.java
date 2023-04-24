@@ -14,14 +14,6 @@ public class FabricIntermediaryData {
         this.version = version;
     }
 
-    public static FabricIntermediaryData fromJson(JsonObject intermediaryObj) {
-        return new FabricIntermediaryData(
-                JsonUtils.getAsString(intermediaryObj, "maven"),
-                JsonUtils.getAsBoolean(intermediaryObj, "stable"),
-                JsonUtils.getAsString(intermediaryObj, "version")
-        );
-    }
-
     public String getMaven() {
         return maven;
     }

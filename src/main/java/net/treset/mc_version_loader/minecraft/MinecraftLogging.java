@@ -4,81 +4,101 @@ import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.JsonUtils;
 
 public class MinecraftLogging {
-    private String clientArgument;
-    private String clientFileId;
-    private String clientFileSha1;
-    private int clientFileSize;
-    private String clientFileUrl;
-    private String clientType;
 
-    public MinecraftLogging(String clientArgument, String clientFileId, String clientFileSha1, int clientFileSize, String clientFileUrl, String clientType) {
-        this.clientArgument = clientArgument;
-        this.clientFileId = clientFileId;
-        this.clientFileSha1 = clientFileSha1;
-        this.clientFileSize = clientFileSize;
-        this.clientFileUrl = clientFileUrl;
-        this.clientType = clientType;
+    private Client client;
+
+    public static class Client {
+
+        private String argument;
+        private File file;
+        private String type;
+
+        public static class File {
+            private String id;
+            private String sha1;
+            private int size;
+            private String url;
+
+            public File(String id, String sha1, int size, String url) {
+                this.id = id;
+                this.sha1 = sha1;
+                this.size = size;
+                this.url = url;
+            }
+
+            public String getId() {
+                return id;
+            }
+
+            public void setId(String id) {
+                this.id = id;
+            }
+
+            public String getSha1() {
+                return sha1;
+            }
+
+            public void setSha1(String sha1) {
+                this.sha1 = sha1;
+            }
+
+            public int getSize() {
+                return size;
+            }
+
+            public void setSize(int size) {
+                this.size = size;
+            }
+
+            public String getUrl() {
+                return url;
+            }
+
+            public void setUrl(String url) {
+                this.url = url;
+            }
+        }
+
+        public Client(String argument, File file, String type) {
+            this.argument = argument;
+            this.file = file;
+            this.type = type;
+        }
+
+        public String getArgument() {
+            return argument;
+        }
+
+        public void setArgument(String argument) {
+            this.argument = argument;
+        }
+
+        public File getFile() {
+            return file;
+        }
+
+        public void setFile(File file) {
+            this.file = file;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
     }
 
-    public static MinecraftLogging fromJson(JsonObject loggingObj) {
-        JsonObject clientObj = JsonUtils.getAsJsonObject(loggingObj, "client");
-        JsonObject fileObj = JsonUtils.getAsJsonObject(clientObj, "file");
-
-        return new MinecraftLogging(
-                JsonUtils.getAsString(clientObj, "argument"),
-                JsonUtils.getAsString(fileObj, "id"),
-                JsonUtils.getAsString(fileObj, "sha1"),
-                JsonUtils.getAsInt(fileObj, "size"),
-                JsonUtils.getAsString(fileObj, "url"),
-                JsonUtils.getAsString(clientObj, "type")
-        );
+    public MinecraftLogging(Client client) {
+        this.client = client;
     }
 
-    public String getClientArgument() {
-        return clientArgument;
+    public Client getClient() {
+        return client;
     }
 
-    public void setClientArgument(String clientArgument) {
-        this.clientArgument = clientArgument;
-    }
-
-    public String getClientFileId() {
-        return clientFileId;
-    }
-
-    public void setClientFileId(String clientFileId) {
-        this.clientFileId = clientFileId;
-    }
-
-    public String getClientFileSha1() {
-        return clientFileSha1;
-    }
-
-    public void setClientFileSha1(String clientFileSha1) {
-        this.clientFileSha1 = clientFileSha1;
-    }
-
-    public int getClientFileSize() {
-        return clientFileSize;
-    }
-
-    public void setClientFileSize(int clientFileSize) {
-        this.clientFileSize = clientFileSize;
-    }
-
-    public String getClientFileUrl() {
-        return clientFileUrl;
-    }
-
-    public void setClientFileUrl(String clientFileUrl) {
-        this.clientFileUrl = clientFileUrl;
-    }
-
-    public String getClientType() {
-        return clientType;
-    }
-
-    public void setClientType(String clientType) {
-        this.clientType = clientType;
+    public void setClient(Client client) {
+        this.client = client;
     }
 }

@@ -1,12 +1,15 @@
 package net.treset.mc_version_loader.java;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 
-import java.util.Objects;
+import java.util.*;
 
 public class JavaFile {
-    private String name;
+    private transient String name;
     private boolean executable;
     private String type;
     private JavaDownload lzma;
@@ -20,18 +23,26 @@ public class JavaFile {
         this.raw = raw;
     }
 
-    public static JavaFile fromJson(String name, JsonObject fileObj) {
-        JsonObject downloadsObj = JsonUtils.getAsJsonObject(fileObj, "downloads");
-        JsonObject lzmaObj = JsonUtils.getAsJsonObject(downloadsObj, "lzma");
-        JsonObject rawObj = JsonUtils.getAsJsonObject(downloadsObj, "raw");
+    public static List<JavaFile> fromJsonManifest(String jsonManifest) {
+        JsonObject manifestObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(jsonManifest));
+        JsonObject filesObj = JsonUtils.getAsJsonObject(manifestObj, "files");
+        Set<Map.Entry<String, JsonElement>> files = JsonUtils.getMembers(filesObj);
+        List<JavaFile> out = new ArrayList<>();
+        if(files != null) {
+            for(Map.Entry<String, JsonElement> f : files) {
+                out.add(JavaFile.fromJsonObject(f.getKey(), JsonUtils.getAsJsonObject(f.getValue())));
+            }
+        }
+        return out;
+    }
 
-        return new JavaFile(
-                name,
-                JsonUtils.getAsBoolean(fileObj, "executable"),
-                JsonUtils.getAsString(fileObj, "type"),
-                JavaDownload.fromJson(lzmaObj),
-                JavaDownload.fromJson(rawObj)
-        );
+    public static JavaFile fromJsonObject(String name, JsonObject jsonObject) {
+        JavaFile file = JsonUtils.getGson().fromJson(jsonObject, JavaFile.class);
+        JsonObject downloadsObj = JsonUtils.getAsJsonObject(jsonObject, "downloads");
+        file.setName(name);
+        file.setLzma(JavaDownload.fromJsonObject(JsonUtils.getAsJsonObject(downloadsObj, "lzma")));
+        file.setRaw(JavaDownload.fromJsonObject(JsonUtils.getAsJsonObject(downloadsObj, "raw")));
+        return file;
     }
 
     public boolean isFile() {

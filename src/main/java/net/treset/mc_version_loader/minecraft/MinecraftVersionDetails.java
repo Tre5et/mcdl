@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.minecraft;
 
 import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 
 import java.util.ArrayList;
@@ -16,7 +17,7 @@ public class MinecraftVersionDetails {
     private String releaseTime;
     private String time;
     private String type;
-    private MinecraftLaunchArguments arguments;
+    private MinecraftLaunchArguments launchArguments;
     private MinecraftJavaVersion javaVersion;
     private MinecraftAssetIndex assetIndex;
     private MinecraftFileDownloads downloads;
@@ -32,7 +33,7 @@ public class MinecraftVersionDetails {
         this.releaseTime = releaseTime;
         this.time = time;
         this.type = type;
-        this.arguments = command;
+        this.launchArguments = command;
         this.javaVersion = javaVersion;
         this.assetIndex = assetIndex;
         this.downloads = downloads;
@@ -41,26 +42,13 @@ public class MinecraftVersionDetails {
     }
 
     public static MinecraftVersionDetails fromJson(String jsonData) {
+        MinecraftVersionDetails details = GenericJsonParsable.fromJson(jsonData, MinecraftVersionDetails.class, JsonUtils.getGsonCamelCase());
         JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(jsonData));
-        return new MinecraftVersionDetails(
-                JsonUtils.getAsString(versionObj, "id"),
-                JsonUtils.getAsString(versionObj, "assets"),
-                JsonUtils.getAsInt(versionObj, "complianceLevel"),
-                JsonUtils.getAsString(versionObj, "mainClass"),
-                JsonUtils.getAsInt(versionObj, "minimumLauncherVersion"),
-                JsonUtils.getAsString(versionObj, "releaseTime"),
-                JsonUtils.getAsString(versionObj, "time"),
-                JsonUtils.getAsString(versionObj, "type"),
-                MinecraftLaunchArguments.fromJson(JsonUtils.getAsJsonObject(versionObj, "arguments")),
-                MinecraftJavaVersion.fromJson(JsonUtils.getAsJsonObject(versionObj, "javaVersion")),
-                MinecraftAssetIndex.fromJson(JsonUtils.getAsJsonObject(versionObj, "assetIndex")),
-                MinecraftFileDownloads.fromJson(JsonUtils.getAsJsonObject(versionObj, "downloads")),
-                MinecraftLibrary.parseLibraries(JsonUtils.getAsJsonArray(versionObj, "libraries")),
-                MinecraftLogging.fromJson(JsonUtils.getAsJsonObject(versionObj, "logging"))
-        );
+        details.setLaunchArguments(MinecraftLaunchArguments.fromJson(JsonUtils.getAsJsonObject(versionObj, "arguments")));
+        return details;
     }
 
-    public List<MinecraftLibrary> getActiveLibraries(List<MinecraftLaunchFeature> activeFeatures) {
+    public List<MinecraftLibrary> getActiveLibraries(List<String> activeFeatures) {
         List<MinecraftLibrary> activeLibraries = new ArrayList<>();
         for(MinecraftLibrary l : getLibraries()) {
             if(l.isApplicable(activeFeatures)) {
@@ -138,12 +126,12 @@ public class MinecraftVersionDetails {
         this.type = type;
     }
 
-    public MinecraftLaunchArguments getArguments() {
-        return arguments;
+    public MinecraftLaunchArguments getLaunchArguments() {
+        return launchArguments;
     }
 
-    public void setArguments(MinecraftLaunchArguments arguments) {
-        this.arguments = arguments;
+    public void setLaunchArguments(MinecraftLaunchArguments launchArguments) {
+        this.launchArguments = launchArguments;
     }
 
     public MinecraftJavaVersion getJavaVersion() {

@@ -1,11 +1,12 @@
 package net.treset.mc_version_loader.launcher;
 
 import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 
 import java.util.List;
 
-public class LauncherInstanceDetails {
+public class LauncherInstanceDetails extends GenericJsonParsable {
     private List<LauncherFeature> features;
     private List<String> ignoredFiles;
     private List<LauncherLaunchArgument> jvm_arguments;
@@ -27,17 +28,7 @@ public class LauncherInstanceDetails {
     }
 
     public static LauncherInstanceDetails fromJson(String json) {
-        JsonObject instanceObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
-        return new LauncherInstanceDetails(
-                LauncherFeature.parseFeatures(JsonUtils.getAsJsonObject(instanceObj, "features")),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(instanceObj, "ignored_files")),
-                LauncherLaunchArgument.parseArguments(JsonUtils.getAsJsonArray(instanceObj, "jvm_arguments")),
-                JsonUtils.getAsString(instanceObj, "mods_component"),
-                JsonUtils.getAsString(instanceObj, "options_component"),
-                JsonUtils.getAsString(instanceObj, "resourcepacks_component"),
-                JsonUtils.getAsString(instanceObj, "saves_component"),
-                JsonUtils.getAsString(instanceObj, "version_component")
-        );
+        return fromJson(json, LauncherInstanceDetails.class);
     }
 
     public List<LauncherFeature> getFeatures() {

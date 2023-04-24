@@ -9,69 +9,79 @@ import java.util.Objects;
 
 public class MinecraftRule {
     private String action;
-    private boolean allow;
-    private String osName;
-    private String osArch;
-    private String osVersion;
-    private MinecraftLaunchFeature feature;
-    private boolean featureState;
+    private Os os;
+    private Features features;
 
-    public MinecraftRule(String action, String osName, String osArch, String osVersion, MinecraftLaunchFeature feature, boolean featureState) {
+    private static class Os {
+        private String name;
+        private String version;
+        private String arch;
+
+        public Os(String name, String version, String arch) {
+            this.name = name;
+            this.version = version;
+            this.arch = arch;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
+        }
+
+        public String getArch() {
+            return arch;
+        }
+
+        public void setArch(String arch) {
+            this.arch = arch;
+        }
+    }
+
+    private static class Features {
+        private boolean hasCustomResolution;
+        private boolean isDemoUser;
+
+        public Features(boolean hasCustomResolution, boolean isDemoUser) {
+            this.hasCustomResolution = hasCustomResolution;
+            this.isDemoUser = isDemoUser;
+        }
+
+        public boolean isHasCustomResolution() {
+            return hasCustomResolution;
+        }
+
+        public void setHasCustomResolution(boolean hasCustomResolution) {
+            this.hasCustomResolution = hasCustomResolution;
+        }
+
+        public boolean isDemoUser() {
+            return isDemoUser;
+        }
+
+        public void setDemoUser(boolean demoUser) {
+            isDemoUser = demoUser;
+        }
+    }
+
+    public MinecraftRule(String action, Os os, Features features) {
         this.action = action;
-        this.allow = Objects.equals(action, "allow");
-        this.osName = osName;
-        this.osArch = osArch;
-        this.osVersion = osVersion;
-        this.feature = feature;
-        this.featureState = featureState;
+        this.os = os;
+        this.features = features;
     }
 
-    public static MinecraftRule fromJson(JsonObject ruleObj) {
-        if(ruleObj == null) {
-            return new MinecraftRule(null, null, null, null, null, false);
-        }
-        JsonObject featuresObj = JsonUtils.getAsJsonObject(ruleObj, "features");
-        MinecraftLaunchFeature feature = MinecraftLaunchFeature.NONE;
-        boolean featureValue = false;
-        if(featuresObj != null) {
-            if(featuresObj.has("has_custom_resolution")) {
-                feature = MinecraftLaunchFeature.HAS_CUSTOM_RESOLUTION;
-                featureValue = JsonUtils.getAsBoolean(featuresObj, "has_custom_resolution");
-            } else if(featuresObj.has("is_demo_user")) {
-                feature = MinecraftLaunchFeature.IS_DEMO_USER;
-                featureValue = JsonUtils.getAsBoolean(featuresObj, "is_demo_user");
-            }
-        }
-        JsonObject osObj = JsonUtils.getAsJsonObject(ruleObj, "os");
-        return new MinecraftRule(
-                JsonUtils.getAsString(ruleObj, "action"),
-                JsonUtils.getAsString(osObj, "name"),
-                JsonUtils.getAsString(osObj, "arch"),
-                JsonUtils.getAsString(osObj, "version"),
-                feature,
-                featureValue
-        );
-    }
-
-    public boolean isApplicable(List<MinecraftLaunchFeature> activeFeatures) {
-        if(!isAllow()) {
-            return false;
-        }
-
-        if(getFeature() != null && getFeature() != MinecraftLaunchFeature.NONE && activeFeatures.contains(getFeature()) != getFeatureState()) {
-            return false;
-        }
-
-        if(getOsName() != null && !OsDetails.isOsName(getOsName())) {
-            return false;
-        }
-        if(getOsVersion() != null && !OsDetails.isOsVersion(getOsVersion())) {
-            return false;
-        }
-        if(getOsArch() != null && !OsDetails.isOsArch(getOsArch())) {
-            return false;
-        }
-        return true;
+    public boolean isApplicable(List<String> feature) {
+        return feature != null && getFeatures() != null && (feature.contains("has_custom_resolution") && getFeatures().hasCustomResolution || feature.contains("is_demo_user") && getFeatures().isDemoUser);
     }
 
     public String getAction() {
@@ -82,51 +92,19 @@ public class MinecraftRule {
         this.action = action;
     }
 
-    public boolean isAllow() {
-        return allow;
+    public Os getOs() {
+        return os;
     }
 
-    public void setAllow(boolean allow) {
-        this.allow = allow;
+    public void setOs(Os os) {
+        this.os = os;
     }
 
-    public String getOsName() {
-        return osName;
+    public Features getFeatures() {
+        return features;
     }
 
-    public void setOsName(String osName) {
-        this.osName = osName;
-    }
-
-    public String getOsArch() {
-        return osArch;
-    }
-
-    public void setOsArch(String osArch) {
-        this.osArch = osArch;
-    }
-
-    public String getOsVersion() {
-        return osVersion;
-    }
-
-    public void setOsVersion(String osVersion) {
-        this.osVersion = osVersion;
-    }
-
-    public MinecraftLaunchFeature getFeature() {
-        return feature;
-    }
-
-    public void setFeature(MinecraftLaunchFeature feature) {
-        this.feature = feature;
-    }
-
-    public boolean getFeatureState() {
-        return featureState;
-    }
-
-    public void setFeatureState(boolean featureState) {
-        this.featureState = featureState;
+    public void setFeatures(Features features) {
+        this.features = features;
     }
 }

@@ -14,12 +14,8 @@ public class JavaDownload {
         this.url = url;
     }
 
-    public static JavaDownload fromJson(JsonObject downloadsObj) {
-        return new JavaDownload(
-                JsonUtils.getAsString(downloadsObj, "sha1"),
-                JsonUtils.getAsInt(downloadsObj, "size"),
-                JsonUtils.getAsString(downloadsObj, "url")
-        );
+    public static JavaDownload fromJsonObject(JsonObject jsonObject) {
+        return JsonUtils.getGson().fromJson(jsonObject, JavaDownload.class);
     }
 
     public String getSha1() {

@@ -12,13 +12,6 @@ public class MinecraftJavaVersion {
         this.majorVersion = majorVersion;
     }
 
-    public static MinecraftJavaVersion fromJson(JsonObject javaVersionObj) {
-        return new MinecraftJavaVersion(
-                JsonUtils.getAsString(javaVersionObj, "component"),
-                JsonUtils.getAsInt(javaVersionObj, "majorVersion")
-        );
-    }
-
     public String getComponent() {
         return component;
     }

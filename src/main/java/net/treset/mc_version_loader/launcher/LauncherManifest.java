@@ -1,42 +1,38 @@
 package net.treset.mc_version_loader.launcher;
 
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 
 import java.util.List;
 import java.util.Map;
 
-public class LauncherManifest {
-    private LauncherManifestType type;
+public class LauncherManifest extends GenericJsonParsable {
+    private String type;
     private String id;
     private String details;
     private String prefix;
     private String name;
     private List<String> includedFiles;
     private List<String> components;
+    private transient Map<String, LauncherManifestType> typeConversion;
 
     public LauncherManifest(String type, Map<String, LauncherManifestType> typeConversion, String id, String details, String prefix, String name, List<String> includedFiles, List<String> components) {
-        this.type = LauncherManifestTypeUtils.getLauncherManifestType(type, typeConversion);
+        this.type = type;
         this.id = id;
         this.details = details;
         this.prefix = prefix;
         this.name = name;
         this.includedFiles = includedFiles;
         this.components = components;
+        this.typeConversion = typeConversion;
     }
 
     public static LauncherManifest fromJson(String json, Map<String, LauncherManifestType> typeConversion) {
-        JsonObject manifestObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
-        return new LauncherManifest(
-                JsonUtils.getAsString(manifestObj, "type"),
-                typeConversion,
-                JsonUtils.getAsString(manifestObj, "id"),
-                JsonUtils.getAsString(manifestObj, "details"),
-                JsonUtils.getAsString(manifestObj, "prefix"),
-                JsonUtils.getAsString(manifestObj, "name"),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(manifestObj, "included_files")),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(manifestObj, "components"))
-        );
+        LauncherManifest launcherManifest = fromJson(json, LauncherManifest.class);
+        launcherManifest.setTypeConversion(typeConversion);
+        return launcherManifest;
     }
 
     public static LauncherManifest fromJson(String json) {
@@ -44,10 +40,10 @@ public class LauncherManifest {
     }
 
     public LauncherManifestType getType() {
-        return type;
+        return LauncherManifestTypeUtils.getLauncherManifestType(type, typeConversion);
     }
 
-    public void setType(LauncherManifestType type) {
+    public void setType(String type) {
         this.type = type;
     }
 
@@ -97,5 +93,13 @@ public class LauncherManifest {
 
     public void setComponents(List<String> components) {
         this.components = components;
+    }
+
+    public Map<String, LauncherManifestType> getTypeConversion() {
+        return typeConversion;
+    }
+
+    public void setTypeConversion(Map<String, LauncherManifestType> typeConversion) {
+        this.typeConversion = typeConversion;
     }
 }

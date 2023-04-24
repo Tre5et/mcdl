@@ -5,7 +5,6 @@ import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.minecraft.*;
 import net.treset.mc_version_loader.mods.CombinedModData;
 import net.treset.mc_version_loader.mods.ModData;
-import net.treset.mc_version_loader.mods.ModVersionData;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFile;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeSearch;
@@ -15,18 +14,23 @@ import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 
 public class VersionLoader {
     public static void main(String[] args) {
-        List<ModData> mods = searchCombinedMods("sodium", "1.19.4", "fabric", 20, 0);
+        List<MinecraftVersion> versions = getVersions();
+        for(MinecraftVersion v : versions) {
+            if(v.getId().equals("1.19.4")) {
+                MinecraftVersionDetails details = MinecraftVersionDetails.fromJson(Sources.getFileFromUrl(v.getUrl()));
+                break;
+            }
+        }
 
         return;
     }
 
     public static List<MinecraftVersion> getVersions() {
-        return MinecraftVersion.parseVersionManifest(Sources.getVersionManifestJson());
+        return MinecraftVersion.fromVersionManifest(Sources.getVersionManifestJson());
     }
 
     public static List<MinecraftVersion> getReleases() {

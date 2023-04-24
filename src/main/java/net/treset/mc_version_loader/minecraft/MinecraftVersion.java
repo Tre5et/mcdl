@@ -1,28 +1,27 @@
 package net.treset.mc_version_loader.minecraft;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class MinecraftVersion {
+public class MinecraftVersion extends GenericJsonParsable {
     private int complianceLevel;
     private String id;
     private String releaseTime;
-    private String cha1;
+    private String sha1;
     private String time;
     private String type;
     private String url;
 
-    public MinecraftVersion(int complianceLevel, String id, String releaseTime, String cha1, String time, String type, String versionManifestUrl) {
+    public MinecraftVersion(int complianceLevel, String id, String releaseTime, String sha1, String time, String type, String versionManifestUrl) {
         this.complianceLevel = complianceLevel;
         this.id = id;
         this.releaseTime = releaseTime;
-        this.cha1 = cha1;
+        this.sha1 = sha1;
         this.time = time;
         this.type = type;
         this.url = versionManifestUrl;
@@ -32,31 +31,13 @@ public class MinecraftVersion {
         this(-1, id, null, null, null, type, url);
     }
 
-    public static MinecraftVersion fromJson(JsonObject versionObj) {
-        return new MinecraftVersion(
-                JsonUtils.getAsInt(versionObj, "complianceLevel"),
-                JsonUtils.getAsString(versionObj, "id"),
-                JsonUtils.getAsString(versionObj, "releaseTime"),
-                JsonUtils.getAsString(versionObj, "sha1"),
-                JsonUtils.getAsString(versionObj, "time"),
-                JsonUtils.getAsString(versionObj, "type"),
-                JsonUtils.getAsString(versionObj, "url")
-        );
+    public static MinecraftVersion fromJson(String json) {
+        return fromJson(json, MinecraftVersion.class, JsonUtils.getGsonCamelCase());
     }
 
-    public static List<MinecraftVersion> parseVersionManifest(String manifestJson) {
-        List<MinecraftVersion> out = new ArrayList<>();
-
-        JsonElement manifest = JsonUtils.parseJson(manifestJson);
-        JsonObject manifestObj = JsonUtils.getAsJsonObject(manifest);
-        JsonArray versionArray = JsonUtils.getAsJsonArray(manifestObj, "versions");
-        if(versionArray != null) {
-            for (JsonElement v : versionArray) {
-                out.add(fromJson(JsonUtils.getAsJsonObject(v)));
-            }
-        }
-
-        return out;
+    public static List<MinecraftVersion> fromVersionManifest(String versionManifest) {
+        JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(versionManifest));
+        return JsonUtils.getGsonCamelCase().fromJson(JsonUtils.getAsJsonArray(versionObj, "versions"), new TypeToken<>(){});
     }
 
     public boolean isRelease() {
@@ -87,12 +68,12 @@ public class MinecraftVersion {
         this.releaseTime = releaseTime;
     }
 
-    public String getCha1() {
-        return cha1;
+    public String getSha1() {
+        return sha1;
     }
 
-    public void setCha1(String cha1) {
-        this.cha1 = cha1;
+    public void setSha1(String sha1) {
+        this.sha1 = sha1;
     }
 
     public String getTime() {

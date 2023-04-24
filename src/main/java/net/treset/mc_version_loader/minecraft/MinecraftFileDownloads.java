@@ -5,31 +5,15 @@ import net.treset.mc_version_loader.json.JsonUtils;
 
 public class MinecraftFileDownloads {
     private Downloads client;
-    private Downloads clientMappings;
+    private Downloads client_mappings;
     private Downloads server;
-    private Downloads serverMappings;
+    private Downloads server_mappings;
 
     public MinecraftFileDownloads(Downloads client, Downloads clientMappings, Downloads server, Downloads serverMappings) {
         this.client = client;
-        this.clientMappings = clientMappings;
+        this.client_mappings = clientMappings;
         this.server = server;
-        this.serverMappings = serverMappings;
-    }
-
-    public static MinecraftFileDownloads fromJson(JsonObject downloadsObj) {
-        JsonObject clientObj = JsonUtils.getAsJsonObject(downloadsObj, "client");
-        JsonObject clientMappingsObj = JsonUtils.getAsJsonObject(downloadsObj, "client_mappings");
-        JsonObject serverObj = JsonUtils.getAsJsonObject(downloadsObj, "server");
-        JsonObject serverMappingsObj = JsonUtils.getAsJsonObject(downloadsObj, "server_mappings");
-
-
-
-        return new MinecraftFileDownloads(
-                Downloads.parseVersionDownload(clientObj),
-                Downloads.parseVersionDownload(clientMappingsObj),
-                Downloads.parseVersionDownload(serverObj),
-                Downloads.parseVersionDownload(serverMappingsObj)
-        );
+        this.server_mappings = serverMappings;
     }
 
     public Downloads getClient() {
@@ -41,11 +25,11 @@ public class MinecraftFileDownloads {
     }
 
     public Downloads getClientMappings() {
-        return clientMappings;
+        return client_mappings;
     }
 
     public void setClientMappings(Downloads clientMappings) {
-        this.clientMappings = clientMappings;
+        this.client_mappings = clientMappings;
     }
 
     public Downloads getServer() {
@@ -57,11 +41,11 @@ public class MinecraftFileDownloads {
     }
 
     public Downloads getServerMappings() {
-        return serverMappings;
+        return server_mappings;
     }
 
     public void setServerMappings(Downloads serverMappings) {
-        this.serverMappings = serverMappings;
+        this.server_mappings = serverMappings;
     }
 
     public static class Downloads {
@@ -73,14 +57,6 @@ public class MinecraftFileDownloads {
             this.sha1 = sha1;
             this.size = size;
             this.url = url;
-        }
-
-        public static Downloads parseVersionDownload(JsonObject downloadObj) {
-            return new Downloads(
-                    JsonUtils.getAsString(downloadObj, "sha1"),
-                    JsonUtils.getAsInt(downloadObj, "size"),
-                    JsonUtils.getAsString(downloadObj, "url")
-            );
         }
 
         public String getSha1() {

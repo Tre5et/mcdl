@@ -28,29 +28,6 @@ public class LauncherMod {
         this.downloads = downloads;
     }
 
-    public static LauncherMod fromJson(JsonObject modObj) {
-        return new LauncherMod(
-            JsonUtils.getAsString(modObj, "current_provider"),
-            JsonUtils.getAsString(modObj, "description"),
-            JsonUtils.getAsBoolean(modObj, "enabled"),
-            JsonUtils.getAsString(modObj, "icon_url"),
-            JsonUtils.getAsString(modObj, "id"),
-            JsonUtils.getAsString(modObj, "name"),
-            LauncherModDownload.parseDownloads(JsonUtils.getAsJsonArray(modObj, "downloads"))
-        );
-    }
-
-    public static List<LauncherMod> parseMods(JsonArray modsArray) {
-        if(modsArray == null) {
-            return null;
-        }
-        List<LauncherMod> out = new ArrayList<>();
-        for(JsonElement e : modsArray) {
-            out.add(fromJson(JsonUtils.getAsJsonObject(e)));
-        }
-        return out;
-    }
-
     public String getCurrentProvider() {
         return currentProvider;
     }

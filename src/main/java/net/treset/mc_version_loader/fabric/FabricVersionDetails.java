@@ -1,9 +1,13 @@
 package net.treset.mc_version_loader.fabric;
 
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 
-public class FabricVersionDetails {
+import java.util.List;
+
+public class FabricVersionDetails extends GenericJsonParsable {
     private FabricIntermediaryData intermediary;
     private FabricLauncherMeta launcherMeta;
     private FabricLoaderData loader;
@@ -15,12 +19,11 @@ public class FabricVersionDetails {
     }
 
     public static FabricVersionDetails fromJson(String versionJson) {
-        JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(versionJson));
-        return new FabricVersionDetails(
-                FabricIntermediaryData.fromJson(JsonUtils.getAsJsonObject(versionObj, "intermediary")),
-                FabricLauncherMeta.fromJson(JsonUtils.getAsJsonObject(versionObj, "launcherMeta")),
-                FabricLoaderData.fromJson(JsonUtils.getAsJsonObject(versionObj, "loader"))
-        );
+        return fromJson(versionJson, FabricVersionDetails.class);
+    }
+
+    public static List<FabricVersionDetails> fromJsonArray(String jsonArray) {
+        return fromJson(jsonArray, new TypeToken<>(){}, JsonUtils.getGsonCamelCase());
     }
 
     public FabricIntermediaryData getIntermediary() {

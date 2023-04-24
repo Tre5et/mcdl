@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.minecraft;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.JsonUtils;
 
@@ -24,7 +25,7 @@ public class MinecraftLaunchArgument {
         this.gated = rules != null && !rules.isEmpty();
     }
 
-    public static List<MinecraftLaunchArgument> parseArguments(JsonArray argumentArray) {
+    public static List<MinecraftLaunchArgument> fromJsonArray(JsonArray argumentArray) {
         List<MinecraftLaunchArgument> arguments = new ArrayList<>();
         if(argumentArray != null) {
             for (JsonElement e : argumentArray) {
@@ -34,13 +35,7 @@ public class MinecraftLaunchArgument {
                 } else {
                     JsonObject eObj = JsonUtils.getAsJsonObject(e);
                     JsonArray rules = JsonUtils.getAsJsonArray(eObj, "rules");
-                    List<MinecraftRule> currentRules = new ArrayList<>();
-                    if (rules != null) {
-                        for (JsonElement r : rules) {
-                            JsonObject rObj = JsonUtils.getAsJsonObject(r);
-                            currentRules.add(MinecraftRule.fromJson(rObj));
-                        }
-                    }
+                    List<MinecraftRule> currentRules = JsonUtils.getGson().fromJson(rules, new TypeToken<>(){});
                     JsonArray values = JsonUtils.getAsJsonArray(eObj, "value");
                     if (values != null) {
                         for (JsonElement v : values) {

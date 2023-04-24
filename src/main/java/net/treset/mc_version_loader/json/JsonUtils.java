@@ -1,9 +1,11 @@
 package net.treset.mc_version_loader.json;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import net.treset.mc_version_loader.files.FileUtils;
 
+import javax.security.auth.login.AppConfigurationEntry;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +14,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class JsonUtils {
+    private static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
+    private static Gson gsonCamelCase = new GsonBuilder().setPrettyPrinting().create();
+
     private static final Logger LOGGER = Logger.getLogger(JsonUtils.class.toString());
 
     public static JsonObject getAsJsonObject(JsonElement element) {
@@ -126,5 +131,33 @@ public class JsonUtils {
             out.add(getAsString(e));
         }
         return out;
+    }
+
+    public static boolean writeJsonToFile(Object toWrite, String path) {
+        try {
+            FileWriter writer = new FileWriter(path);
+            getGson().toJson(toWrite, writer);
+            writer.flush();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Unable to write json", e);
+            return false;
+        }
+        return true;
+    }
+
+    public static Gson getGson() {
+        return gson;
+    }
+
+    public static void setGson(Gson gson) {
+        JsonUtils.gson = gson;
+    }
+
+    public static Gson getGsonCamelCase() {
+        return gsonCamelCase;
+    }
+
+    public static void setGsonCamelCase(Gson gsonCamelCase) {
+        JsonUtils.gsonCamelCase = gsonCamelCase;
     }
 }

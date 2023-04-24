@@ -21,13 +21,13 @@ public class MinecraftLaunchArguments {
         JsonArray gameArgumentArray = JsonUtils.getAsJsonArray(argumentsObj, "game");
         JsonArray jvmArgumentArray = JsonUtils.getAsJsonArray(argumentsObj, "jvm");
 
-        List<MinecraftLaunchArgument> gameArguments = MinecraftLaunchArgument.parseArguments(gameArgumentArray);
-        List<MinecraftLaunchArgument> jvmArguments = MinecraftLaunchArgument.parseArguments(jvmArgumentArray);
+        List<MinecraftLaunchArgument> gameArguments = MinecraftLaunchArgument.fromJsonArray(gameArgumentArray);
+        List<MinecraftLaunchArgument> jvmArguments = MinecraftLaunchArgument.fromJsonArray(jvmArgumentArray);
 
         return new MinecraftLaunchArguments(gameArguments, jvmArguments);
     }
 
-    public MinecraftLaunchCommand getLaunchCommand(String javaBaseDir, String gameLaunchFile, String mainClass, String libsDir, List<MinecraftLibrary> libraries, List<MinecraftLaunchFeature> features) {
+    public MinecraftLaunchCommand getLaunchCommand(String javaBaseDir, String gameLaunchFile, String mainClass, String libsDir, List<MinecraftLibrary> libraries, List<String> features) {
 
 
         StringBuilder outString = new StringBuilder();
@@ -57,15 +57,15 @@ public class MinecraftLaunchArguments {
         StringBuilder out = new StringBuilder();
         out.append("\"").append(gameLaunchFile);
         for(MinecraftLibrary l : libraries) {
-            if(l.getArtifactPath() != null && !l.getArtifactPath().isBlank()) {
-                out.append(";").append(libsDir).append("/").append(l.getArtifactPath());
+            if(l.getDownloads().getArtifacts().getPath() != null && !l.getDownloads().getArtifacts().getPath().isBlank()) {
+                out.append(";").append(libsDir).append("/").append(l.getDownloads().getArtifacts().getPath());
             }
         }
         out.append("\" ").append(mainClass).append(" ");
         return out.toString();
     }
 
-    private void addArgument(List<MinecraftLaunchFeature> features, StringBuilder outString, List<String> outKeys, MinecraftLaunchArgument a) {
+    private void addArgument(List<String> features, StringBuilder outString, List<String> outKeys, MinecraftLaunchArgument a) {
         if(a.isGated()) {
             boolean shouldBeAdded = true;
             for(MinecraftRule r : a.getRules()) {

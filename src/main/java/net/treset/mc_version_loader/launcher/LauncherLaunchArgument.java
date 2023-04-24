@@ -29,26 +29,6 @@ public class LauncherLaunchArgument {
         parsedArgument = argument;
     }
 
-    public static LauncherLaunchArgument fromJson(JsonObject argumentObj) {
-        return new LauncherLaunchArgument(
-                JsonUtils.getAsString(argumentObj, "argument"),
-                JsonUtils.getAsString(argumentObj, "feature"),
-                JsonUtils.getAsString(argumentObj, "os_name"),
-                JsonUtils.getAsString(argumentObj, "os_version")
-        );
-    }
-
-    public static List<LauncherLaunchArgument> parseArguments(JsonArray argumentsArray) {
-        if(argumentsArray == null) {
-            return null;
-        }
-        List<LauncherLaunchArgument> out = new ArrayList<>();
-        for(JsonElement e : argumentsArray) {
-            out.add(fromJson(JsonUtils.getAsJsonObject(e)));
-        }
-        return out;
-    }
-
     public boolean replace(Map<String, String> replacements) {
         boolean allReplaced = true;
         for(Map.Entry<String, String> e : replacements.entrySet()) {

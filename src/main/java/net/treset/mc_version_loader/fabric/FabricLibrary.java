@@ -19,24 +19,6 @@ public class FabricLibrary {
         this.url = url;
     }
 
-    public static FabricLibrary fromJson(JsonObject libraryObj) {
-        return new FabricLibrary(
-                JsonUtils.getAsString(libraryObj, "name"),
-                JsonUtils.getAsString(libraryObj, "url")
-        );
-    }
-
-    public static List<FabricLibrary> parseFabricLibraries(JsonArray libraryArray) {
-        List<FabricLibrary> libraries = new ArrayList<>();
-        if(libraryArray != null) {
-            for(JsonElement e : libraryArray) {
-                JsonObject eObj = JsonUtils.getAsJsonObject(e);
-                libraries.add(fromJson(eObj));
-            }
-        }
-        return libraries;
-    }
-
     public String getName() {
         return name;
     }
