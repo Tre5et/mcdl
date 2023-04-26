@@ -1,17 +1,13 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
-import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
-import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.GenericModData;
-import net.treset.mc_version_loader.mods.ModData;
 import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
 
 public class CurseforgeMod extends GenericModData {
     private boolean allowModDistribution;
@@ -30,10 +26,7 @@ public class CurseforgeMod extends GenericModData {
     private List<CurseforgeFileIndex> latestEarlyAccessFilesIndex;
     private List<CurseforgeFile> latestFiles;
     private List<CurseforgeFileIndex> latestFilesIndex;
-    private String linksIssuesUrl;
-    private String linksSourceUrl;
-    private String linksWebsiteUrl;
-    private String wikiUrl;
+    private CurseforgeModLinks links;
     private CurseforgeImage logo;
     private int mainFileId;
     private String name;
@@ -42,8 +35,9 @@ public class CurseforgeMod extends GenericModData {
     private int status;
     private String summary;
     private int thumbsUpCount;
+    private List<ModVersionData> versions;
 
-    public CurseforgeMod(boolean allowModDistribution, List<CurseforgeAuthor> authors, List<CurseforgeCategory> categories, int classId, String dateCreated, String dateModified, String dateReleased, int downloadCount, int gameId, int gamePopularityRank, int id, boolean isAvailable, boolean isFeatured, List<CurseforgeFileIndex> latestEarlyAccessFilesIndex, List<CurseforgeFile> latestFiles, List<CurseforgeFileIndex> latestFilesIndex, String linksIssuesUrl, String linksSourceUrl, String linksWebsiteUrl, String wikiUrl, CurseforgeImage logo, int mainFileId, String name, List<CurseforgeImage> screenshots, String slug, int status, String summary, int thumbsUpCount) {
+    public CurseforgeMod(boolean allowModDistribution, List<CurseforgeAuthor> authors, List<CurseforgeCategory> categories, int classId, String dateCreated, String dateModified, String dateReleased, int downloadCount, int gameId, int gamePopularityRank, int id, boolean isAvailable, boolean isFeatured, List<CurseforgeFileIndex> latestEarlyAccessFilesIndex, List<CurseforgeFile> latestFiles, List<CurseforgeFileIndex> latestFilesIndex, CurseforgeModLinks links, CurseforgeImage logo, int mainFileId, String name, List<CurseforgeImage> screenshots, String slug, int status, String summary, int thumbsUpCount) {
         this.allowModDistribution = allowModDistribution;
         this.authors = authors;
         this.categories = categories;
@@ -60,10 +54,7 @@ public class CurseforgeMod extends GenericModData {
         this.latestEarlyAccessFilesIndex = latestEarlyAccessFilesIndex;
         this.latestFiles = latestFiles;
         this.latestFilesIndex = latestFilesIndex;
-        this.linksIssuesUrl = linksIssuesUrl;
-        this.linksSourceUrl = linksSourceUrl;
-        this.linksWebsiteUrl = linksWebsiteUrl;
-        this.wikiUrl = wikiUrl;
+        this.links = links;
         this.logo = logo;
         this.mainFileId = mainFileId;
         this.name = name;
@@ -73,47 +64,6 @@ public class CurseforgeMod extends GenericModData {
         this.summary = summary;
         this.thumbsUpCount = thumbsUpCount;
     }
-
-    public static CurseforgeMod fromJson(JsonObject modObj) {
-        JsonObject linksObj = JsonUtils.getAsJsonObject(modObj, "links");
-        CurseforgeMod mod = new CurseforgeMod(
-                JsonUtils.getAsBoolean(modObj, "allowModDistribution"),
-                CurseforgeAuthor.parseCurseforgeAuthors(JsonUtils.getAsJsonArray(modObj, "authors")),
-                CurseforgeCategory.parseCurseforgeCategories(JsonUtils.getAsJsonArray(modObj, "categories")),
-                JsonUtils.getAsInt(modObj, "classId"),
-                JsonUtils.getAsString(modObj, "dateCreated"),
-                JsonUtils.getAsString(modObj, "dateModified"),
-                JsonUtils.getAsString(modObj, "dateReleased"),
-                JsonUtils.getAsInt(modObj, "downloadCount"),
-                JsonUtils.getAsInt(modObj, "gameId"),
-                JsonUtils.getAsInt(modObj, "gamePopularityRank"),
-                JsonUtils.getAsInt(modObj, "id"),
-                JsonUtils.getAsBoolean(modObj, "isAvailable"),
-                JsonUtils.getAsBoolean(modObj, "isFeatured"),
-                CurseforgeFileIndex.parseCurseforgeFileIndexes(JsonUtils.getAsJsonArray(modObj, "latestEarlyAccessFilesIndexes")),
-                CurseforgeFile.parseCurseforgeFiles(JsonUtils.getAsJsonArray(modObj, "latestFiles"), null),
-                CurseforgeFileIndex.parseCurseforgeFileIndexes(JsonUtils.getAsJsonArray(modObj, "latestFilesIndexes")),
-                JsonUtils.getAsString(linksObj, "issuesUrl"),
-                JsonUtils.getAsString(linksObj, "sourceUrl"),
-                JsonUtils.getAsString(linksObj, "websiteUrl"),
-                JsonUtils.getAsString(linksObj, "wikiUrl"),
-                CurseforgeImage.fromJson(JsonUtils.getAsJsonObject(modObj, "logo")),
-                JsonUtils.getAsInt(modObj, "mainFieldId"),
-                JsonUtils.getAsString(modObj, "name"),
-                CurseforgeImage.parseCurseforgeImages(JsonUtils.getAsJsonArray(modObj, "screenshots")),
-                JsonUtils.getAsString(modObj, "slug"),
-                JsonUtils.getAsInt(modObj, "status"),
-                JsonUtils.getAsString(modObj, "summary"),
-                JsonUtils.getAsInt(modObj, "thumbsUpCount")
-        );
-        if(mod.getLatestFiles() != null) {
-            for(CurseforgeFile i : mod.getLatestFiles()) {
-                i.setParentMod(mod);
-            }
-        }
-        return mod;
-    }
-
 
     @Override
     public List<String> getAuthors() {
@@ -214,7 +164,7 @@ public class CurseforgeMod extends GenericModData {
 
     @Override
     public List<ModVersionData> getVersions() {
-        return getVersions(null, 0);
+        return getVersions(null, -1);
     }
 
     @Override
@@ -222,9 +172,30 @@ public class CurseforgeMod extends GenericModData {
         return getVersions(gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
     }
 
+    @Override
+    public List<ModVersionData> updateVersions() {
+        return updateVersions(null, -1);
+    }
+
+    public List<ModVersionData> updateVersions(String gameVersion, int modLoader) {
+        versions = List.copyOf(VersionLoader.getCurseforgeVersions(id, this, gameVersion, modLoader).getData());
+        return versions;
+    }
+
     public List<ModVersionData> getVersions(String gameVersion, int modLoader) {
-        List<CurseforgeFile> files = VersionLoader.getCurseforgeVersions(id, this, gameVersion, modLoader);
-        return List.copyOf(files);
+        if(versions == null) {
+            updateVersions();
+        }
+        if(gameVersion == null && modLoader <= 0) {
+            return versions;
+        }
+        List<ModVersionData> out = new ArrayList<>();
+        for (ModVersionData v : versions) {
+            if ((gameVersion == null || v.getGameVersions().contains(gameVersion)) && (modLoader <= 0 && v.getModLoaders().contains(FormatUtils.curseforgeModLoaderToModLoader(modLoader)))) {
+                out.add(v);
+            }
+        }
+        return out;
     }
 
     public boolean isAllowModDistribution() {
@@ -339,36 +310,12 @@ public class CurseforgeMod extends GenericModData {
         this.latestFilesIndex = latestFilesIndex;
     }
 
-    public String getLinksIssuesUrl() {
-        return linksIssuesUrl;
+    public CurseforgeModLinks getLinks() {
+        return links;
     }
 
-    public void setLinksIssuesUrl(String linksIssuesUrl) {
-        this.linksIssuesUrl = linksIssuesUrl;
-    }
-
-    public String getLinksSourceUrl() {
-        return linksSourceUrl;
-    }
-
-    public void setLinksSourceUrl(String linksSourceUrl) {
-        this.linksSourceUrl = linksSourceUrl;
-    }
-
-    public String getLinksWebsiteUrl() {
-        return linksWebsiteUrl;
-    }
-
-    public void setLinksWebsiteUrl(String linksWebsiteUrl) {
-        this.linksWebsiteUrl = linksWebsiteUrl;
-    }
-
-    public String getWikiUrl() {
-        return wikiUrl;
-    }
-
-    public void setWikiUrl(String wikiUrl) {
-        this.wikiUrl = wikiUrl;
+    public void setLinks(CurseforgeModLinks links) {
+        this.links = links;
     }
 
     public CurseforgeImage getLogo() {

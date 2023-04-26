@@ -1,8 +1,5 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.JsonUtils;
-
 import java.util.Objects;
 
 public class ModrinthVersionDependency {
@@ -16,15 +13,6 @@ public class ModrinthVersionDependency {
         this.fileName = fileName;
         this.projectId = projectId;
         this.versionId = versionId;
-    }
-
-    public static ModrinthVersionDependency fromJson(JsonObject dependencyObj) {
-        return new ModrinthVersionDependency(
-                JsonUtils.getAsString(dependencyObj, "dependency_type"),
-                JsonUtils.getAsString(dependencyObj, "file_name"),
-                JsonUtils.getAsString(dependencyObj, "project_id"),
-                JsonUtils.getAsString(dependencyObj, "version_id")
-        );
     }
 
     public boolean isRequired() {

@@ -2,32 +2,20 @@ package net.treset.mc_version_loader;
 
 import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
-import net.treset.mc_version_loader.minecraft.*;
+import net.treset.mc_version_loader.minecraft.MinecraftVersion;
 import net.treset.mc_version_loader.mods.CombinedModData;
 import net.treset.mc_version_loader.mods.ModData;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFile;
+import net.treset.mc_version_loader.mods.curseforge.CurseforgeFiles;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearchHit;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class VersionLoader {
-    public static void main(String[] args) {
-        List<MinecraftVersion> versions = getVersions();
-        for(MinecraftVersion v : versions) {
-            if(v.getId().equals("1.19.4")) {
-                MinecraftVersionDetails details = MinecraftVersionDetails.fromJson(Sources.getFileFromUrl(v.getUrl()));
-                break;
-            }
-        }
-
-        return;
-    }
 
     public static List<MinecraftVersion> getVersions() {
         return MinecraftVersion.fromVersionManifest(Sources.getVersionManifestJson());
@@ -45,17 +33,17 @@ public class VersionLoader {
     }
 
     public static List<ModData> searchCombinedMods(String query, String gameVersion, String modLoader, int limit, int offset) {
-        LocalDateTime startTime = LocalDateTime.now();
-        ModrinthSearch search = searchModrinth(query, List.of(gameVersion), List.of(modLoader), limit, offset);
+        ModrinthSearch mrSearch = searchModrinth(query, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader), limit, offset);
         CurseforgeSearch cfSearch = searchCurseforge(query, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader), limit, offset);
         List<ModData> combinedMods = new ArrayList<>();
         Set<ModData> toRemove = new HashSet<>();
-        List<ModrinthSearchHit> mh = search.getHits();
+        List<ModrinthSearchHit> mh = mrSearch.getHits();
         List<CurseforgeMod> ch = cfSearch.getData();
+        ch.removeIf(c -> !c.isAllowModDistribution());
         for(ModrinthSearchHit m : mh) {
             for(CurseforgeMod c : ch) {
                 if(m.isSame(c)) {
-                    combinedMods.add(new CombinedModData(m, c, gameVersion, modLoader));
+                    combinedMods.add(new CombinedModData(m, c));
                     toRemove.add(m);
                     toRemove.add(c);
                     break;
@@ -66,7 +54,6 @@ public class VersionLoader {
         ch.remove(toRemove);
         combinedMods.addAll(mh);
         combinedMods.addAll(ch);
-        System.out.println("Took" + LocalDateTime.now().until(startTime, ChronoUnit.MILLIS));
         return combinedMods;
     }
 
@@ -114,7 +101,11 @@ public class VersionLoader {
             }
             params.add(Map.entry(Sources.getModrinthVersionsLoadersParam(), loaders.substring(0, loaders.length() - 1) + "]"));
         }
-        return ModrinthVersion.parseModrinthVersions(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionsUrl(), modId), Sources.getModrinthHeaders(), params), parent);
+        return ModrinthVersion.fromJsonArray(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionsUrl(), modId), Sources.getModrinthHeaders(), params), parent);
+    }
+
+    public static ModrinthVersion getModrinthVersion(String versionId, ModData parent) {
+        return ModrinthVersion.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionUrl(), versionId), Sources.getModrinthHeaders(), List.of()), parent);
     }
 
     public static CurseforgeSearch searchCurseforge(String query, String gameVersion, int modLoader, int limit, int offset) {
@@ -137,7 +128,7 @@ public class VersionLoader {
         return CurseforgeSearch.fromJson(Sources.getFileFromHttpGet(Sources.getCurseforgeSearchUrl(), Sources.getCurseforgeHeaders(), params));
     }
 
-    public static List<CurseforgeFile> getCurseforgeVersions(int modId, ModData parent, String gameVersion, int modLoader) {
+    public static CurseforgeFiles getCurseforgeVersions(int modId, ModData parent, String gameVersion, int modLoader) {
         List<Map.Entry<String, String>> params = new ArrayList<>();
         if(gameVersion != null && !gameVersion.isBlank()) {
             params.add(Map.entry(Sources.getCurseforgeSearchGameversionParam(), gameVersion));
@@ -145,6 +136,10 @@ public class VersionLoader {
         if(modLoader >= 0) {
             params.add(Map.entry(Sources.getCurseforgeSearchLoaderParam(), String.valueOf(modLoader)));
         }
-        return CurseforgeFile.parseCurseforgeFiles(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeVersionUrl(), modId), Sources.getCurseforgeHeaders(), params), parent);
+        return CurseforgeFiles.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeVersionsUrl(), modId), Sources.getCurseforgeHeaders(), params), parent);
+    }
+
+    public static CurseforgeFile getCurseforgeVersion(int modId, int versionId) {
+        return CurseforgeFile.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeVersionUrl(), modId, versionId), Sources.getCurseforgeHeaders(), List.of()));
     }
  }

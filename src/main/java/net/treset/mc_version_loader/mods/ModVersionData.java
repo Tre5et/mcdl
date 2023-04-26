@@ -13,7 +13,7 @@ public interface ModVersionData {
     boolean supportsModLoader(String modLoader);
     List<String> getGameVersions();
     boolean supportsGameVersion(String version);
-    List<ModData> getRequiredDependencies();
+    List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader);
     ModData getParentMod();
     boolean setParentMod(ModData parent);
 

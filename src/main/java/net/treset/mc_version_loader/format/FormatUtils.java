@@ -1,11 +1,9 @@
 package net.treset.mc_version_loader.format;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -84,6 +82,9 @@ public class FormatUtils {
     }
 
     public static int modLoaderToCurseforgeModLoader(String modLoader) {
+        if(modLoader == null) {
+            return 0;
+        }
         switch (modLoader) {
             case "forge" -> {
                 return 1;

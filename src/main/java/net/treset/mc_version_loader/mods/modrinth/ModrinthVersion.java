@@ -1,9 +1,10 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.JsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.GenericModVersion;
 import net.treset.mc_version_loader.mods.ModData;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ModrinthVersion extends GenericModVersion {
+public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     private String authorId;
     private String changelog;
     private String changelogUrl;
@@ -31,7 +32,8 @@ public class ModrinthVersion extends GenericModVersion {
     private String status;
     private String versionNumber;
     private String versionType;
-    private ModData parent;
+    private transient ModData parent;
+    private transient List<ModVersionData> requiredDependencies;
 
     public ModrinthVersion(String authorId, String changelog, String changelogUrl, String datePublished, List<ModrinthVersionDependency> dependencies, int downloads, boolean featured, List<ModrinthVersionFile> files, List<String> gameVersions, String id, List<String> loaders, String name, String projectId, String requestedStatus, String status, String versionNumber, String versionType, ModData parent) {
         this.authorId = authorId;
@@ -54,58 +56,25 @@ public class ModrinthVersion extends GenericModVersion {
         this.parent = parent;
     }
 
-    public static ModrinthVersion formJson(JsonObject versionObj, ModData parent) {
-        return new ModrinthVersion(
-                JsonUtils.getAsString(versionObj, "author_id"),
-                JsonUtils.getAsString(versionObj, "changelog"),
-                JsonUtils.getAsString(versionObj, "changelog_url"),
-                JsonUtils.getAsString(versionObj, "date_published"),
-                parseModrinthVersionDependencies(JsonUtils.getAsJsonArray(versionObj, "dependencies")),
-                JsonUtils.getAsInt(versionObj, "downloads"),
-                JsonUtils.getAsBoolean(versionObj, "featured"),
-                parseModrinthVersionFiles(JsonUtils.getAsJsonArray(versionObj, "files")),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(versionObj, "game_versions")),
-                JsonUtils.getAsString(versionObj, "id"),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(versionObj, "loaders")),
-                JsonUtils.getAsString(versionObj, "name"),
-                JsonUtils.getAsString(versionObj, "project_id"),
-                JsonUtils.getAsString(versionObj, "requested_status"),
-                JsonUtils.getAsString(versionObj, "status"),
-                JsonUtils.getAsString(versionObj, "version_number"),
-                JsonUtils.getAsString(versionObj, "version_type"),
-                parent
-        );
-    }
-
-    private static List<ModrinthVersionDependency> parseModrinthVersionDependencies(JsonArray dependencyArray) {
-        List<ModrinthVersionDependency> dependencies = new ArrayList<>();
-        if(dependencyArray != null) {
-            for(JsonElement d : dependencyArray) {
-                dependencies.add(ModrinthVersionDependency.fromJson(JsonUtils.getAsJsonObject(d)));
-            }
+    public static ModrinthVersion fromJson(String json, ModData parent) {
+        ModrinthVersion v = GenericJsonParsable.fromJson(json, ModrinthVersion.class);
+        if(v != null) {
+            v.setParentMod(parent);
         }
-        return dependencies;
+        return v;
     }
 
-    private static List<ModrinthVersionFile> parseModrinthVersionFiles(JsonArray filesArray) {
-        List<ModrinthVersionFile> files = new ArrayList<>();
-        if(filesArray != null) {
-            for(JsonElement f : filesArray) {
-                files.add(ModrinthVersionFile.fromJson(JsonUtils.getAsJsonObject(f)));
-            }
-        }
-        return files;
-    }
-
-    public static List<ModrinthVersion> parseModrinthVersions(String json, ModData parent) {
-        JsonArray versionsArray = JsonUtils.getAsJsonArray(JsonUtils.parseJson(json));
-        List<ModrinthVersion> out = new ArrayList<>();
-        if(versionsArray != null) {
-            for(JsonElement v : versionsArray) {
-                out.add(formJson(JsonUtils.getAsJsonObject(v), parent));
-            }
+    public static List<ModrinthVersion> fromJsonArray(String json, ModData parent) {
+        List<ModrinthVersion> out = GenericJsonParsable.fromJson(json, new TypeToken<>(){});
+        for(ModrinthVersion v : out) {
+            v.setParentMod(parent);
         }
         return out;
+    }
+
+    @Override
+    public boolean writeToFile(String filePath) {
+        return JsonUtils.writeJsonToFile(this, filePath);
     }
 
     @Override
@@ -147,9 +116,18 @@ public class ModrinthVersion extends GenericModVersion {
     }
 
     @Override
-    public List<ModData> getRequiredDependencies() {
-        // TODO
-        return null;
+    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) {
+        if(requiredDependencies == null) {
+            requiredDependencies = new ArrayList<>();
+            if(dependencies != null) {
+                for(ModrinthVersionDependency d : dependencies) {
+                    if(d.isRequired()) {
+                        requiredDependencies.add(VersionLoader.getModrinthVersion(d.getVersionId(), null));
+                    }
+                }
+            }
+        }
+        return requiredDependencies;
     }
 
     @Override
@@ -161,5 +139,137 @@ public class ModrinthVersion extends GenericModVersion {
     public boolean setParentMod(ModData parent) {
         this.parent = parent;
         return true;
+    }
+
+    public String getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
+    }
+
+    public String getChangelog() {
+        return changelog;
+    }
+
+    public void setChangelog(String changelog) {
+        this.changelog = changelog;
+    }
+
+    public String getChangelogUrl() {
+        return changelogUrl;
+    }
+
+    public void setChangelogUrl(String changelogUrl) {
+        this.changelogUrl = changelogUrl;
+    }
+
+    public void setDatePublished(String datePublished) {
+        this.datePublished = datePublished;
+    }
+
+    public List<ModrinthVersionDependency> getDependencies() {
+        return dependencies;
+    }
+
+    public void setDependencies(List<ModrinthVersionDependency> dependencies) {
+        this.dependencies = dependencies;
+    }
+
+    public void setDownloads(int downloads) {
+        this.downloads = downloads;
+    }
+
+    public boolean isFeatured() {
+        return featured;
+    }
+
+    public void setFeatured(boolean featured) {
+        this.featured = featured;
+    }
+
+    public List<ModrinthVersionFile> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<ModrinthVersionFile> files) {
+        this.files = files;
+    }
+
+    public void setGameVersions(List<String> gameVersions) {
+        this.gameVersions = gameVersions;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<String> getLoaders() {
+        return loaders;
+    }
+
+    public void setLoaders(List<String> loaders) {
+        this.loaders = loaders;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getProjectId() {
+        return projectId;
+    }
+
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getRequestedStatus() {
+        return requestedStatus;
+    }
+
+    public void setRequestedStatus(String requestedStatus) {
+        this.requestedStatus = requestedStatus;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public void setVersionNumber(String versionNumber) {
+        this.versionNumber = versionNumber;
+    }
+
+    public String getVersionType() {
+        return versionType;
+    }
+
+    public void setVersionType(String versionType) {
+        this.versionType = versionType;
+    }
+
+    public ModData getParent() {
+        return parent;
+    }
+
+    public void setParent(ModData parent) {
+        this.parent = parent;
+    }
+
+    public List<ModVersionData> getRequiredDependencies() {
+        return requiredDependencies;
+    }
+
+    public void setRequiredDependencies(List<ModVersionData> requiredDependencies) {
+        this.requiredDependencies = requiredDependencies;
     }
 }

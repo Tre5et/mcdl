@@ -47,6 +47,7 @@ public class ModrinthMod extends GenericModData {
     private String dateUpdated;
     private List<String> versions;
     private String wikiUrl;
+    private transient List<ModVersionData> versionData;
 
     public ModrinthMod(List<String> additionalCategories, String approved, String body, String bodyUrl, List<String> categories, String clientSide, int color, String description, String discordUrl, List<String> donationUrls, int downloads, String flameAnvilProject, String flameAnvilUser, int followers, List<String> gallery, List<String> gameVersion, String iconUrl, String id, String issuesUrl, String licenseId, String licenseName, String licenseUrl, List<String> loaders, String moderatorMessage, String projectType, String datePublished, String queued, String requestedStatus, String serverSide, String slug, String sourceUrl, String status, String team, String title, String updated, List<String> versions, String wikiUrl) {
         this.additionalCategories = additionalCategories;
@@ -92,7 +93,7 @@ public class ModrinthMod extends GenericModData {
 
     @Override
     public List<String> getAuthors() {
-        // TODO
+        // TODO (but stays like that for now)
         return null;
     }
 
@@ -153,8 +154,29 @@ public class ModrinthMod extends GenericModData {
 
     @Override
     public List<ModVersionData> getVersions(String gameVersion, String modLoader) {
-        List<ModrinthVersion> modrinthVersions = VersionLoader.getModrinthVersion(id, this, List.of(gameVersion), List.of(modLoader));
-        return new ArrayList<>(modrinthVersions);
+        if(versionData == null) {
+            updateVersions();
+        }
+        if(gameVersion == null && modLoader == null) {
+            return versionData;
+        }
+        List<ModVersionData> out = new ArrayList<>();
+        for (ModVersionData v : versionData) {
+            if ((gameVersion == null || v.getGameVersions().contains(gameVersion)) && (modLoader == null || v.getModLoaders().contains(modLoader))) {
+                out.add(v);
+            }
+        }
+        return out;
+    }
+
+    @Override
+    public List<ModVersionData> updateVersions() {
+        return updateVersions(null, null);
+    }
+
+    public List<ModVersionData> updateVersions(String gameVersion, String modLoader) {
+        versionData = List.copyOf(VersionLoader.getModrinthVersion(id, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader)));
+        return versionData;
     }
 
     public List<String> getAdditionalCategories() {

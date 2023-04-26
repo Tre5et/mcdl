@@ -32,6 +32,7 @@ public class Sources {
     private static final String MODRINTH_VERSIONS_URL = "https://api.modrinth.com/v2/project/%s/version"; // %s := project id
     private static final String MODRINTH_VERSIONS_GAMEVERSIONS_PARAM = "game_versions"; // list of quoted game versions
     private static final String MODRINTH_VERSIONS_LOADERS_PARAM = "loaders"; // list of quoted mod loaders
+    private static final String MODRINTH_VERSION_URL = "https://api.modrinth.com/v2/version/%s";
     private static final List<Map.Entry<String, String>> MODRINTH_HEADERS = List.of(Map.entry("User-Agent", "Tre5et/minecraft-launcher/0.1-ALPHA"));
     private static final String CURSEFORGE_SEARCH_URL = "https://api.curseforge.com/v1/mods/search";
     private static final List<Map.Entry<String, String>> CURSEFORGE_SEARCH_DEFAULT_PARAMS = List.of(Map.entry("gameId", "432"), Map.entry("sortField", "4"));
@@ -41,9 +42,10 @@ public class Sources {
     private static final String CURSEFORGE_SEARCH_LIMIT_PARAM = "pageSize";
     private static final String CURSEFORGE_SEARCH_OFFSET_PARAM = "index";
     private static final String CURSEFORGE_PROJECT_URL = "https://api.curseforge.com/v1/mods/%d"; // %d = modId
-    private static final String CURSEFORGE_VERSION_URL = "https://api.curseforge.com/v1/mods/%d/files"; // %d = modId
-    private static final String CURSEFORGE_VERSION_GAMEVERSION_PARAM = CURSEFORGE_SEARCH_GAMEVERSION_PARAM; // %s := game version
-    private static final String CURSEFORGE_VERSION_LOADER_PARAM = CURSEFORGE_SEARCH_LOADER_PARAM; // %d := mod loader index (1=forge, 4=fabric)
+    private static final String CURSEFORGE_VERSIONS_URL = "https://api.curseforge.com/v1/mods/%d/files"; // %d = modId
+    private static final String CURSEFORGE_VERSIONS_GAMEVERSION_PARAM = CURSEFORGE_SEARCH_GAMEVERSION_PARAM; // %s := game version
+    private static final String CURSEFORGE_VERSIONS_LOADER_PARAM = CURSEFORGE_SEARCH_LOADER_PARAM; // %d := mod loader index (1=forge, 4=fabric)
+    private static final String CURSEFORGE_VERSION_URL = "https://api.curseforge.com/v1/mods/%d/files/%d";
     private static final List<Map.Entry<String, String>> CURSEFORGE_HEADERS = List.of(Map.entry("Accept", "application/json"), Map.entry("x-api-key", "$2a$10$3rdQBL3FRS2RSSS4MF5F5uuOQpFr5flAzUCAdBvZDEfu1fIXFq.DW"));
 
     public static String getFabricMavenUrl() {
@@ -102,6 +104,10 @@ public class Sources {
         return MODRINTH_VERSIONS_LOADERS_PARAM;
     }
 
+    public static String getModrinthVersionUrl() {
+        return MODRINTH_VERSION_URL;
+    }
+
     public static List<Map.Entry<String, String>> getCurseforgeHeaders() {
         return CURSEFORGE_HEADERS;
     }
@@ -142,16 +148,20 @@ public class Sources {
         return CURSEFORGE_PROJECT_URL;
     }
 
+    public static String getCurseforgeVersionsUrl() {
+        return CURSEFORGE_VERSIONS_URL;
+    }
+
+    public static String getCurseforgeVersionsGameversionParam() {
+        return CURSEFORGE_VERSIONS_GAMEVERSION_PARAM;
+    }
+
+    public static String getCurseforgeVersionsLoaderParam() {
+        return CURSEFORGE_VERSIONS_LOADER_PARAM;
+    }
+
     public static String getCurseforgeVersionUrl() {
         return CURSEFORGE_VERSION_URL;
-    }
-
-    public static String getCurseforgeVersionGameversionParam() {
-        return CURSEFORGE_VERSION_GAMEVERSION_PARAM;
-    }
-
-    public static String getCurseforgeVersionLoaderParam() {
-        return CURSEFORGE_VERSION_LOADER_PARAM;
     }
 
     public static String getFabricForMinecraftVersion(String version) {
@@ -165,7 +175,7 @@ public class Sources {
     public static String getFileFromHttpGet(String getUrl, List<Map.Entry<String, String>> headers, List<Map.Entry<String, String>> params) {
         HttpClient httpClient = HttpClient.newHttpClient();
 
-        HttpRequest request = null;
+        HttpRequest request;
         StringBuilder url = new StringBuilder();
         url.append(getUrl).append("?");
         for(Map.Entry<String, String> p : params) {

@@ -1,27 +1,26 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.JsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.GenericModVersion;
 import net.treset.mc_version_loader.mods.ModData;
+import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 
-public class CurseforgeFile extends GenericModVersion {
+public class CurseforgeFile extends GenericModVersion implements JsonParsable {
     private int alternateFileId;
     private List<CurseforgeDependency> dependencies;
     private String displayName;
     private int downloadCount;
     private String downloadUrl;
     private String fileDate;
-    private int fileFingerprint;
+    private long fileFingerprint;
     private int fileLength;
     private String fileName;
     private int fileStatus;
@@ -36,8 +35,9 @@ public class CurseforgeFile extends GenericModVersion {
     private int releaseType;
     private List<CurseforgeSortableGameVersion> sortableGameVersions;
     private ModData parentMod;
+    private transient List<ModVersionData> requiredDependencies;
 
-    public CurseforgeFile(int alternateFileId, List<CurseforgeDependency> dependencies, String displayName, int downloadCount, String downloadUrl, String fileDate, int fileFingerprint, int fileLength, String fileName, int fileStatus, int gameId, List<String> gameVersions, List<CurseforgeHash> hashes, int id, boolean isAvailable, boolean isServerPack, int modId, List<CurseforgeModule> modules, int releaseType, List<CurseforgeSortableGameVersion> sortableGameVersions, ModData parentMod) {
+    public CurseforgeFile(int alternateFileId, List<CurseforgeDependency> dependencies, String displayName, int downloadCount, String downloadUrl, String fileDate, long fileFingerprint, int fileLength, String fileName, int fileStatus, int gameId, List<String> gameVersions, List<CurseforgeHash> hashes, int id, boolean isAvailable, boolean isServerPack, int modId, List<CurseforgeModule> modules, int releaseType, List<CurseforgeSortableGameVersion> sortableGameVersions, ModData parentMod) {
         this.alternateFileId = alternateFileId;
         this.dependencies = dependencies;
         this.displayName = displayName;
@@ -61,47 +61,14 @@ public class CurseforgeFile extends GenericModVersion {
         this.parentMod = parentMod;
     }
 
-    public static CurseforgeFile fromJson(JsonObject fileObj, ModData parentMod) {
-        return new CurseforgeFile(
-                JsonUtils.getAsInt(fileObj, "alternateFileId"),
-                CurseforgeDependency.parseCurseforgeDependencies(JsonUtils.getAsJsonArray(fileObj, "dependencies")),
-                JsonUtils.getAsString(fileObj, "displayName"),
-                JsonUtils.getAsInt(fileObj, "downloadCount"),
-                JsonUtils.getAsString(fileObj, "downloadUrl"),
-                JsonUtils.getAsString(fileObj, "fileDate"),
-                JsonUtils.getAsInt(fileObj, "fileFingerprint"),
-                JsonUtils.getAsInt(fileObj, "fileLength"),
-                JsonUtils.getAsString(fileObj, "fileName"),
-                JsonUtils.getAsInt(fileObj, "fileStatus"),
-                JsonUtils.getAsInt(fileObj, "gameId"),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(fileObj, "gameVersions")),
-                CurseforgeHash.parseCursefprgeHashes(JsonUtils.getAsJsonArray(fileObj, "hashes")),
-                JsonUtils.getAsInt(fileObj, "id"),
-                JsonUtils.getAsBoolean(fileObj, "isAvailable"),
-                JsonUtils.getAsBoolean(fileObj, "isServerPack"),
-                JsonUtils.getAsInt(fileObj, "modId"),
-                CurseforgeModule.parseCurseforgeModules(JsonUtils.getAsJsonArray(fileObj, "modules")),
-                JsonUtils.getAsInt(fileObj, "releaseType"),
-                CurseforgeSortableGameVersion.parseCurseforgeSortableGameVersion(JsonUtils.getAsJsonArray(fileObj, "sortableGameVersions")),
-                parentMod
-        );
+    public static CurseforgeFile fromJson(String json) {
+        return GenericJsonParsable.fromJson(json, CurseforgeFile.class);
     }
 
-    public static List<CurseforgeFile> parseCurseforgeFiles(JsonArray filesArray, ModData parentMod) {
-        List<CurseforgeFile> files = new ArrayList<>();
-        if(filesArray != null) {
-            for(JsonElement e : filesArray) {
-                files.add(fromJson(JsonUtils.getAsJsonObject(e), parentMod));
-            }
-        }
-        return files;
+    @Override
+    public boolean writeToFile(String filePath) {
+        return JsonUtils.writeJsonToFile(this, filePath);
     }
-
-    public static List<CurseforgeFile> parseCurseforgeFiles(String json, ModData parentMod) {
-        JsonObject filesObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
-        return parseCurseforgeFiles(JsonUtils.getAsJsonArray(filesObj, "data"), parentMod);
-    }
-
 
     @Override
     public LocalDateTime getDatePublished() {
@@ -169,17 +136,18 @@ public class CurseforgeFile extends GenericModVersion {
     }
 
     @Override
-    public List<ModData> getRequiredDependencies() {
-        if(dependencies == null) {
-            return null;
-        }
-        List<ModData> out = new ArrayList<>();
-        for(CurseforgeDependency d : dependencies) {
-            if(d != null && d.getRelationType() == 3) {
-                // TODO
+    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) {
+        if(requiredDependencies == null) {
+            requiredDependencies = new ArrayList<>();
+            if(dependencies != null) {
+                for (CurseforgeDependency d : dependencies) {
+                    if (d != null && d.getRelationType() == 3) {
+                        requiredDependencies.add(VersionLoader.getCurseforgeVersions(d.getModId(), null, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader)).getData().get(0));
+                    }
+                }
             }
         }
-        return out;
+        return requiredDependencies;
     }
 
     @Override
@@ -237,11 +205,11 @@ public class CurseforgeFile extends GenericModVersion {
         this.fileDate = fileDate;
     }
 
-    public int getFileFingerprint() {
+    public long getFileFingerprint() {
         return fileFingerprint;
     }
 
-    public void setFileFingerprint(int fileFingerprint) {
+    public void setFileFingerprint(long fileFingerprint) {
         this.fileFingerprint = fileFingerprint;
     }
 

@@ -1,9 +1,7 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
-import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
-import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.GenericModData;
 import net.treset.mc_version_loader.mods.ModVersionData;
 
@@ -31,10 +29,11 @@ public class ModrinthSearchHit extends GenericModData {
     private String projectType;
     private String serverSide;
     private String slug;
-    private String name;
+    private String title;
     private List<String> versions;
+    private transient List<ModVersionData> versionData;
 
-    public ModrinthSearchHit(String author, List<String> categories, String clientSide, int color, String dateCreated, String dateModified, String description, List<String> displayCategories, int downloads, String featuredGallery, int follows, List<String> gallery, String iconUrl, String latestVersion, String license, String projectId, String projectType, String serverSide, String slug, String name, List<String> versions) {
+    public ModrinthSearchHit(String author, List<String> categories, String clientSide, int color, String dateCreated, String dateModified, String description, List<String> displayCategories, int downloads, String featuredGallery, int follows, List<String> gallery, String iconUrl, String latestVersion, String license, String projectId, String projectType, String serverSide, String slug, String title, List<String> versions) {
         this.author = author;
         this.categories = categories;
         this.clientSide = clientSide;
@@ -54,34 +53,8 @@ public class ModrinthSearchHit extends GenericModData {
         this.projectType = projectType;
         this.serverSide = serverSide;
         this.slug = slug;
-        this.name = name;
+        this.title = title;
         this.versions = versions;
-    }
-
-    public static ModrinthSearchHit fromJson(JsonObject hitObj) {
-        return new ModrinthSearchHit(
-                JsonUtils.getAsString(hitObj, "author"),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(hitObj, "categories")),
-                JsonUtils.getAsString(hitObj, "client_side"),
-                JsonUtils.getAsInt(hitObj, "color"),
-                JsonUtils.getAsString(hitObj, "date_created"),
-                JsonUtils.getAsString(hitObj, "date_modified"),
-                JsonUtils.getAsString(hitObj, "description"),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(hitObj, "display_categories")),
-                JsonUtils.getAsInt(hitObj, "downloads"),
-                JsonUtils.getAsString(hitObj, "featured_gallery"),
-                JsonUtils.getAsInt(hitObj, "follows"),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(hitObj, "gallery")),
-                JsonUtils.getAsString(hitObj, "icon_url"),
-                JsonUtils.getAsString(hitObj, "latest_version"),
-                JsonUtils.getAsString(hitObj, "license"),
-                JsonUtils.getAsString(hitObj, "project_id"),
-                JsonUtils.getAsString(hitObj, "project_type"),
-                JsonUtils.getAsString(hitObj, "server_side"),
-                JsonUtils.getAsString(hitObj, "slug"),
-                JsonUtils.getAsString(hitObj, "title"),
-                JsonUtils.parseJsonStringArray(JsonUtils.getAsJsonArray(hitObj, "versions"))
-        );
     }
 
     @Override
@@ -148,7 +121,7 @@ public class ModrinthSearchHit extends GenericModData {
 
     @Override
     public String getName() {
-        return name;
+        return title;
     }
 
     @Override
@@ -158,8 +131,29 @@ public class ModrinthSearchHit extends GenericModData {
 
     @Override
     public List<ModVersionData> getVersions(String gameVersion, String modLoader) {
-        List<ModrinthVersion> modrinthVersions = VersionLoader.getModrinthVersion(projectId, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader));
-        return new ArrayList<>(modrinthVersions);
+        if(versionData == null) {
+            updateVersions();
+        }
+        if(gameVersion == null && modLoader == null) {
+            return versionData;
+        }
+        List<ModVersionData> out = new ArrayList<>();
+        for (ModVersionData v : versionData) {
+            if ((gameVersion == null || v.getGameVersions().contains(gameVersion)) && (modLoader == null || v.getModLoaders().contains(modLoader))) {
+                out.add(v);
+            }
+        }
+        return out;
+    }
+
+    @Override
+    public List<ModVersionData> updateVersions() {
+        return updateVersions(null, null);
+    }
+
+    public List<ModVersionData> updateVersions(String gameVersion, String modLoader) {
+        versionData = List.copyOf(VersionLoader.getModrinthVersion(projectId, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader)));
+        return versionData;
     }
 
     public String getAuthor() {
@@ -290,8 +284,8 @@ public class ModrinthSearchHit extends GenericModData {
         this.slug = slug;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public void setVersions(List<String> versions) {

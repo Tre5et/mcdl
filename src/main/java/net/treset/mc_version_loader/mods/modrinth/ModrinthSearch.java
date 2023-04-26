@@ -1,14 +1,10 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class ModrinthSearch {
+public class ModrinthSearch extends GenericJsonParsable {
     private List<ModrinthSearchHit> hits;
     private int limit;
     private int offset;
@@ -19,6 +15,10 @@ public class ModrinthSearch {
         this.limit = limit;
         this.offset = offset;
         this.totalHits = totalHits;
+    }
+
+    public static ModrinthSearch fromJson(String json) {
+        return fromJson(json, ModrinthSearch.class);
     }
 
     public List<ModrinthSearchHit> getHits() {
@@ -52,25 +52,4 @@ public class ModrinthSearch {
     public void setTotalHits(int totalHits) {
         this.totalHits = totalHits;
     }
-
-    public static ModrinthSearch fromJson(String json) {
-        JsonObject searchObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
-        return new ModrinthSearch(
-                parseModrinthSearchHits(JsonUtils.getAsJsonArray(searchObj, "hits")),
-                JsonUtils.getAsInt(searchObj, "limit"),
-                JsonUtils.getAsInt(searchObj, "offset"),
-                JsonUtils.getAsInt(searchObj, "total_hits")
-        );
-    }
-
-    private static List<ModrinthSearchHit> parseModrinthSearchHits(JsonArray hitsArray) {
-        List<ModrinthSearchHit> out = new ArrayList<>();
-        if(hitsArray != null) {
-            for(JsonElement e : hitsArray) {
-                out.add(ModrinthSearchHit.fromJson(JsonUtils.getAsJsonObject(e)));
-            }
-        }
-        return out;
-    }
-
 }
