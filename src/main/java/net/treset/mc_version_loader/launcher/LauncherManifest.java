@@ -1,9 +1,6 @@
 package net.treset.mc_version_loader.launcher;
 
-import com.google.gson.*;
-import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
-import net.treset.mc_version_loader.json.JsonUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +14,7 @@ public class LauncherManifest extends GenericJsonParsable {
     private List<String> includedFiles;
     private List<String> components;
     private transient Map<String, LauncherManifestType> typeConversion;
+    private transient String directory;
 
     public LauncherManifest(String type, Map<String, LauncherManifestType> typeConversion, String id, String details, String prefix, String name, List<String> includedFiles, List<String> components) {
         this.type = type;
@@ -101,5 +99,13 @@ public class LauncherManifest extends GenericJsonParsable {
 
     public void setTypeConversion(Map<String, LauncherManifestType> typeConversion) {
         this.typeConversion = typeConversion;
+    }
+
+    public String getDirectory() {
+        return directory;
+    }
+
+    public void setDirectory(String directory) {
+        this.directory = directory;
     }
 }

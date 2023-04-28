@@ -1,8 +1,6 @@
 package net.treset.mc_version_loader.launcher;
 
-import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
-import net.treset.mc_version_loader.json.JsonUtils;
 
 import java.util.List;
 
@@ -12,17 +10,17 @@ public class LauncherInstanceDetails extends GenericJsonParsable {
     private List<LauncherLaunchArgument> jvm_arguments;
     private String modsComponent;
     private String optionsComponent;
-    private String resourcePacksComponent;
+    private String resourcepacksComponent;
     private String savesComponent;
     private String versionComponent;
 
-    public LauncherInstanceDetails(List<LauncherFeature> features, List<String> ignoredFiles, List<LauncherLaunchArgument> jvm_arguments, String modsComponent, String optionsComponent, String resourcePacksComponent, String savesComponent, String versionComponent) {
+    public LauncherInstanceDetails(List<LauncherFeature> features, List<String> ignoredFiles, List<LauncherLaunchArgument> jvm_arguments, String modsComponent, String optionsComponent, String resourcepacksComponent, String savesComponent, String versionComponent) {
         this.features = features;
         this.ignoredFiles = ignoredFiles;
         this.jvm_arguments = jvm_arguments;
         this.modsComponent = modsComponent;
         this.optionsComponent = optionsComponent;
-        this.resourcePacksComponent = resourcePacksComponent;
+        this.resourcepacksComponent = resourcepacksComponent;
         this.savesComponent = savesComponent;
         this.versionComponent = versionComponent;
     }
@@ -71,12 +69,12 @@ public class LauncherInstanceDetails extends GenericJsonParsable {
         this.optionsComponent = optionsComponent;
     }
 
-    public String getResourcePacksComponent() {
-        return resourcePacksComponent;
+    public String getResourcepacksComponent() {
+        return resourcepacksComponent;
     }
 
-    public void setResourcePacksComponent(String resourcePacksComponent) {
-        this.resourcePacksComponent = resourcePacksComponent;
+    public void setResourcepacksComponent(String resourcepacksComponent) {
+        this.resourcepacksComponent = resourcepacksComponent;
     }
 
     public String getSavesComponent() {
