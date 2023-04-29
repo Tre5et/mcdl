@@ -1,13 +1,8 @@
 package net.treset.mc_version_loader.launcher;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.format.FormatUtils;
-import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.os.OsDetails;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -85,6 +80,9 @@ public class LauncherLaunchArgument {
     }
 
     public List<String> getReplacementValues() {
+        if(replacementValues == null) {
+            replacementValues = FormatUtils.findMatches(argument, "\\$\\{([a-zA-z_\\-\\d]*)\\}");
+        }
         return replacementValues;
     }
 
