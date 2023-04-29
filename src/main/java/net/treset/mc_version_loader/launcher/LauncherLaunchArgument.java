@@ -27,10 +27,10 @@ public class LauncherLaunchArgument {
     public boolean replace(Map<String, String> replacements) {
         boolean allReplaced = true;
         for(Map.Entry<String, String> e : replacements.entrySet()) {
-            if(replacementValues.contains(e.getKey())) {
-                int index = Math.max(0, parsedArgument.indexOf(e.getKey()));
-                String firstStringPart = parsedArgument.substring(0, Math.max(0, index - 2));
-                String tempLastPart = parsedArgument.substring(index);
+            if(getReplacementValues().contains(e.getKey())) {
+                int index = Math.max(0, getParsedArgument().indexOf(e.getKey()));
+                String firstStringPart = getParsedArgument().substring(0, Math.max(0, index - 2));
+                String tempLastPart = getParsedArgument().substring(index);
                 String lastStringPart = tempLastPart.substring(Math.max(0, Math.min(tempLastPart.length(), tempLastPart.indexOf('}') + 1)));
                 parsedArgument = firstStringPart + e.getValue() + lastStringPart;
                 replacementValues.remove(e.getKey());
@@ -72,6 +72,9 @@ public class LauncherLaunchArgument {
     }
 
     public String getParsedArgument() {
+        if(parsedArgument == null) {
+            parsedArgument = argument;
+        }
         return parsedArgument;
     }
 
