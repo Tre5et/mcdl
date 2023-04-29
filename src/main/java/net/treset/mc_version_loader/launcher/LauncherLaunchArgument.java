@@ -12,14 +12,16 @@ public class LauncherLaunchArgument {
     private String feature;
     private String osName;
     private String osVersion;
+    private String osArch;
     private String parsedArgument;
     private List<String> replacementValues;
 
-    public LauncherLaunchArgument(String argument, String feature, String osName, String osVersion) {
+    public LauncherLaunchArgument(String argument, String feature, String osName, String osVersion, String osArch) {
         this.argument = argument;
         this.feature = feature;
         this.osName = osName;
         this.osVersion = osVersion;
+        this.osArch = osArch;
         replacementValues = FormatUtils.findMatches(argument, "\\$\\{([a-zA-z_\\-\\d]*)\\}");
         parsedArgument = argument;
     }
@@ -56,6 +58,11 @@ public class LauncherLaunchArgument {
         }
         if(getOsName() != null && !getOsName().isBlank()) {
             if(!OsDetails.isOsName(getOsName())) {
+                return false;
+            }
+        }
+        if(getOsArch() != null && !getOsArch().isBlank()) {
+            if(!OsDetails.isOsArch(getOsArch())) {
                 return false;
             }
         }
@@ -123,5 +130,13 @@ public class LauncherLaunchArgument {
 
     public void setOsVersion(String osVersion) {
         this.osVersion = osVersion;
+    }
+
+    public String getOsArch() {
+        return osArch;
+    }
+
+    public void setOsArch(String osArch) {
+        this.osArch = osArch;
     }
 }

@@ -11,7 +11,7 @@ public class FormatUtils {
     public static boolean matches(String testString, String pattern) {
         final Pattern patter = Pattern.compile(pattern);
         final Matcher matcher = patter.matcher(testString);
-        return matcher.matches();
+        return matcher.find();
     }
 
     public static String firstGroup(String testString, String pattern) {
