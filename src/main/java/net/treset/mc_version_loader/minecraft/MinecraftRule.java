@@ -1,18 +1,13 @@
 package net.treset.mc_version_loader.minecraft;
 
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.JsonUtils;
-import net.treset.mc_version_loader.os.OsDetails;
-
 import java.util.List;
-import java.util.Objects;
 
 public class MinecraftRule {
     private String action;
     private Os os;
     private Features features;
 
-    private static class Os {
+    public static class Os {
         private String name;
         private String version;
         private String arch;
@@ -48,7 +43,7 @@ public class MinecraftRule {
         }
     }
 
-    private static class Features {
+    public static class Features {
         private boolean hasCustomResolution;
         private boolean isDemoUser;
 
