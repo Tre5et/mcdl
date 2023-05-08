@@ -135,7 +135,7 @@ public class JsonUtils {
     public static boolean writeJsonToFile(Object toWrite, String path) {
         try {
             File file = new File(path);
-            if(!file.isFile() && !file.createNewFile()) {
+            if(!file.isFile() && ((!file.getParentFile().isDirectory() && !file.getParentFile().mkdirs()) || !file.createNewFile())) {
                 LOGGER.log(Level.SEVERE, "Unable to create file " + path);
                 return false;
             }
