@@ -1,9 +1,8 @@
 package net.treset.mc_version_loader.json;
 
 import com.google.gson.*;
-import net.treset.mc_version_loader.files.FileUtils;
 
-import javax.security.auth.login.AppConfigurationEntry;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -135,6 +134,11 @@ public class JsonUtils {
 
     public static boolean writeJsonToFile(Object toWrite, String path) {
         try {
+            File file = new File(path);
+            if(!file.isFile() && !file.createNewFile()) {
+                LOGGER.log(Level.SEVERE, "Unable to create file " + path);
+                return false;
+            }
             FileWriter writer = new FileWriter(path);
             getGson().toJson(toWrite, writer);
             writer.flush();
