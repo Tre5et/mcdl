@@ -13,8 +13,8 @@ public class LauncherLaunchArgument {
     private String osName;
     private String osVersion;
     private String osArch;
-    private String parsedArgument;
-    private List<String> replacementValues;
+    private transient String parsedArgument;
+    private transient List<String> replacementValues;
 
     public LauncherLaunchArgument(String argument, String feature, String osName, String osVersion, String osArch) {
         this.argument = argument;
