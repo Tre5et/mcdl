@@ -16,7 +16,6 @@ import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
 import java.util.*;
 
 public class VersionLoader {
-
     public static List<MinecraftVersion> getVersions() {
         return MinecraftVersion.fromVersionManifest(Sources.getVersionManifestJson());
     }
