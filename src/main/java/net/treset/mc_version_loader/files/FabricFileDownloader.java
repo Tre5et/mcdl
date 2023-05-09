@@ -67,8 +67,6 @@ public class FabricFileDownloader {
             return false;
         }
 
-
-
         File libraryDir = new File(baseDir, mavenPom.getMavenDir());
         if(!libraryDir.isDirectory() && !libraryDir.mkdirs()) {
             LOGGER.log(Level.WARNING, "Unable to create library dir");
