@@ -1,8 +1,6 @@
 package net.treset.mc_version_loader.launcher;
 
-import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
-import net.treset.mc_version_loader.json.JsonUtils;
 
 import java.util.List;
 
@@ -15,8 +13,9 @@ public class LauncherVersionDetails extends GenericJsonParsable {
     private List<String> libraries;
     private String mainClass;
     private String mainFile;
+    private String versionId;
 
-    public LauncherVersionDetails(String assets, String depends, List<LauncherLaunchArgument> gameArguments, List<LauncherLaunchArgument> jvmArguments, String java, List<String> libraries, String mainClass, String mainFile) {
+    public LauncherVersionDetails(String assets, String depends, List<LauncherLaunchArgument> gameArguments, List<LauncherLaunchArgument> jvmArguments, String java, List<String> libraries, String mainClass, String mainFile, String versionId) {
         this.assets = assets;
         this.depends = depends;
         this.gameArguments = gameArguments;
@@ -25,6 +24,7 @@ public class LauncherVersionDetails extends GenericJsonParsable {
         this.libraries = libraries;
         this.mainClass = mainClass;
         this.mainFile = mainFile;
+        this.versionId = versionId;
     }
 
     public static LauncherVersionDetails fromJson(String json) {
@@ -93,5 +93,13 @@ public class LauncherVersionDetails extends GenericJsonParsable {
 
     public void setMainFile(String mainFile) {
         this.mainFile = mainFile;
+    }
+
+    public String getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(String versionId) {
+        this.versionId = versionId;
     }
 }
