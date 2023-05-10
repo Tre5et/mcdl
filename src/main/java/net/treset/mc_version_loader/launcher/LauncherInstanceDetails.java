@@ -1,13 +1,17 @@
 package net.treset.mc_version_loader.launcher;
 
+import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class LauncherInstanceDetails extends GenericJsonParsable {
     private List<LauncherFeature> features;
     private List<String> ignoredFiles;
     private List<LauncherLaunchArgument> jvm_arguments;
+    private String lastPlayed;
+    private long totalTime;
     private String modsComponent;
     private String optionsComponent;
     private String resourcepacksComponent;
@@ -51,6 +55,28 @@ public class LauncherInstanceDetails extends GenericJsonParsable {
 
     public void setJvm_arguments(List<LauncherLaunchArgument> jvm_arguments) {
         this.jvm_arguments = jvm_arguments;
+    }
+
+    private LocalDateTime getLastPlayedTime() {
+        return FormatUtils.parseLocalDateTime(getLastPlayed());
+    }
+    public String getLastPlayed() {
+        return lastPlayed;
+    }
+    public void setLastPlayedTime(LocalDateTime lastPlayed) {
+        setLastPlayed(FormatUtils.formatLocalDateTime(lastPlayed));
+    }
+
+    public void setLastPlayed(String lastPlayed) {
+        this.lastPlayed = lastPlayed;
+    }
+
+    public long getTotalTime() {
+        return totalTime;
+    }
+
+    public void setTotalTime(long totalTime) {
+        this.totalTime = totalTime;
     }
 
     public String getModsComponent() {

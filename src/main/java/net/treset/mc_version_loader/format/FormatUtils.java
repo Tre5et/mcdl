@@ -41,7 +41,7 @@ public class FormatUtils {
         return LocalDateTime.from(formatter.parse(time));
     }
 
-    public static String fromLocalDateTime(LocalDateTime time) {
+    public static String formatLocalDateTime(LocalDateTime time) {
         if(time == null) {
             return null;
         }
