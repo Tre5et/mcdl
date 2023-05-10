@@ -1,5 +1,6 @@
 package net.treset.mc_version_loader.fabric;
 
+import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.minecraft.MinecraftLaunchArguments;
@@ -7,7 +8,7 @@ import net.treset.mc_version_loader.minecraft.MinecraftLaunchArguments;
 import java.util.List;
 
 public class FabricProfile extends GenericJsonParsable {
-    private MinecraftLaunchArguments arguments;
+    private MinecraftLaunchArguments launchArguments;
     private String id;
     private String inheritsFrom;
     private List<FabricLibrary> libraries;
@@ -16,8 +17,8 @@ public class FabricProfile extends GenericJsonParsable {
     private String time;
     private String type;
 
-    public FabricProfile(MinecraftLaunchArguments arguments, String id, String inheritsFrom, List<FabricLibrary> libraries, String mainClass, String releaseTime, String time, String type) {
-        this.arguments = arguments;
+    public FabricProfile(MinecraftLaunchArguments launchArguments, String id, String inheritsFrom, List<FabricLibrary> libraries, String mainClass, String releaseTime, String time, String type) {
+        this.launchArguments = launchArguments;
         this.id = id;
         this.inheritsFrom = inheritsFrom;
         this.libraries = libraries;
@@ -28,15 +29,18 @@ public class FabricProfile extends GenericJsonParsable {
     }
 
     public static FabricProfile fromJson(String json) {
-        return fromJson(json, FabricProfile.class, JsonUtils.getGsonCamelCase());
+        FabricProfile result = fromJson(json, FabricProfile.class, JsonUtils.getGsonCamelCase());
+        JsonObject argumentsObj = JsonUtils.getAsJsonObject(JsonUtils.getAsJsonObject(JsonUtils.parseJson(json)), "arguments");
+        result.setLaunchArguments(MinecraftLaunchArguments.fromJson(argumentsObj));
+        return result;
     }
 
-    public MinecraftLaunchArguments getArguments() {
-        return arguments;
+    public MinecraftLaunchArguments getLaunchArguments() {
+        return launchArguments;
     }
 
-    public void setArguments(MinecraftLaunchArguments arguments) {
-        this.arguments = arguments;
+    public void setLaunchArguments(MinecraftLaunchArguments launchArguments) {
+        this.launchArguments = launchArguments;
     }
 
     public String getId() {
