@@ -7,7 +7,7 @@ import net.treset.mc_version_loader.minecraft.MinecraftLaunchArguments;
 import java.util.List;
 
 public class FabricProfile extends GenericJsonParsable {
-    private MinecraftLaunchArguments launchArguments;
+    private MinecraftLaunchArguments arguments;
     private String id;
     private String inheritsFrom;
     private List<FabricLibrary> libraries;
@@ -16,8 +16,8 @@ public class FabricProfile extends GenericJsonParsable {
     private String time;
     private String type;
 
-    public FabricProfile(MinecraftLaunchArguments launchArguments, String id, String inheritsFrom, List<FabricLibrary> libraries, String mainClass, String releaseTime, String time, String type) {
-        this.launchArguments = launchArguments;
+    public FabricProfile(MinecraftLaunchArguments arguments, String id, String inheritsFrom, List<FabricLibrary> libraries, String mainClass, String releaseTime, String time, String type) {
+        this.arguments = arguments;
         this.id = id;
         this.inheritsFrom = inheritsFrom;
         this.libraries = libraries;
@@ -31,12 +31,12 @@ public class FabricProfile extends GenericJsonParsable {
         return fromJson(json, FabricProfile.class, JsonUtils.getGsonCamelCase());
     }
 
-    public MinecraftLaunchArguments getLaunchArguments() {
-        return launchArguments;
+    public MinecraftLaunchArguments getArguments() {
+        return arguments;
     }
 
-    public void setLaunchArguments(MinecraftLaunchArguments launchArguments) {
-        this.launchArguments = launchArguments;
+    public void setArguments(MinecraftLaunchArguments arguments) {
+        this.arguments = arguments;
     }
 
     public String getId() {

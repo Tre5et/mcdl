@@ -1,6 +1,5 @@
 package net.treset.mc_version_loader.fabric;
 
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
@@ -19,7 +18,7 @@ public class FabricVersionDetails extends GenericJsonParsable {
     }
 
     public static FabricVersionDetails fromJson(String versionJson) {
-        return fromJson(versionJson, FabricVersionDetails.class);
+        return fromJson(versionJson, FabricVersionDetails.class, JsonUtils.getGsonCamelCase());
     }
 
     public static List<FabricVersionDetails> fromJsonArray(String jsonArray) {
