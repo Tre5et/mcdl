@@ -18,6 +18,7 @@ public class Sources {
 
     private static final String VERSION_MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
     private static final String JAVA_RUNTIME_URL = "https://launchermeta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
+    private static final String ASSETS_BASE_URL = "https://resources.download.minecraft.net/";
     private static final String FABRIC_LOADER_MANIFEST_URL = "https://meta.fabricmc.net/v2/versions/loader/%s";
     private static final String FABRIC_LOADER_VERSION_URL = "https://meta.fabricmc.net/v2/versions/loader/%s/%s";
     private static final String FABRIC_MAVEN_URL = "https://maven.fabricmc.net/";
@@ -58,6 +59,10 @@ public class Sources {
 
     public static String getJavaRuntimeJson() {
         return getFileFromUrl(JAVA_RUNTIME_URL);
+    }
+
+    public static String getAssetsBaseUrl() {
+        return ASSETS_BASE_URL;
     }
 
     public static String getModrinthSearchUrl() {
