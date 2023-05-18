@@ -222,4 +222,18 @@ public class CombinedModData extends GenericModData {
     public void setParent2(ModData parent2) {
         this.parent2 = parent2;
     }
+
+    @Override
+    public List<ModProvider> getModProviders() {
+        ArrayList<ModProvider> providers = new ArrayList<>(parent1.getModProviders());
+        providers.addAll(parent2.getModProviders());
+        return providers;
+    }
+
+    @Override
+    public List<String> getProjectIds() {
+        ArrayList<String> ids = new ArrayList<>(parent1.getProjectIds());
+        ids.addAll(parent2.getProjectIds());
+        return ids;
+    }
 }

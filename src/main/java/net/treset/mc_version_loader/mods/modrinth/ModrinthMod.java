@@ -2,7 +2,9 @@ package net.treset.mc_version_loader.mods.modrinth;
 
 import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.mods.GenericModData;
+import net.treset.mc_version_loader.mods.ModProvider;
 import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
@@ -89,7 +91,9 @@ public class ModrinthMod extends GenericModData {
         this.wikiUrl = wikiUrl;
     }
 
-
+    public static ModrinthMod fromJson(String json) {
+        return GenericJsonParsable.fromJson(json, ModrinthMod.class);
+    }
 
     @Override
     public List<String> getAuthors() {
@@ -449,5 +453,15 @@ public class ModrinthMod extends GenericModData {
 
     public void setWikiUrl(String wikiUrl) {
         this.wikiUrl = wikiUrl;
+    }
+
+    @Override
+    public List<ModProvider> getModProviders() {
+        return List.of(ModProvider.MODRINTH);
+    }
+
+    @Override
+    public List<String> getProjectIds() {
+        return List.of(id);
     }
 }

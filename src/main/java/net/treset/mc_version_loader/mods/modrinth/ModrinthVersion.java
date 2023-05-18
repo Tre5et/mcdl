@@ -6,13 +6,12 @@ import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
-import net.treset.mc_version_loader.mods.GenericModVersion;
-import net.treset.mc_version_loader.mods.ModData;
-import net.treset.mc_version_loader.mods.ModVersionData;
+import net.treset.mc_version_loader.mods.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     private String authorId;
@@ -271,5 +270,19 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
 
     public void setRequiredDependencies(List<ModVersionData> requiredDependencies) {
         this.requiredDependencies = requiredDependencies;
+    }
+
+    @Override
+    public ModVersionType getModVersionType() {
+        return Map.of(
+                "release", ModVersionType.RELEASE,
+                "beta", ModVersionType.BETA,
+                "alpha", ModVersionType.ALPHA
+        ).getOrDefault(versionType, ModVersionType.NONE);
+    }
+
+    @Override
+    public List<ModProvider> getModProviders() {
+        return List.of(ModProvider.MODRINTH);
     }
 }

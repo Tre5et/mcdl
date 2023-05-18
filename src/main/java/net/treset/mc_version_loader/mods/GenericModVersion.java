@@ -7,7 +7,7 @@ import java.util.List;
 public abstract class GenericModVersion implements ModVersionData {
     @Override
     public boolean isSame(ModVersionData otherVersion) {
-        return this.getParentMod() == null && otherVersion.getParentMod() == null || (this.getParentMod() != null && this.getParentMod().isSame(otherVersion.getParentMod()) && (FormatUtils.formatVersionComparison(this.getVersionNumber()).equals(FormatUtils.formatVersionComparison(otherVersion.getVersionNumber())) || FormatUtils.formatVersionComparison(this.getName()).equals(FormatUtils.formatVersionComparison(otherVersion.getName()))));
+        return this.getParentMod() != null &&  otherVersion.getParentMod() != null && this.getModVersionType() == otherVersion.getModVersionType() && this.getParentMod().isSame(otherVersion.getParentMod()) && (FormatUtils.formatVersionComparison(this.getVersionNumber()).equals(FormatUtils.formatVersionComparison(otherVersion.getVersionNumber())) || FormatUtils.formatVersionComparison(this.getName()).equals(FormatUtils.formatVersionComparison(otherVersion.getName())));
     }
 
     @Override

@@ -3,8 +3,14 @@ package net.treset.mc_version_loader.launcher;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.mods.CombinedModData;
 import net.treset.mc_version_loader.mods.ModData;
+import net.treset.mc_version_loader.mods.ModProvider;
+import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
+import net.treset.mc_version_loader.mods.modrinth.ModrinthMod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,18 +20,51 @@ public class LauncherMod {
     private String description;
     private boolean enabled;
     private String iconUrl;
-    private String id;
     private String name;
+    private String fileName;
     private List<LauncherModDownload> downloads;
 
-    public LauncherMod(String currentProvider, String description, boolean enabled, String iconUrl, String id, String name, List<LauncherModDownload> downloads) {
+    public LauncherMod(String currentProvider, String description, boolean enabled, String iconUrl, String name, List<LauncherModDownload> downloads, String fileName) {
         this.currentProvider = currentProvider;
         this.description = description;
         this.enabled = enabled;
         this.iconUrl = iconUrl;
-        this.id = id;
         this.name = name;
         this.downloads = downloads;
+        this.fileName = fileName;
+    }
+
+    public ModData getModData() {
+        ArrayList<ModData> mods = new ArrayList<>();
+        for(LauncherModDownload download : downloads) {
+            if(download.getProvider().equals("modrinth")) {
+                String json = Sources.getFileFromHttpGet(String.format(Sources.getModrinthProjectUrl(), download.getId()), Sources.getModrinthHeaders(), List.of());
+                if(json == null || json.isBlank()) {
+                    continue;
+                }
+                ModrinthMod modrinthMod = ModrinthMod.fromJson(json);
+                if(modrinthMod.getName() != null && !modrinthMod.getName().isBlank()) {
+                    mods.add(modrinthMod);
+                }
+            }
+            if(download.getProvider().equals("curseforge")) {
+                String json = Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), Integer.parseInt(download.getId())), Sources.getCurseforgeHeaders(), List.of());
+                if(json == null || json.isBlank()) {
+                    continue;
+                }
+                CurseforgeMod curseforgeMod = CurseforgeMod.fromJson(json);
+                if(curseforgeMod.getName() != null && !curseforgeMod.getName().isBlank()) {
+                    mods.add(curseforgeMod);
+                }
+            }
+        }
+        if(mods.size() == 0) {
+            return null;
+        }
+        if(mods.size() == 1) {
+            return mods.get(0);
+        }
+        return new CombinedModData(mods.get(0), mods.get(1));
     }
 
     public String getCurrentProvider() {
@@ -60,20 +99,20 @@ public class LauncherMod {
         this.iconUrl = iconUrl;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public List<LauncherModDownload> getDownloads() {

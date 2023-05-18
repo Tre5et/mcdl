@@ -1,10 +1,14 @@
 package net.treset.mc_version_loader;
 
+import net.treset.mc_version_loader.files.ModFileDownloader;
 import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.launcher.LauncherMod;
 import net.treset.mc_version_loader.minecraft.MinecraftVersion;
 import net.treset.mc_version_loader.mods.CombinedModData;
 import net.treset.mc_version_loader.mods.ModData;
+import net.treset.mc_version_loader.mods.ModVersionData;
+import net.treset.mc_version_loader.mods.ModVersionType;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFile;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFiles;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
@@ -13,6 +17,7 @@ import net.treset.mc_version_loader.mods.modrinth.ModrinthSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearchHit;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
 
+import java.io.File;
 import java.util.*;
 
 public class VersionLoader {
@@ -50,7 +55,7 @@ public class VersionLoader {
             }
         }
         mh.removeAll(toRemove);
-        ch.remove(toRemove);
+        ch.removeAll(toRemove);
         combinedMods.addAll(mh);
         combinedMods.addAll(ch);
         return combinedMods;

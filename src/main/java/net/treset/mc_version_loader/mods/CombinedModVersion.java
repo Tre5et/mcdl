@@ -1,5 +1,6 @@
 package net.treset.mc_version_loader.mods;
 
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -19,6 +20,7 @@ public class CombinedModVersion extends GenericModVersion {
     ModData parentMod;
     ModVersionData parent1;
     ModVersionData parent2;
+    ModVersionType type;
 
     public CombinedModVersion(ModVersionData v1, ModVersionData v2, ModData parent) {
         LocalDateTime p1 = v1.getDatePublished();
@@ -34,6 +36,7 @@ public class CombinedModVersion extends GenericModVersion {
         gameVersions = new HashSet<>(v1.getGameVersions());
         gameVersions.addAll(v2.getGameVersions());
         parentMod = parent;
+        type = v1.getModVersionType();
         parent1 = v1;
         parent2 = v2;
     }
@@ -150,5 +153,17 @@ public class CombinedModVersion extends GenericModVersion {
 
     public void setRequiredDependencies(List<ModVersionData> requiredDependencies) {
         this.requiredDependencies = requiredDependencies;
+    }
+
+    @Override
+    public ModVersionType getModVersionType() {
+        return null;
+    }
+
+    @Override
+    public List<ModProvider> getModProviders() {
+        ArrayList<ModProvider> providers = new ArrayList<>(parent1.getModProviders());
+        providers.addAll(parent2.getModProviders());
+        return providers;
     }
 }

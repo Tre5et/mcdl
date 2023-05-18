@@ -5,13 +5,12 @@ import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
-import net.treset.mc_version_loader.mods.GenericModVersion;
-import net.treset.mc_version_loader.mods.ModData;
-import net.treset.mc_version_loader.mods.ModVersionData;
+import net.treset.mc_version_loader.mods.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class CurseforgeFile extends GenericModVersion implements JsonParsable {
     private int alternateFileId;
@@ -311,5 +310,19 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
 
     public void setSortableGameVersions(List<CurseforgeSortableGameVersion> sortableGameVersions) {
         this.sortableGameVersions = sortableGameVersions;
+    }
+
+    @Override
+    public List<ModProvider> getModProviders() {
+        return List.of(ModProvider.CURSEFORGE);
+    }
+
+    @Override
+    public ModVersionType getModVersionType() {
+        return Map.of(
+                1, ModVersionType.RELEASE,
+                2, ModVersionType.BETA,
+                3, ModVersionType.ALPHA
+        ).getOrDefault(releaseType, ModVersionType.NONE);
     }
 }

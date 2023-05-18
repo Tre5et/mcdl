@@ -4,29 +4,18 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.mods.ModData;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LauncherModDownload {
-    private String date;
     private String provider;
     private String id;
-    private String version;
 
-    public LauncherModDownload(String date, String provider, String id, String version) {
-        this.date = date;
+    public LauncherModDownload(String provider, String id) {
         this.provider = provider;
         this.id = id;
-        this.version = version;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
     }
 
     public String getProvider() {
@@ -43,13 +32,5 @@ public class LauncherModDownload {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 }

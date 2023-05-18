@@ -20,6 +20,8 @@ public interface ModData {
     List<ModVersionData> getVersions();
     List<ModVersionData> getVersions(String gameVersion, String modLoader);
     List<ModVersionData> updateVersions();
+    List<ModProvider> getModProviders();
+    List<String> getProjectIds();
 
     boolean isSame(ModData otherMod);
 }

@@ -2,7 +2,10 @@ package net.treset.mc_version_loader.mods.curseforge;
 
 import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.mods.GenericModData;
+import net.treset.mc_version_loader.mods.GenericModVersion;
+import net.treset.mc_version_loader.mods.ModProvider;
 import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
@@ -63,6 +66,10 @@ public class CurseforgeMod extends GenericModData {
         this.status = status;
         this.summary = summary;
         this.thumbsUpCount = thumbsUpCount;
+    }
+
+    public static CurseforgeMod fromJson(String json) {
+        return GenericJsonParsable.fromJson(json, CurseforgeMod.class);
     }
 
     @Override
@@ -372,5 +379,15 @@ public class CurseforgeMod extends GenericModData {
 
     public void setThumbsUpCount(int thumbsUpCount) {
         this.thumbsUpCount = thumbsUpCount;
+    }
+
+    @Override
+    public List<ModProvider> getModProviders() {
+        return List.of(ModProvider.CURSEFORGE);
+    }
+
+    @Override
+    public List<String> getProjectIds() {
+        return List.of(String.valueOf(id));
     }
 }

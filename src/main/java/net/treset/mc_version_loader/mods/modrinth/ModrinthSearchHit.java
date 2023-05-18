@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.mods.modrinth;
 import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.mods.GenericModData;
+import net.treset.mc_version_loader.mods.ModProvider;
 import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
@@ -290,5 +291,15 @@ public class ModrinthSearchHit extends GenericModData {
 
     public void setVersions(List<String> versions) {
         this.versions = versions;
+    }
+
+    @Override
+    public List<ModProvider> getModProviders() {
+        return List.of(ModProvider.MODRINTH);
+    }
+
+    @Override
+    public List<String> getProjectIds() {
+        return List.of(projectId);
     }
 }
