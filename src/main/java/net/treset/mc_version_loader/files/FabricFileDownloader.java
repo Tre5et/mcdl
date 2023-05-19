@@ -6,6 +6,7 @@ import net.treset.mc_version_loader.fabric.FabricLoaderData;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,13 +44,18 @@ public class FabricFileDownloader {
         return FileUtils.downloadFile(downloadUrl, outFile);
     }
 
-    public static boolean downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries) {
-        return libraries.parallelStream()
-                .map(library -> downloadFabricLibrary(baseDir, library))
-                .allMatch(b -> b);
+    public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries) {
+        ArrayList<String> result = new ArrayList<>();
+        if(!libraries.parallelStream()
+                .map(library -> addFabricLibrary(baseDir, library, result))
+                .allMatch(b -> b)) {
+            LOGGER.log(Level.WARNING, "Unable to download all libraries");
+            return null;
+        }
+        return result;
     }
 
-    public static boolean downloadFabricLibrary(File baseDir, FabricLibrary library) {
+    public static boolean addFabricLibrary(File baseDir, FabricLibrary library, ArrayList<String> result) {
         if(library == null || library.getUrl() == null || library.getUrl().isBlank() || library.getName() == null || library.getName().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             LOGGER.log(Level.WARNING, "Unmet requirements for fabric download");
             return false;
@@ -84,6 +90,8 @@ public class FabricFileDownloader {
 
         library.setLocalPath(mavenPom.getMavenDir());
         library.setLocalFileName(mavenPom.getMavenFileName());
+
+        result.add(library.getLocalPath() + library.getLocalFileName());
 
         return FileUtils.downloadFile(downloadUrl, libraryFile);
     }

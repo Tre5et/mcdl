@@ -1,5 +1,7 @@
 package net.treset.mc_version_loader.minecraft;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
@@ -45,6 +47,24 @@ public class MinecraftVersionDetails {
         MinecraftVersionDetails details = GenericJsonParsable.fromJson(jsonData, MinecraftVersionDetails.class, JsonUtils.getGsonCamelCase());
         JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(jsonData));
         details.setLaunchArguments(MinecraftLaunchArguments.fromJson(JsonUtils.getAsJsonObject(versionObj, "arguments")));
+        ArrayList<MinecraftLibrary> libs = new ArrayList<>(details.getLibraries());
+        JsonArray libArr = JsonUtils.getAsJsonArray(versionObj, "libraries");
+        if(libArr != null) {
+            int startingIndex = 0;
+            for (JsonElement e : libArr) {
+                JsonObject classifiersObj = JsonUtils.getAsJsonObject(JsonUtils.getAsJsonObject(JsonUtils.getAsJsonObject(e), "downloads"), "classifiers");
+                if (classifiersObj != null) {
+                    String name = JsonUtils.getAsString(JsonUtils.getAsJsonObject(e), "name");
+                    for (; startingIndex < libs.size(); startingIndex++) {
+                        if (Objects.equals(libs.get(startingIndex).getName(), name) && libs.get(startingIndex).getNatives() != null) {
+                            libs.get(startingIndex).getDownloads().setClassifiers(MinecraftLibrary.Downloads.Classifiers.from(classifiersObj));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        details.setLibraries(libs);
         return details;
     }
 

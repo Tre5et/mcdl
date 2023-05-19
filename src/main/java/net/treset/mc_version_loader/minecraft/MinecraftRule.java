@@ -1,5 +1,7 @@
 package net.treset.mc_version_loader.minecraft;
 
+import net.treset.mc_version_loader.os.OsDetails;
+
 import java.util.List;
 
 public class MinecraftRule {
@@ -16,6 +18,10 @@ public class MinecraftRule {
             this.name = name;
             this.version = version;
             this.arch = arch;
+        }
+
+        public boolean isAllow() {
+            return (name == null || OsDetails.isOsName(name)) && (version == null || OsDetails.isOsVersion(version)) && (arch == null || OsDetails.isOsArch(arch));
         }
 
         public String getName() {
@@ -52,6 +58,10 @@ public class MinecraftRule {
             this.isDemoUser = isDemoUser;
         }
 
+        public boolean isAllow(List<String> features) {
+            return (!isHasCustomResolution() || features.contains("has_custom_resolution")) && (isDemoUser() || features.contains("is_demo_user"));
+        }
+
         public boolean isHasCustomResolution() {
             return hasCustomResolution;
         }
@@ -75,8 +85,16 @@ public class MinecraftRule {
         this.features = features;
     }
 
-    public boolean isApplicable(List<String> feature) {
-        return feature != null && getFeatures() != null && (feature.contains("has_custom_resolution") && getFeatures().hasCustomResolution || feature.contains("is_demo_user") && getFeatures().isDemoUser);
+    public boolean isApplicable(List<String> features) {
+        if(getAction() == null) {
+            return true;
+        }
+        if(getAction().equals("allow")) {
+            return (getOs() == null || getOs().isAllow()) && (getFeatures() == null || getFeatures().isAllow(features));
+        } else if(action.equals("disallow")) {
+            return (getOs() == null || !getOs().isAllow()) && (getFeatures() == null || !getFeatures().isAllow(features));
+        }
+        return true;
     }
 
     public String getAction() {
