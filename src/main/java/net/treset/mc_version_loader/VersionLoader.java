@@ -22,14 +22,6 @@ import java.io.File;
 import java.util.*;
 
 public class VersionLoader {
-    public static void main(String[] args) {
-        MinecraftVersionDetails details = MinecraftVersionDetails.fromJson(Sources.getFileFromUrl("https://piston-meta.mojang.com/v1/packages/23b6e0e0d0f87da36075a4290cd98df1a76e2415/1.18.2.json"));
-        List<String> libs = MinecraftVersionFileDownloader.downloadVersionLibraries(details.getLibraries(), new File("./download/libraries"), List.of());
-        FabricVersionDetails fabricDetails = FabricVersionDetails.fromJson(Sources.getFabricVersion("1.19.4", "0.14.19"));
-        List<String> fabricLibs = FabricFileDownloader.downloadFabricLibraries(new File("./download/libraries"), fabricDetails.getLauncherMeta().getLibraries().getCommon());
-        return;
-    }
-
     public static List<MinecraftVersion> getVersions() {
         return MinecraftVersion.fromVersionManifest(Sources.getVersionManifestJson());
     }

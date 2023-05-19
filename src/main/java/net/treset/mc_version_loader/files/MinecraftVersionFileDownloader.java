@@ -85,7 +85,7 @@ public class MinecraftVersionFileDownloader {
                     if(n.equals(na.getName())) {
                         URL nativeUrl;
                         try {
-                            nativeUrl = new URL(library.getDownloads().getArtifacts().getUrl());
+                            nativeUrl = new URL(na.getArtifact().getUrl());
                         } catch (MalformedURLException e) {
                             LOGGER.log(Level.WARNING, "Unable to convert native download url", e);
                             return false;
