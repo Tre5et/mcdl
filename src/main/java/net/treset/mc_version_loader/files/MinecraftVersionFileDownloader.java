@@ -6,6 +6,7 @@ import net.treset.mc_version_loader.minecraft.MinecraftLibrary;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,6 +29,12 @@ public class MinecraftVersionFileDownloader {
 
         File outFile = new File(baseDir, download.getUrl().substring(download.getUrl().lastIndexOf('/')));
         return FileUtils.downloadFile(downloadUrl, outFile);
+    }
+
+    public static boolean downloadVersionLibraries(List<MinecraftLibrary> libraries, File baseDir) {
+        return libraries.parallelStream()
+                .map(library -> downloadVersionLibrary(library, baseDir))
+                .allMatch(b -> b);
     }
 
     public static boolean downloadVersionLibrary(MinecraftLibrary library, File baseDir) {

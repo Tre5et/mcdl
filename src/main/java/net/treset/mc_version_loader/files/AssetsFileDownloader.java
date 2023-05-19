@@ -40,25 +40,30 @@ public class AssetsFileDownloader {
             LOGGER.log(Level.SEVERE, "Unable to create assets objects directory");
             return false;
         }
-        for(AssetObject object : assetIndex.getObjects()) {
-            File dir = new File(objectsDir, object.getHash().substring(0, 2));
-            if(!dir.isDirectory() && !dir.mkdirs()) {
-                LOGGER.log(Level.SEVERE, "Unable to create assets object directory, id=" + object.getHash());
-                return false;
-            }
-            File objectFile = new File(dir, object.getHash());
-            try {
-                URL url = new URL(Sources.getAssetsBaseUrl() + object.getHash().substring(0, 2) + "/" + object.getHash());
-                if(!objectFile.exists() || overwrite) {
-                    if(!FileUtils.downloadFile(url, objectFile)) {
-                        LOGGER.log(Level.SEVERE, "Unable to download asset object, id=" + object.getHash());
-                        return false;
-                    }
+
+        return assetIndex.getObjects().parallelStream()
+                .map(o -> downloadAssetsObject(o, objectsDir, overwrite))
+                .allMatch(b -> b);
+    }
+
+    public static boolean downloadAssetsObject(AssetObject object, File objectsDir, boolean overwrite) {
+        File dir = new File(objectsDir, object.getHash().substring(0, 2));
+        if(!dir.isDirectory() && !dir.mkdirs()) {
+            LOGGER.log(Level.SEVERE, "Unable to create assets object directory, id=" + object.getHash());
+            return false;
+        }
+        File objectFile = new File(dir, object.getHash());
+        try {
+            URL url = new URL(Sources.getAssetsBaseUrl() + object.getHash().substring(0, 2) + "/" + object.getHash());
+            if(!objectFile.exists() || overwrite) {
+                if(!FileUtils.downloadFile(url, objectFile)) {
+                    LOGGER.log(Level.SEVERE, "Unable to download asset object, id=" + object.getHash());
+                    return false;
                 }
-            } catch (MalformedURLException e) {
-                LOGGER.log(Level.SEVERE, "Unable to parse asset object url, id=" + object.getHash(), e);
-                return false;
             }
+        } catch (MalformedURLException e) {
+            LOGGER.log(Level.SEVERE, "Unable to parse asset object url, id=" + object.getHash(), e);
+            return false;
         }
         return true;
     }

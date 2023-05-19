@@ -6,6 +6,7 @@ import net.treset.mc_version_loader.fabric.FabricLoaderData;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,6 +41,12 @@ public class FabricFileDownloader {
         File outFile = new File(baseDir, "fabric-client.jar");
 
         return FileUtils.downloadFile(downloadUrl, outFile);
+    }
+
+    public static boolean downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries) {
+        return libraries.parallelStream()
+                .map(library -> downloadFabricLibrary(baseDir, library))
+                .allMatch(b -> b);
     }
 
     public static boolean downloadFabricLibrary(File baseDir, FabricLibrary library) {
