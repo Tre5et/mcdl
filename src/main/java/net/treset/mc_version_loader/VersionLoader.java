@@ -22,6 +22,7 @@ import java.io.File;
 import java.util.*;
 
 public class VersionLoader {
+
     public static List<MinecraftVersion> getVersions() {
         return MinecraftVersion.fromVersionManifest(Sources.getVersionManifestJson());
     }

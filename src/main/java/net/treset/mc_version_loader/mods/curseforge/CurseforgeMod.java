@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.mods.curseforge;
 import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.GenericModData;
 import net.treset.mc_version_loader.mods.GenericModVersion;
 import net.treset.mc_version_loader.mods.ModProvider;
@@ -69,7 +70,11 @@ public class CurseforgeMod extends GenericModData {
     }
 
     public static CurseforgeMod fromJson(String json) {
-        return GenericJsonParsable.fromJson(json, CurseforgeMod.class);
+        if(json != null && json.startsWith("{\"data\":")) {
+            json = json.substring(8);
+            json = json.substring(0, json.length() - 1);
+        }
+        return GenericJsonParsable.fromJson(json, CurseforgeMod.class, JsonUtils.getGsonCamelCase());
     }
 
     @Override

@@ -98,7 +98,7 @@ public class ModrinthMod extends GenericModData {
     @Override
     public List<String> getAuthors() {
         // TODO (but stays like that for now)
-        return null;
+        return List.of();
     }
 
     @Override
