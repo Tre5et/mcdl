@@ -22,16 +22,18 @@ public class LauncherMod {
     private String iconUrl;
     private String name;
     private String fileName;
+    private String version;
     private List<LauncherModDownload> downloads;
 
-    public LauncherMod(String currentProvider, String description, boolean enabled, String iconUrl, String name, List<LauncherModDownload> downloads, String fileName) {
+    public LauncherMod(String currentProvider, String description, boolean enabled, String iconUrl, String name, String fileName, String version, List<LauncherModDownload> downloads) {
         this.currentProvider = currentProvider;
         this.description = description;
         this.enabled = enabled;
         this.iconUrl = iconUrl;
         this.name = name;
-        this.downloads = downloads;
         this.fileName = fileName;
+        this.version = version;
+        this.downloads = downloads;
     }
 
     public ModData getModData() {
@@ -121,5 +123,13 @@ public class LauncherMod {
 
     public void setDownloads(List<LauncherModDownload> downloads) {
         this.downloads = downloads;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

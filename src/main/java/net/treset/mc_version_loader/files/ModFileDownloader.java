@@ -56,8 +56,9 @@ public class ModFileDownloader {
                 enabled,
                 data.getParentMod().getIconUrl(),
                 data.getParentMod().getName(),
-                downloads,
-                fileName
+                fileName,
+                data.getVersionNumber(),
+                downloads
         );
     }
 }
