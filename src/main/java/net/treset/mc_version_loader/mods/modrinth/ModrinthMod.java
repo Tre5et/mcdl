@@ -21,19 +21,17 @@ public class ModrinthMod extends GenericModData {
     private int color;
     private String description;
     private String discordUrl;
-    private List<String> donationUrls;
+    private List<ModrinthDonationUrl> donationUrls;
     private int downloads;
     private String flameAnvilProject;
     private String flameAnvilUser;
     private int followers;
-    private List<String> gallery;
+    private List<ModrinthGalleryImage> gallery;
     private List<String> gameVersions;
     private String iconUrl;
     private String id;
     private String issuesUrl;
-    private String licenseId;
-    private String licenseName;
-    private String licenseUrl;
+    private ModrinthLicense license;
     private List<String> loaders;
     private String moderatorMessage;
     private String projectType;
@@ -51,7 +49,7 @@ public class ModrinthMod extends GenericModData {
     private String wikiUrl;
     private transient List<ModVersionData> versionData;
 
-    public ModrinthMod(List<String> additionalCategories, String approved, String body, String bodyUrl, List<String> categories, String clientSide, int color, String description, String discordUrl, List<String> donationUrls, int downloads, String flameAnvilProject, String flameAnvilUser, int followers, List<String> gallery, List<String> gameVersion, String iconUrl, String id, String issuesUrl, String licenseId, String licenseName, String licenseUrl, List<String> loaders, String moderatorMessage, String projectType, String datePublished, String queued, String requestedStatus, String serverSide, String slug, String sourceUrl, String status, String team, String title, String updated, List<String> versions, String wikiUrl) {
+    public ModrinthMod(List<String> additionalCategories, String approved, String body, String bodyUrl, List<String> categories, String clientSide, int color, String description, String discordUrl, List<ModrinthDonationUrl> donationUrls, int downloads, String flameAnvilProject, String flameAnvilUser, int followers, List<ModrinthGalleryImage> gallery, List<String> gameVersion, String iconUrl, String id, String issuesUrl, ModrinthLicense license, List<String> loaders, String moderatorMessage, String projectType, String datePublished, String queued, String requestedStatus, String serverSide, String slug, String sourceUrl, String status, String team, String title, String updated, List<String> versions, String wikiUrl) {
         this.additionalCategories = additionalCategories;
         this.approved = approved;
         this.body = body;
@@ -71,9 +69,7 @@ public class ModrinthMod extends GenericModData {
         this.iconUrl = iconUrl;
         this.id = id;
         this.issuesUrl = issuesUrl;
-        this.licenseId = licenseId;
-        this.licenseName = licenseName;
-        this.licenseUrl = licenseUrl;
+        this.license = license;
         this.loaders = loaders;
         this.moderatorMessage = moderatorMessage;
         this.projectType = projectType;
@@ -247,11 +243,11 @@ public class ModrinthMod extends GenericModData {
         this.discordUrl = discordUrl;
     }
 
-    public List<String> getDonationUrls() {
+    public List<ModrinthDonationUrl> getDonationUrls() {
         return donationUrls;
     }
 
-    public void setDonationUrls(List<String> donationUrls) {
+    public void setDonationUrls(List<ModrinthDonationUrl> donationUrls) {
         this.donationUrls = donationUrls;
     }
 
@@ -287,11 +283,11 @@ public class ModrinthMod extends GenericModData {
         this.followers = followers;
     }
 
-    public List<String> getGallery() {
+    public List<ModrinthGalleryImage> getGallery() {
         return gallery;
     }
 
-    public void setGallery(List<String> gallery) {
+    public void setGallery(List<ModrinthGalleryImage> gallery) {
         this.gallery = gallery;
     }
 
@@ -319,28 +315,12 @@ public class ModrinthMod extends GenericModData {
         this.issuesUrl = issuesUrl;
     }
 
-    public String getLicenseId() {
-        return licenseId;
+    public ModrinthLicense getLicense() {
+        return license;
     }
 
-    public void setLicenseId(String licenseId) {
-        this.licenseId = licenseId;
-    }
-
-    public String getLicenseName() {
-        return licenseName;
-    }
-
-    public void setLicenseName(String licenseName) {
-        this.licenseName = licenseName;
-    }
-
-    public String getLicenseUrl() {
-        return licenseUrl;
-    }
-
-    public void setLicenseUrl(String licenseUrl) {
-        this.licenseUrl = licenseUrl;
+    public void setLicense(ModrinthLicense license) {
+        this.license = license;
     }
 
     public List<String> getLoaders() {
