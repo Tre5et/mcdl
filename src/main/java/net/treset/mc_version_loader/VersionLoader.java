@@ -14,6 +14,7 @@ import net.treset.mc_version_loader.mods.curseforge.CurseforgeFile;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFiles;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeSearch;
+import net.treset.mc_version_loader.mods.modrinth.ModrinthMod;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearchHit;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;

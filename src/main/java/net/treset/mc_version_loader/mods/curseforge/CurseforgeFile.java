@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
 import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonParsable;
@@ -141,7 +142,8 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
             if(dependencies != null) {
                 for (CurseforgeDependency d : dependencies) {
                     if (d != null && d.getRelationType() == 3) {
-                        requiredDependencies.add(VersionLoader.getCurseforgeVersions(d.getModId(), null, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader)).getData().get(0));
+                        CurseforgeMod parent = CurseforgeMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), d.getModId()), Sources.getCurseforgeHeaders(), List.of()));
+                        requiredDependencies.add(VersionLoader.getCurseforgeVersions(d.getModId(), parent, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader)).getData().get(0));
                     }
                 }
             }

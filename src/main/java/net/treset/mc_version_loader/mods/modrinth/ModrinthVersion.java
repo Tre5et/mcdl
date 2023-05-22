@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.mods.modrinth;
 
 import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonParsable;
@@ -121,7 +122,8 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
             if(dependencies != null) {
                 for(ModrinthVersionDependency d : dependencies) {
                     if(d.isRequired()) {
-                        requiredDependencies.add(VersionLoader.getModrinthVersion(d.getVersionId(), null));
+                        ModrinthMod parent = ModrinthMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthProjectUrl(), d.getProjectId()), Sources.getModrinthHeaders(), List.of()));
+                        requiredDependencies.add(VersionLoader.getModrinthVersion(d.getVersionId(), parent));
                     }
                 }
             }
