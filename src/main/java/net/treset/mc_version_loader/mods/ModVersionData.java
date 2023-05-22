@@ -3,7 +3,7 @@ package net.treset.mc_version_loader.mods;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ModVersionData {
+public interface ModVersionData extends Comparable<ModVersionData> {
     LocalDateTime getDatePublished();
     int getDownloads();
     String getName();

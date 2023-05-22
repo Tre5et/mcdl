@@ -21,4 +21,9 @@ public abstract class GenericModData implements ModData {
         List<String> modLoaders = getModLoaders();
         return modLoaders != null && modLoaders.contains(modLoader);
     }
+
+    @Override
+    public int compareTo(ModData modData) {
+        return Integer.compare(modData.getDownloadsCount(), this.getDownloadsCount());
+    }
 }

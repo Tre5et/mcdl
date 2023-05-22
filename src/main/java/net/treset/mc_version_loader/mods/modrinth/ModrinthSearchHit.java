@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.mods.modrinth;
 import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.mods.GenericModData;
+import net.treset.mc_version_loader.mods.ModData;
 import net.treset.mc_version_loader.mods.ModProvider;
 import net.treset.mc_version_loader.mods.ModVersionData;
 

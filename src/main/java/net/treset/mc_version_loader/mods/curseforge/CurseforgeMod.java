@@ -4,10 +4,7 @@ import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
-import net.treset.mc_version_loader.mods.GenericModData;
-import net.treset.mc_version_loader.mods.GenericModVersion;
-import net.treset.mc_version_loader.mods.ModProvider;
-import net.treset.mc_version_loader.mods.ModVersionData;
+import net.treset.mc_version_loader.mods.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -203,7 +200,7 @@ public class CurseforgeMod extends GenericModData {
         }
         List<ModVersionData> out = new ArrayList<>();
         for (ModVersionData v : versions) {
-            if ((gameVersion == null || v.getGameVersions().contains(gameVersion)) && (modLoader <= 0 && v.getModLoaders().contains(FormatUtils.curseforgeModLoaderToModLoader(modLoader)))) {
+            if ((gameVersion == null || v.getGameVersions().contains(gameVersion)) && (modLoader <= 0 || v.getModLoaders().contains(FormatUtils.curseforgeModLoaderToModLoader(modLoader)))) {
                 out.add(v);
             }
         }

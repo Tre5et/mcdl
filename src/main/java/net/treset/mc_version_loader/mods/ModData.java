@@ -3,7 +3,7 @@ package net.treset.mc_version_loader.mods;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ModData {
+public interface ModData extends Comparable<ModData> {
     List<String> getAuthors();
     List<String> getCategories();
     LocalDateTime getDateCreated();

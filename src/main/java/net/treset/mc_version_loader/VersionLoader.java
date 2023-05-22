@@ -22,7 +22,6 @@ import java.io.File;
 import java.util.*;
 
 public class VersionLoader {
-
     public static List<MinecraftVersion> getVersions() {
         return MinecraftVersion.fromVersionManifest(Sources.getVersionManifestJson());
     }
@@ -60,7 +59,7 @@ public class VersionLoader {
         ch.removeAll(toRemove);
         combinedMods.addAll(mh);
         combinedMods.addAll(ch);
-        return combinedMods;
+        return combinedMods.stream().sorted().toList();
     }
 
     public static ModrinthSearch searchModrinth(String query, List<String> versions, List<String> loaders, int limit, int offset) {

@@ -86,7 +86,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
 
     @Override
     public String getVersionNumber() {
-        return getName().replaceAll("[a-zA-Z]", "").trim().replaceAll("\\s*", "-");
+        return getName().replaceAll(".jar", "").replaceAll("[a-zA-Z]", "").replaceAll("^-*", "").replaceAll("-*$", "").trim().replaceAll("\\s+", "-");
     }
 
     @Override
