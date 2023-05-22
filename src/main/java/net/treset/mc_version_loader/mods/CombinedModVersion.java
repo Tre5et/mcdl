@@ -88,7 +88,7 @@ public class CombinedModVersion extends GenericModVersion {
             for (ModVersionData m1 : rd1) {
                 for (ModVersionData m2 : rd2) {
                     if (m1 != null && m1.isSame(m2)) {
-                        requiredDependencies.add(new CombinedModVersion(m1, m2, null));
+                        requiredDependencies.add(new CombinedModVersion(m1, m2, new CombinedModData(m1.getParentMod(), m2.getParentMod())));
                         toRemove.add(m1);
                         break;
                     }
