@@ -5,6 +5,9 @@ import net.treset.mc_version_loader.json.GenericJsonParsable;
 import java.util.List;
 
 public class LauncherVersionDetails extends GenericJsonParsable {
+    private String versionNumber;
+    private String versionType;
+    private String loaderVersion;
     private String assets;
     private String depends;
     private List<LauncherLaunchArgument> gameArguments;
@@ -15,7 +18,10 @@ public class LauncherVersionDetails extends GenericJsonParsable {
     private String mainFile;
     private String versionId;
 
-    public LauncherVersionDetails(String assets, String depends, List<LauncherLaunchArgument> gameArguments, List<LauncherLaunchArgument> jvmArguments, String java, List<String> libraries, String mainClass, String mainFile, String versionId) {
+    public LauncherVersionDetails(String versionNumber, String versionType, String loaderVersion, String assets, String depends, List<LauncherLaunchArgument> gameArguments, List<LauncherLaunchArgument> jvmArguments, String java, List<String> libraries, String mainClass, String mainFile, String versionId) {
+        this.versionNumber = versionNumber;
+        this.versionType = versionType;
+        this.loaderVersion = loaderVersion;
         this.assets = assets;
         this.depends = depends;
         this.gameArguments = gameArguments;
@@ -27,8 +33,28 @@ public class LauncherVersionDetails extends GenericJsonParsable {
         this.versionId = versionId;
     }
 
-    public static LauncherVersionDetails fromJson(String json) {
-        return fromJson(json, LauncherVersionDetails.class);
+    public String getVersionNumber() {
+        return versionNumber;
+    }
+
+    public void setVersionNumber(String versionNumber) {
+        this.versionNumber = versionNumber;
+    }
+
+    public String getVersionType() {
+        return versionType;
+    }
+
+    public void setVersionType(String versionType) {
+        this.versionType = versionType;
+    }
+
+    public String getLoaderVersion() {
+        return loaderVersion;
+    }
+
+    public void setLoaderVersion(String loaderVersion) {
+        this.loaderVersion = loaderVersion;
     }
 
     public String getAssets() {
