@@ -193,18 +193,9 @@ public class CurseforgeMod extends GenericModData {
 
     public List<ModVersionData> getVersions(String gameVersion, int modLoader) {
         if(versions == null) {
-            updateVersions();
+            updateVersions(gameVersion, modLoader);
         }
-        if(gameVersion == null && modLoader <= 0) {
-            return versions;
-        }
-        List<ModVersionData> out = new ArrayList<>();
-        for (ModVersionData v : versions) {
-            if ((gameVersion == null || v.getGameVersions().contains(gameVersion)) && (modLoader <= 0 || v.getModLoaders().contains(FormatUtils.curseforgeModLoaderToModLoader(modLoader)))) {
-                out.add(v);
-            }
-        }
-        return out;
+        return versions;
     }
 
     public boolean isAllowModDistribution() {

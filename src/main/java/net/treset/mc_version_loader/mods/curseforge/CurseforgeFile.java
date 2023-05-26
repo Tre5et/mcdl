@@ -143,7 +143,10 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                 for (CurseforgeDependency d : dependencies) {
                     if (d != null && d.getRelationType() == 3) {
                         CurseforgeMod parent = CurseforgeMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), d.getModId()), Sources.getCurseforgeHeaders(), List.of()));
-                        requiredDependencies.add(VersionLoader.getCurseforgeVersions(d.getModId(), parent, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader)).getData().get(0));
+                        CurseforgeFiles files = VersionLoader.getCurseforgeVersions(d.getModId(), parent, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
+                        if(files != null && files.getData() != null && files.getData().size() > 0) {
+                            requiredDependencies.add(files.getData().get(0));
+                        }
                     }
                 }
             }

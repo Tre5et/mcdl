@@ -156,18 +156,9 @@ public class ModrinthMod extends GenericModData {
     @Override
     public List<ModVersionData> getVersions(String gameVersion, String modLoader) {
         if(versionData == null) {
-            updateVersions();
+            updateVersions(gameVersion, modLoader);
         }
-        if(gameVersion == null && modLoader == null) {
-            return versionData;
-        }
-        List<ModVersionData> out = new ArrayList<>();
-        for (ModVersionData v : versionData) {
-            if ((gameVersion == null || v.getGameVersions().contains(gameVersion)) && (modLoader == null || v.getModLoaders().contains(modLoader))) {
-                out.add(v);
-            }
-        }
-        return out;
+        return versionData;
     }
 
     @Override
