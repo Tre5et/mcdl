@@ -66,9 +66,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
 
     public static List<ModrinthVersion> fromJsonArray(String json, ModData parent) {
         List<ModrinthVersion> out = GenericJsonParsable.fromJson(json, new TypeToken<>(){});
-        for(ModrinthVersion v : out) {
-            v.setParentMod(parent);
-        }
+        out.forEach(v -> v.setParentMod(parent));
         return out;
     }
 

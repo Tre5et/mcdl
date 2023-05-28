@@ -79,13 +79,9 @@ public class CurseforgeMod extends GenericModData {
         if(authors == null) {
             return null;
         }
-        List<String> out = new ArrayList<>();
-        for(CurseforgeAuthor a : authors) {
-            if(a != null && a.getName() != null && !a.getName().isBlank()) {
-                out.add(a.getName());
-            }
-        }
-        return out;
+        return authors.stream()
+                .filter(a -> a != null && a.getName() != null && !a.getName().isBlank())
+                .map(CurseforgeAuthor::getName).toList();
     }
 
     @Override
@@ -93,13 +89,9 @@ public class CurseforgeMod extends GenericModData {
         if(categories == null) {
             return null;
         }
-        List<String> out = new ArrayList<>();
-        for(CurseforgeCategory c : categories) {
-            if(c != null && c.getName() != null && !c.getName().isBlank()) {
-                out.add(c.getName());
-            }
-        }
-        return out;
+        return categories.stream()
+                .filter(c -> c != null && c.getName() != null && !c.getName().isBlank())
+                .map(CurseforgeCategory::getName).toList();
     }
 
     @Override
@@ -132,13 +124,9 @@ public class CurseforgeMod extends GenericModData {
         if(latestFilesIndex == null) {
             return null;
         }
-        List<String> out = new ArrayList<>();
-        for(CurseforgeFileIndex f : latestFilesIndex) {
-            if(f != null && f.getGameVersion() != null && !f.getGameVersion().isBlank()) {
-                out.add(f.getGameVersion());
-            }
-        }
-        return out;
+        return latestFilesIndex.stream()
+                .filter(f -> f != null && f.getGameVersion() != null && !f.getGameVersion().isBlank())
+                .map(CurseforgeFileIndex::getGameVersion).toList();
     }
 
     @Override
@@ -146,19 +134,10 @@ public class CurseforgeMod extends GenericModData {
         if(latestFilesIndex == null) {
             return null;
         }
-        List<String> out = new ArrayList<>();
-        for(CurseforgeFileIndex f : latestFilesIndex) {
-            if(f != null && f.getModLoader() >= 0) {
-                if(out.size() >= 2) {
-                    break;
-                }
-                String loader = FormatUtils.curseforgeModLoaderToModLoader(f.getModLoader());
-                if(!out.contains(loader)) {
-                    out.add(loader);
-                }
-            }
-        }
-        return out;
+        return latestFilesIndex.stream()
+                .filter(f -> f != null && f.getModLoader() >= 0)
+                .map(f -> FormatUtils.curseforgeModLoaderToModLoader(f.getModLoader()))
+                .distinct().limit(2).toList();
     }
 
     @Override

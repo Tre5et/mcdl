@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.java;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.jogamp.common.util.IntIntHashMap;
 import net.treset.mc_version_loader.json.JsonUtils;
 
 import java.util.ArrayList;

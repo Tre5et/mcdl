@@ -42,8 +42,7 @@ public class AssetsFileDownloader {
         }
 
         return assetIndex.getObjects().parallelStream()
-                .map(o -> downloadAssetsObject(o, objectsDir, overwrite))
-                .allMatch(b -> b);
+                .allMatch(o -> downloadAssetsObject(o, objectsDir, overwrite));
     }
 
     public static boolean downloadAssetsObject(AssetObject object, File objectsDir, boolean overwrite) {

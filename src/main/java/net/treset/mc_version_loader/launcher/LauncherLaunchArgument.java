@@ -45,14 +45,7 @@ public class LauncherLaunchArgument {
 
     public boolean isActive(List<LauncherFeature> features) {
         if(getFeature() != null && !getFeature().isBlank() && features != null) {
-            boolean enabled = false;
-            for (LauncherFeature f : features) {
-                if (Objects.equals(f.getFeature(), feature)) {
-                    enabled = true;
-                    break;
-                }
-            }
-            if (!enabled) {
+            if (features.stream().noneMatch(f -> Objects.equals(f.getFeature(), getFeature()))) {
                 return false;
             }
         }

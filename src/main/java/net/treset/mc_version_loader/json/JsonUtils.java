@@ -133,13 +133,17 @@ public class JsonUtils {
     }
 
     public static boolean writeJsonToFile(Object toWrite, String path) {
+        File file = new File(path);
         try {
-            File file = new File(path);
             if(!file.isFile() && ((!file.getParentFile().isDirectory() && !file.getParentFile().mkdirs()) || !file.createNewFile())) {
                 LOGGER.log(Level.SEVERE, "Unable to create file " + path);
                 return false;
             }
-            FileWriter writer = new FileWriter(path);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Unable to create file " + path, e);
+            return false;
+        }
+        try (FileWriter writer = new FileWriter(path)) {
             getGson().toJson(toWrite, writer);
             writer.flush();
         } catch (IOException e) {

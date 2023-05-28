@@ -27,13 +27,10 @@ public class JavaFile {
         JsonObject manifestObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(jsonManifest));
         JsonObject filesObj = JsonUtils.getAsJsonObject(manifestObj, "files");
         Set<Map.Entry<String, JsonElement>> files = JsonUtils.getMembers(filesObj);
-        List<JavaFile> out = new ArrayList<>();
         if(files != null) {
-            for(Map.Entry<String, JsonElement> f : files) {
-                out.add(JavaFile.fromJsonObject(f.getKey(), JsonUtils.getAsJsonObject(f.getValue())));
-            }
+            return files.stream().map(f -> JavaFile.fromJsonObject(f.getKey(), JsonUtils.getAsJsonObject(f.getValue()))).toList();
         }
-        return out;
+        return List.of();
     }
 
     public static JavaFile fromJsonObject(String name, JsonObject jsonObject) {

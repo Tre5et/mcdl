@@ -46,12 +46,12 @@ public class MinecraftVersionFileDownloader {
     }
 
     public static boolean addVersionLibrary(MinecraftLibrary library, File baseDir, ArrayList<String> result, List<String> features) {
-        if(library.getRules() != null && !library.getRules().stream().allMatch(r -> r.isApplicable(features))) {
+        if(library == null || library.getRules() != null && !library.getRules().stream().allMatch(r -> r.isApplicable(features))) {
             LOGGER.log(Level.INFO, "Skipping library " + library.getName() + " due to rules");
             return true;
         }
 
-        if(library == null || library.getDownloads().getArtifacts().getUrl() == null || library.getDownloads().getArtifacts().getUrl().isBlank() || library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || baseDir == null || !baseDir.isDirectory()) {
+        if(library.getDownloads().getArtifacts().getUrl() == null || library.getDownloads().getArtifacts().getUrl().isBlank() || library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             LOGGER.log(Level.WARNING, "Unable to start library download; unmet requirements");
             return false;
         }

@@ -28,14 +28,7 @@ public class VersionLoader {
     }
 
     public static List<MinecraftVersion> getReleases() {
-        List<MinecraftVersion> releases = new ArrayList<>();
-        List<MinecraftVersion> minecraftVersions = getVersions();
-        for(MinecraftVersion v : minecraftVersions) {
-            if(v.isRelease()) {
-                releases.add(v);
-            }
-        }
-        return releases;
+        return getVersions().stream().filter(MinecraftVersion::isRelease).toList();
     }
 
     public static List<ModData> searchCombinedMods(String query, String gameVersion, String modLoader, int limit, int offset) {
@@ -77,14 +70,10 @@ public class VersionLoader {
         if(versions != null && !versions.isEmpty() || loaders != null && !loaders.isEmpty()) {
             StringBuilder facets = new StringBuilder().append("[");
             if(versions != null && !versions.isEmpty()) {
-                for(String v : versions) {
-                    facets.append(String.format(Sources.getModrinthVersionsFacet(), v)).append(",");
-                }
+                versions.forEach(v -> facets.append(String.format(Sources.getModrinthVersionsFacet(), v)).append(","));
             }
             if(loaders != null && !loaders.isEmpty()) {
-                for(String l : loaders) {
-                    facets.append(String.format(Sources.getModrinthCategoryFacet(), l)).append(",");
-                }
+                loaders.forEach(l -> facets.append(String.format(Sources.getModrinthCategoryFacet(), l)).append(","));
             }
             params.add(Map.entry(Sources.getModrinthSearchFacetsParam(), facets.substring(0, facets.length() - 1) + "]"));
         }
@@ -95,16 +84,12 @@ public class VersionLoader {
         List<Map.Entry<String, String>> params = new ArrayList<>();
         if(versions != null && !versions.isEmpty()) {
             StringBuilder ver = new StringBuilder("[");
-            for(String v : versions) {
-                ver.append("\"").append(v).append("\",");
-            }
+            versions.forEach(v -> ver.append("\"").append(v).append("\","));
             params.add(Map.entry(Sources.getModrinthVersionsGameversionsParam(), ver.substring(0, ver.length() - 1) + "]"));
         }
         if(modLoaders != null && !modLoaders.isEmpty()) {
             StringBuilder loaders = new StringBuilder("[");
-            for(String l : modLoaders) {
-                loaders.append("\"").append(l).append("\",");
-            }
+            modLoaders.forEach(l -> loaders.append("\"").append(l).append("\","));
             params.add(Map.entry(Sources.getModrinthVersionsLoadersParam(), loaders.substring(0, loaders.length() - 1) + "]"));
         }
         return ModrinthVersion.fromJsonArray(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionsUrl(), modId), Sources.getModrinthHeaders(), params), parent);

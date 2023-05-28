@@ -18,9 +18,7 @@ public class FileUtils {
 
     public static boolean downloadFile(URL downloadUrl, File outFile) {
         try(FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
-
             ReadableByteChannel readableByteChannel = Channels.newChannel(downloadUrl.openStream());
-
             fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
         } catch(IOException e) {
             LOGGER.log(Level.SEVERE, "Unable to download file", e);

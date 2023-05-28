@@ -10,6 +10,7 @@ import net.treset.mc_version_loader.mods.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -137,21 +138,20 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
 
     @Override
     public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) {
-        if(requiredDependencies == null) {
-            requiredDependencies = new ArrayList<>();
-            if(dependencies != null) {
-                for (CurseforgeDependency d : dependencies) {
-                    if (d != null && d.getRelationType() == 3) {
-                        CurseforgeMod parent = CurseforgeMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), d.getModId()), Sources.getCurseforgeHeaders(), List.of()));
-                        CurseforgeFiles files = VersionLoader.getCurseforgeVersions(d.getModId(), parent, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
-                        if(files != null && files.getData() != null && files.getData().size() > 0) {
-                            requiredDependencies.add(files.getData().get(0));
-                        }
-                    }
-                }
-            }
+        if(requiredDependencies != null) {
+            return requiredDependencies;
         }
-        return requiredDependencies;
+        if(dependencies != null) {
+            requiredDependencies = dependencies.stream()
+                    .filter(d -> d != null && d.getRelationType() == 3)
+                    .map(d -> CurseforgeMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), d.getModId()), Sources.getCurseforgeHeaders(), List.of())))
+                    .map(p -> VersionLoader.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader)))
+                    .filter(f -> f != null && f.getData() != null && f.getData().size() > 0)
+                    .map(f -> (ModVersionData)f.getData().get(0))
+                    .toList();
+            return requiredDependencies;
+        }
+        return new ArrayList<>();
     }
 
     @Override

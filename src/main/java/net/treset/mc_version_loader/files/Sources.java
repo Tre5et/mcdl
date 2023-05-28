@@ -184,13 +184,13 @@ public class Sources {
         StringBuilder url = new StringBuilder();
         url.append(getUrl).append("?");
         for(Map.Entry<String, String> p : params) {
-            url.append(URLEncoder.encode(p.getKey(), StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8)).append("&");
+            url.append(URLEncoder.encode(p.getKey(), StandardCharsets.UTF_8))
+                    .append("=").append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8))
+                    .append("&");
         }
         try {
             HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(new URI(url.substring(0, url.length() - 1)));
-            for(Map.Entry<String, String> h : headers) {
-                requestBuilder.header(h.getKey(), h.getValue());
-            }
+            headers.forEach(h -> requestBuilder.header(h.getKey(), h.getValue()));
             request = requestBuilder.build();
         } catch (URISyntaxException e) {
             LOGGER.log(Level.SEVERE, "Unable to load file from web", e);
