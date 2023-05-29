@@ -1,5 +1,7 @@
 package net.treset.mc_version_loader.mods;
 
+import net.treset.mc_version_loader.exception.FileDownloadException;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -99,12 +101,12 @@ public class CombinedModData extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> getVersions() {
+    public List<ModVersionData> getVersions() throws FileDownloadException {
         return getVersions(null, null);
     }
 
     @Override
-    public List<ModVersionData> getVersions(String gameVersion, String modLoader) {
+    public List<ModVersionData> getVersions(String gameVersion, String modLoader) throws FileDownloadException {
         if(versions == null) {
             updateVersions();
         }
@@ -121,11 +123,11 @@ public class CombinedModData extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> updateVersions() {
+    public List<ModVersionData> updateVersions() throws FileDownloadException {
         return updateVersions(null, null);
     }
 
-    public List<ModVersionData> updateVersions(String gameVersion, String modLoader) {
+    public List<ModVersionData> updateVersions(String gameVersion, String modLoader) throws FileDownloadException {
         versions = new ArrayList<>();
         List<ModVersionData> vo1 = parent1.getVersions(gameVersion, modLoader);
         List<ModVersionData> vo2 = parent2.getVersions(gameVersion, modLoader);

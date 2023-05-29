@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
 import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
@@ -8,6 +9,7 @@ import net.treset.mc_version_loader.json.JsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,8 +69,8 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public boolean writeToFile(String filePath) {
-        return JsonUtils.writeJsonToFile(this, filePath);
+    public void writeToFile(String filePath) throws IOException {
+        JsonUtils.writeJsonToFile(this, filePath);
     }
 
     @Override
@@ -137,18 +139,36 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) {
+    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
         if(requiredDependencies != null) {
             return requiredDependencies;
         }
+        List<Exception> exceptions = new ArrayList<>();
         if(dependencies != null) {
             requiredDependencies = dependencies.stream()
                     .filter(d -> d != null && d.getRelationType() == 3)
-                    .map(d -> CurseforgeMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), d.getModId()), Sources.getCurseforgeHeaders(), List.of())))
-                    .map(p -> VersionLoader.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader)))
+                    .map(d -> {
+                        try {
+                            return CurseforgeMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), d.getModId()), Sources.getCurseforgeHeaders(), List.of()));
+                        } catch (FileDownloadException e) {
+                            exceptions.add(e);
+                        }
+                        return null;
+                    })
+                    .map(p -> {
+                        try {
+                            return VersionLoader.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
+                        } catch (FileDownloadException e) {
+                            exceptions.add(e);
+                        }
+                        return null;
+                    })
                     .filter(f -> f != null && f.getData() != null && f.getData().size() > 0)
                     .map(f -> (ModVersionData)f.getData().get(0))
                     .toList();
+            if(!exceptions.isEmpty()) {
+                throw new FileDownloadException("Error getting required dependencies: mod=" + getName(), exceptions);
+            }
             return requiredDependencies;
         }
         return new ArrayList<>();

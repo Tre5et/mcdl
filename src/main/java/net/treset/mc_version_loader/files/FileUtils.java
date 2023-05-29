@@ -1,37 +1,36 @@
 package net.treset.mc_version_loader.files;
 
+import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.format.FormatUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class FileUtils {
-    private static final Logger LOGGER = Logger.getLogger(FileUtils.class.toString());
 
-    public static boolean downloadFile(URL downloadUrl, File outFile) {
+    /**
+     * Downloads a file from a url to a file
+     * @param downloadUrl url to download from
+     * @param outFile file to download to
+     * @throws FileDownloadException if the file can not be downloaded
+     */
+    public static void downloadFile(URL downloadUrl, File outFile) throws FileDownloadException {
         try(FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
             ReadableByteChannel readableByteChannel = Channels.newChannel(downloadUrl.openStream());
             fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
         } catch(IOException e) {
-            LOGGER.log(Level.SEVERE, "Unable to download file", e);
-            return false;
+            throw new FileDownloadException("Unable to download file: url=" + downloadUrl + ", outPath=" + outFile.getAbsolutePath(), e);
         }
-        return true;
     }
-
-    public static MavenPom parseMavenUrl(String baseUrl, String mavenFileName) {
+    public static MavenPom parseMavenUrl(String baseUrl, String mavenFileName) throws MalformedURLException, FileDownloadException {
         String[] parts = mavenFileName.split(":");
-            if(parts.length < 2) {
-            LOGGER.log(Level.WARNING, "Unable to parse fabric loader url");
-            return null;
+        if(parts.length < 2) {
+            throw new MalformedURLException("Invalid maven file name");
         }
         StringBuilder mavenFile = new StringBuilder();
         StringBuilder mavenPath = new StringBuilder();

@@ -1,5 +1,7 @@
 package net.treset.mc_version_loader.files;
 
+import net.treset.mc_version_loader.exception.FileDownloadException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,12 +12,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Sources {
-    private static final Logger LOGGER = Logger.getLogger(Sources.class.toString());
-
     private static final String VERSION_MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
     private static final String JAVA_RUNTIME_URL = "https://launchermeta.mojang.com/v1/products/java-runtime/2ec0cc96c44e5a76b9c8b7c39df7210883d12871/all.json";
     private static final String ASSETS_BASE_URL = "https://resources.download.minecraft.net/";
@@ -53,11 +51,21 @@ public class Sources {
         return FABRIC_MAVEN_URL;
     }
 
-    public static String getVersionManifestJson() {
+    /**
+     * Gets the minecraft version manifest as string
+     * @return minecraft version manifest as string
+     * @throws FileDownloadException if the file could not be downloaded
+     */
+    public static String getVersionManifestJson() throws FileDownloadException {
         return getFileFromUrl(VERSION_MANIFEST_URL);
     }
 
-    public static String getJavaRuntimeJson() {
+    /**
+     * Gets the java runtime manifest as string
+     * @return java runtime manifest as string
+     * @throws FileDownloadException if the file could not be downloaded
+     */
+    public static String getJavaRuntimeJson() throws FileDownloadException {
         return getFileFromUrl(JAVA_RUNTIME_URL);
     }
 
@@ -169,15 +177,36 @@ public class Sources {
         return CURSEFORGE_VERSION_URL;
     }
 
-    public static String getFabricForMinecraftVersion(String version) {
+    /**
+     * Gets the fabric loader manifest for the specified minecraft version
+     * @param version minecraft version
+     * @return the fabric manifest as string
+     * @throws FileDownloadException if the file can not be downloaded
+     */
+    public static String getFabricForMinecraftVersion(String version) throws FileDownloadException {
         return getFileFromHttpGet(String.format(FABRIC_LOADER_MANIFEST_URL, version), List.of(), List.of());
     }
 
-    public static String getFabricVersion(String mcVersion, String fabricVersion) {
+    /**
+     * Gets the fabric loader manifest for the specified minecraft version and fabric version
+     * @param mcVersion minecraft version
+     * @param fabricVersion fabric version
+     * @return the fabric manifest as string
+     * @throws FileDownloadException if the file can not be downloaded
+     */
+    public static String getFabricVersion(String mcVersion, String fabricVersion) throws FileDownloadException {
         return getFileFromHttpGet(String.format(FABRIC_LOADER_VERSION_URL, mcVersion, fabricVersion),List.of(), List.of());
     }
 
-    public static String getFileFromHttpGet(String getUrl, List<Map.Entry<String, String>> headers, List<Map.Entry<String, String>> params) {
+    /**
+     * Converts the contents of a file from the specified http get url to string
+     * @param getUrl url to get the file from
+     * @param headers headers to send with the request
+     * @param params parameters to send with the request
+     * @return the contents of the file as string
+     * @throws FileDownloadException if the file can not be downloaded
+     */
+    public static String getFileFromHttpGet(String getUrl, List<Map.Entry<String, String>> headers, List<Map.Entry<String, String>> params) throws FileDownloadException {
         HttpClient httpClient = HttpClient.newHttpClient();
 
         HttpRequest request;
@@ -193,19 +222,23 @@ public class Sources {
             headers.forEach(h -> requestBuilder.header(h.getKey(), h.getValue()));
             request = requestBuilder.build();
         } catch (URISyntaxException e) {
-            LOGGER.log(Level.SEVERE, "Unable to load file from web", e);
-            return "";
+            throw new FileDownloadException("Unable to build download URI: url=" + getUrl, e);
         }
 
         try {
             return httpClient.send(request, HttpResponse.BodyHandlers.ofString()).body();
         } catch (IOException | InterruptedException e) {
-            LOGGER.log(Level.SEVERE, "Unable to load file from web", e);
-            return "";
+            throw new FileDownloadException("Unable to download file: url=" + getUrl, e);
         }
     }
 
-    public static String getFileFromUrl(String url) {
+    /**
+     * Converts the contents of a file from the specified url to string
+     * @param url url to get the file from
+     * @return the contents of the file as string
+     * @throws FileDownloadException if the file can not be downloaded
+     */
+    public static String getFileFromUrl(String url) throws FileDownloadException {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new URL(url).openStream()))) {
             StringBuilder stringBuilder = new StringBuilder();
 
@@ -218,11 +251,9 @@ public class Sources {
 
             bufferedReader.close();
             return stringBuilder.toString().trim();
-
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Unable to load file from web", e);
+            throw new FileDownloadException("Unable to download file: url=" + url, e);
         }
-        return "";
     }
 
 }

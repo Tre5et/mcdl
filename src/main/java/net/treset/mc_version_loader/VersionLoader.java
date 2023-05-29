@@ -1,37 +1,51 @@
 package net.treset.mc_version_loader;
 
-import net.treset.mc_version_loader.fabric.FabricVersionDetails;
-import net.treset.mc_version_loader.files.*;
+import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
-import net.treset.mc_version_loader.launcher.LauncherMod;
 import net.treset.mc_version_loader.minecraft.MinecraftVersion;
-import net.treset.mc_version_loader.minecraft.MinecraftVersionDetails;
 import net.treset.mc_version_loader.mods.CombinedModData;
 import net.treset.mc_version_loader.mods.ModData;
-import net.treset.mc_version_loader.mods.ModVersionData;
-import net.treset.mc_version_loader.mods.ModVersionType;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFile;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFiles;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeSearch;
-import net.treset.mc_version_loader.mods.modrinth.ModrinthMod;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearchHit;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
 
-import java.io.File;
 import java.util.*;
 
 public class VersionLoader {
-    public static List<MinecraftVersion> getVersions() {
+    /**
+     * Gets a list of all minecraft versions
+     * @return a list of all minecraft versions
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
+    public static List<MinecraftVersion> getVersions() throws FileDownloadException {
         return MinecraftVersion.fromVersionManifest(Sources.getVersionManifestJson());
     }
 
-    public static List<MinecraftVersion> getReleases() {
+    /**
+     * Gets a list of all minecraft release versions
+     * @return a list of all minecraft release version
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
+    public static List<MinecraftVersion> getReleases() throws FileDownloadException {
         return getVersions().stream().filter(MinecraftVersion::isRelease).toList();
     }
 
-    public static List<ModData> searchCombinedMods(String query, String gameVersion, String modLoader, int limit, int offset) {
+    /**
+     * Search for a mod on modrinth and curseforge
+     * @param query the search query
+     * @param gameVersion the game version to search for
+     * @param modLoader the mod loader to search for
+     * @param limit the maximum number of results to return
+     * @param offset the offset to start the search at
+     * @return a list of mods that match the search query sorted by download count
+     * @throws FileDownloadException if there is an error during the search
+     */
+    public static List<ModData> searchCombinedMods(String query, String gameVersion, String modLoader, int limit, int offset) throws FileDownloadException {
         ModrinthSearch mrSearch = searchModrinth(query, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader), limit, offset);
         CurseforgeSearch cfSearch = searchCurseforge(query, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader), limit, offset);
         List<ModData> combinedMods = new ArrayList<>();
@@ -56,7 +70,17 @@ public class VersionLoader {
         return combinedMods.stream().sorted().toList();
     }
 
-    public static ModrinthSearch searchModrinth(String query, List<String> versions, List<String> loaders, int limit, int offset) {
+    /**
+     * Searches Modrinth for a search query
+     * @param query the search query
+     * @param versions the game versions to search for
+     * @param loaders the mod loaders to search for
+     * @param limit the maximum number of results to return
+     * @param offset the offset to start the search at
+     * @return a list of mods that match the search query sorted by download count
+     * @throws FileDownloadException if there is an error during the search
+     */
+    public static ModrinthSearch searchModrinth(String query, List<String> versions, List<String> loaders, int limit, int offset) throws FileDownloadException {
         List<Map.Entry<String, String>> params = new ArrayList<>();
         if(query != null) {
             params.add(Map.entry(Sources.getModrinthSearchQueryParam(), query));
@@ -80,7 +104,16 @@ public class VersionLoader {
         return ModrinthSearch.fromJson(Sources.getFileFromHttpGet(Sources.getModrinthSearchUrl(), Sources.getModrinthHeaders(), params));
     }
 
-    public static List<ModrinthVersion> getModrinthVersion(String modId, ModData parent, List<String> versions, List<String> modLoaders) {
+    /**
+     * Gets the versions for a specific Modrinth project
+     * @param modId the project id
+     * @param parent parent mod data for the versions to reference
+     * @param versions the game versions to get project versions for
+     * @param modLoaders the mod loaders to get project versions for
+     * @return a list of versions for the project sorted descending by date
+     * @throws FileDownloadException if there is an error downloading the project versions
+     */
+    public static List<ModrinthVersion> getModrinthVersion(String modId, ModData parent, List<String> versions, List<String> modLoaders) throws FileDownloadException {
         List<Map.Entry<String, String>> params = new ArrayList<>();
         if(versions != null && !versions.isEmpty()) {
             StringBuilder ver = new StringBuilder("[");
@@ -95,11 +128,28 @@ public class VersionLoader {
         return ModrinthVersion.fromJsonArray(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionsUrl(), modId), Sources.getModrinthHeaders(), params), parent);
     }
 
-    public static ModrinthVersion getModrinthVersion(String versionId, ModData parent) {
+    /**
+     * Gets a specific Modrinth version
+     * @param versionId the version id
+     * @param parent parent mod data for the version to reference
+     * @return the version data
+     * @throws FileDownloadException if there is an error downloading the version
+     */
+    public static ModrinthVersion getModrinthVersion(String versionId, ModData parent) throws FileDownloadException {
         return ModrinthVersion.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionUrl(), versionId), Sources.getModrinthHeaders(), List.of()), parent);
     }
 
-    public static CurseforgeSearch searchCurseforge(String query, String gameVersion, int modLoader, int limit, int offset) {
+    /**
+     * Searches Curseforge for a search query
+     * @param query the search query
+     * @param gameVersion the game version to search for
+     * @param modLoader the mod loader id to search for
+     * @param limit the maximum number of results to return
+     * @param offset the offset to start the search at
+     * @return a list of mods that match the search query sorted by download count
+     * @throws FileDownloadException if there is an error during the search
+     */
+    public static CurseforgeSearch searchCurseforge(String query, String gameVersion, int modLoader, int limit, int offset) throws FileDownloadException {
         List<Map.Entry<String, String>> params = new ArrayList<>(Sources.getCurseforgeSearchDefaultParams());
         if(query != null && !query.isBlank()) {
             params.add(Map.entry(Sources.getCurseforgeSearchQueryParam(), query));
@@ -119,7 +169,16 @@ public class VersionLoader {
         return CurseforgeSearch.fromJson(Sources.getFileFromHttpGet(Sources.getCurseforgeSearchUrl(), Sources.getCurseforgeHeaders(), params));
     }
 
-    public static CurseforgeFiles getCurseforgeVersions(int modId, ModData parent, String gameVersion, int modLoader) {
+    /**
+     * Gets the versions for a specific Curseforge project
+     * @param modId the project id
+     * @param parent parent mod data for the versions to reference
+     * @param gameVersion the game version to get project versions for
+     * @param modLoader the mod loader id to get project versions for
+     * @return a list of versions for the project sorted descending by date
+     * @throws FileDownloadException if there is an error downloading the project versions
+     */
+    public static CurseforgeFiles getCurseforgeVersions(int modId, ModData parent, String gameVersion, int modLoader) throws FileDownloadException {
         List<Map.Entry<String, String>> params = new ArrayList<>();
         if(gameVersion != null && !gameVersion.isBlank()) {
             params.add(Map.entry(Sources.getCurseforgeSearchGameversionParam(), gameVersion));
@@ -130,7 +189,14 @@ public class VersionLoader {
         return CurseforgeFiles.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeVersionsUrl(), modId), Sources.getCurseforgeHeaders(), params), parent);
     }
 
-    public static CurseforgeFile getCurseforgeVersion(int modId, int versionId) {
+    /**
+     * Gets a specific Curseforge version
+     * @param modId the parent project id
+     * @param versionId the version id
+     * @return the version data
+     * @throws FileDownloadException if there is an error downloading the version
+     */
+    public static CurseforgeFile getCurseforgeVersion(int modId, int versionId) throws FileDownloadException {
         return CurseforgeFile.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeVersionUrl(), modId, versionId), Sources.getCurseforgeHeaders(), List.of()));
     }
  }

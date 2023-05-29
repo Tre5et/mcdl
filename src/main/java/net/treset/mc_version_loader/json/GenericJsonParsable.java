@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.json;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
 import java.util.List;
 
 public abstract class GenericJsonParsable implements JsonParsable {
@@ -22,7 +23,7 @@ public abstract class GenericJsonParsable implements JsonParsable {
     }
 
     @Override
-    public boolean writeToFile(String filePath) {
-        return JsonUtils.writeJsonToFile(this, filePath);
+    public void writeToFile(String filePath) throws IOException {
+        JsonUtils.writeJsonToFile(this, filePath);
     }
 }

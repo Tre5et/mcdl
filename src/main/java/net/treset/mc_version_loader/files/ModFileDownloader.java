@@ -1,5 +1,6 @@
 package net.treset.mc_version_loader.files;
 
+import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.launcher.LauncherMod;
 import net.treset.mc_version_loader.launcher.LauncherModDownload;
 import net.treset.mc_version_loader.mods.ModProvider;
@@ -10,24 +11,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 public class ModFileDownloader {
-    private static final Logger LOGGER = LogManager.getLogManager().getLogger(ModFileDownloader.class.toString());
-
-    public static LauncherMod downloadModFile(ModVersionData data, File parentDir, boolean enabled) {
-        if(data.getParentMod() == null) {
-            LOGGER.log(Level.SEVERE, "Unable to download mod, parent mod is null");
-            return null;
+    public static LauncherMod downloadModFile(ModVersionData data, File parentDir, boolean enabled) throws FileDownloadException {
+        if(data == null || data.getParentMod() == null) {
+            throw new FileDownloadException("Unable to download mod: unmet requirements: mod=" + data);
         }
 
         List<ModProvider> providers = data.getParentMod().getModProviders();
         List<String> projectIds = data.getParentMod().getProjectIds();
         if(providers.size() != projectIds.size()) {
-            LOGGER.log(Level.SEVERE, "Unable to download mod, provider count does not match project id count");
-            return null;
+            throw new FileDownloadException("Unable to download mod, provider count does not match project id count: mod=" + data.getName());
         }
 
         String[] urlParts = data.getDownloadUrl().split("/");
@@ -37,13 +31,9 @@ public class ModFileDownloader {
         try {
             downloadUrl = new URL(data.getDownloadUrl());
         } catch (MalformedURLException e) {
-            LOGGER.log(Level.SEVERE, "Unable to download mod, malformed url: " + data.getDownloadUrl(), e);
-            return null;
+            throw new FileDownloadException("Unable to download mod, malformed url: mod=" + data.getName(), e);
         }
-        if(!FileUtils.downloadFile(downloadUrl, modFile)) {
-            LOGGER.log(Level.SEVERE, "Unable to download mod, download failed");
-            return null;
-        }
+        FileUtils.downloadFile(downloadUrl, modFile);
 
         ArrayList<LauncherModDownload> downloads = new ArrayList<>();
         for(int i = 0; i < providers.size(); i++) {

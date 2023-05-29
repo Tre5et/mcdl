@@ -2,68 +2,68 @@ package net.treset.mc_version_loader.files;
 
 import net.treset.mc_version_loader.assets.AssetIndex;
 import net.treset.mc_version_loader.assets.AssetObject;
+import net.treset.mc_version_loader.exception.FileDownloadException;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AssetsFileDownloader {
-    private static final Logger LOGGER = Logger.getLogger(AssetIndex.class.toString());
 
-    public static boolean downloadAssets(File assetsDir, AssetIndex assetIndex, String indexFileUrl, boolean overwrite) {
+    public static void downloadAssets(File assetsDir, AssetIndex assetIndex, String indexFileUrl, boolean overwrite) throws FileDownloadException {
         File indexDir = new File(assetsDir, "indexes");
         if(!indexDir.isDirectory() && !indexDir.mkdirs()) {
-            LOGGER.log(Level.SEVERE, "Unable to create assets index directory");
-            return false;
+            throw new FileDownloadException("Unable to create assets indexes directory");
         }
         String[] indexFileUrlSplit = indexFileUrl.split("/");
         File indexFile = new File(indexDir, indexFileUrlSplit[indexFileUrlSplit.length - 1]);
         if(!indexFile.exists() || overwrite) {
             try {
-                if (!FileUtils.downloadFile(new URL(indexFileUrl), indexFile)) {
-                    LOGGER.log(Level.SEVERE, "Unable to download assets index");
-                    return false;
-                }
+                FileUtils.downloadFile(new URL(indexFileUrl), indexFile);
             } catch (MalformedURLException e) {
-                LOGGER.log(Level.SEVERE, "Unable to parse asset index url", e);
-                return false;
+                throw new FileDownloadException("Unable to parse assets index url", e);
+            } catch (FileDownloadException e) {
+                throw new FileDownloadException("Unable to download assets index", e);
             }
-        } else {
-            LOGGER.log(Level.INFO, "Assets index already exists, skipping download");
-            return true;
         }
 
         File objectsDir = new File(assetsDir, "objects");
         if(!objectsDir.isDirectory() && !objectsDir.mkdirs()) {
-            LOGGER.log(Level.SEVERE, "Unable to create assets objects directory");
-            return false;
+            throw new FileDownloadException("Unable to create assets objects directory");
         }
 
-        return assetIndex.getObjects().stream()
-                .allMatch(o -> downloadAssetsObject(o, objectsDir, overwrite));
+        List<Exception> exceptionQueue = new ArrayList<>();
+        for(AssetObject o : assetIndex.getObjects()) {
+            try {
+                downloadAssetsObject(o, objectsDir, overwrite);
+            } catch (FileDownloadException e) {
+                exceptionQueue.add(e);
+            }
+        }
+        if(!exceptionQueue.isEmpty()) {
+            throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " assets objects", exceptionQueue);
+        }
     }
 
-    public static boolean downloadAssetsObject(AssetObject object, File objectsDir, boolean overwrite) {
+    public static void downloadAssetsObject(AssetObject object, File objectsDir, boolean overwrite) throws FileDownloadException {
         File dir = new File(objectsDir, object.getHash().substring(0, 2));
         if(!dir.isDirectory() && !dir.mkdirs()) {
-            LOGGER.log(Level.SEVERE, "Unable to create assets object directory, id=" + object.getHash());
-            return false;
+            throw new FileDownloadException("Unable to create assets object directory, id=" + object.getHash());
         }
         File objectFile = new File(dir, object.getHash());
         try {
             URL url = new URL(Sources.getAssetsBaseUrl() + object.getHash().substring(0, 2) + "/" + object.getHash());
             if(!objectFile.exists() || overwrite) {
-                if(!FileUtils.downloadFile(url, objectFile)) {
-                    LOGGER.log(Level.SEVERE, "Unable to download asset object, id=" + object.getHash());
-                    return false;
+                try {
+                    FileUtils.downloadFile(url, objectFile);
+                } catch (FileDownloadException e) {
+                    throw new FileDownloadException("Unable to download assets object, id=" + object.getHash(), e);
                 }
             }
         } catch (MalformedURLException e) {
-            LOGGER.log(Level.SEVERE, "Unable to parse asset object url, id=" + object.getHash(), e);
-            return false;
+            throw new FileDownloadException("Unable to parse asset object url, id=" + object.getHash(), e);
         }
-        return true;
     }
 }

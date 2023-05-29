@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.CombinedModData;
@@ -36,7 +37,7 @@ public class LauncherMod {
         this.downloads = downloads;
     }
 
-    public ModData getModData() {
+    public ModData getModData() throws FileDownloadException {
         ArrayList<ModData> mods = new ArrayList<>();
         for(LauncherModDownload download : downloads) {
             if(download.getProvider().equals("modrinth")) {
@@ -61,7 +62,7 @@ public class LauncherMod {
             }
         }
         if(mods.size() == 0) {
-            return null;
+            throw new FileDownloadException("No mod data found: mod=" + name);
         }
         if(mods.size() == 1) {
             return mods.get(0);

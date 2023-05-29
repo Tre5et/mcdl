@@ -1,9 +1,11 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
 import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.minecraft.MinecraftLogging;
 import net.treset.mc_version_loader.mods.*;
 
 import java.time.LocalDateTime;
@@ -151,26 +153,26 @@ public class CurseforgeMod extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> getVersions() {
+    public List<ModVersionData> getVersions() throws FileDownloadException {
         return getVersions(null, -1);
     }
 
     @Override
-    public List<ModVersionData> getVersions(String gameVersion, String modLoader) {
+    public List<ModVersionData> getVersions(String gameVersion, String modLoader) throws FileDownloadException {
         return getVersions(gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
     }
 
     @Override
-    public List<ModVersionData> updateVersions() {
+    public List<ModVersionData> updateVersions() throws FileDownloadException {
         return updateVersions(null, -1);
     }
 
-    public List<ModVersionData> updateVersions(String gameVersion, int modLoader) {
+    public List<ModVersionData> updateVersions(String gameVersion, int modLoader) throws FileDownloadException {
         versions = List.copyOf(VersionLoader.getCurseforgeVersions(id, this, gameVersion, modLoader).getData());
         return versions;
     }
 
-    public List<ModVersionData> getVersions(String gameVersion, int modLoader) {
+    public List<ModVersionData> getVersions(String gameVersion, int modLoader) throws FileDownloadException {
         if(versions == null) {
             updateVersions(gameVersion, modLoader);
         }

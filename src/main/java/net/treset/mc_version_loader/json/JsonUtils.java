@@ -9,20 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class JsonUtils {
     private static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
     private static Gson gsonCamelCase = new GsonBuilder().setPrettyPrinting().create();
 
-    private static final Logger LOGGER = Logger.getLogger(JsonUtils.class.toString());
-
     public static JsonObject getAsJsonObject(JsonElement element) {
         if(element != null && element.isJsonObject()) {
             return element.getAsJsonObject();
         }
-        LOGGER.log(Level.WARNING, "Unable to convert to json object " + element);
         return null;
     }
 
@@ -30,7 +25,6 @@ public class JsonUtils {
         if(element != null && element.isJsonArray()) {
             return element.getAsJsonArray();
         }
-        LOGGER.log(Level.WARNING, "Unable to convert to json array " + element);
         return null;
     }
 
@@ -38,7 +32,6 @@ public class JsonUtils {
         if(element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
             return element.getAsJsonPrimitive().getAsString();
         }
-        LOGGER.log(Level.WARNING, "Unable to convert to json string " + element);
         return null;
     }
 
@@ -46,7 +39,6 @@ public class JsonUtils {
         if(element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
             return element.getAsJsonPrimitive().getAsInt();
         }
-        LOGGER.log(Level.WARNING, "Unable to convert to json string " + element);
         return -1;
     }
 
@@ -54,7 +46,6 @@ public class JsonUtils {
         if(element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isBoolean()) {
             return element.getAsJsonPrimitive().getAsBoolean();
         }
-        LOGGER.log(Level.WARNING, "Unable to convert to json string " + element);
         return false;
     }
 
@@ -62,7 +53,6 @@ public class JsonUtils {
         if(obj != null && obj.get(memberName) != null && obj.get(memberName).isJsonObject()) {
             return obj.getAsJsonObject(memberName);
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested json object " + memberName);
         return null;
     }
 
@@ -70,7 +60,6 @@ public class JsonUtils {
         if(obj != null && obj.get(memberName) != null && obj.get(memberName).isJsonArray()) {
             return obj.getAsJsonArray(memberName);
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested json array " + memberName);
         return null;
     }
 
@@ -80,7 +69,6 @@ public class JsonUtils {
                 return obj.getAsJsonPrimitive(memberName).getAsString();
             }
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested string property " + memberName);
         return null;
     }
 
@@ -90,7 +78,6 @@ public class JsonUtils {
                 return obj.getAsJsonPrimitive(memberName).getAsInt();
             }
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested int property " + memberName);
         return -1;
     }
 
@@ -100,7 +87,6 @@ public class JsonUtils {
                 return obj.getAsJsonPrimitive(memberName).getAsBoolean();
             }
         }
-        LOGGER.log(Level.WARNING, "Unable to read requested boolean property " + memberName);
         return false;
     }
 
@@ -112,13 +98,8 @@ public class JsonUtils {
     }
 
 
-    public static JsonElement parseJson(String json) {
-        try {
-            return com.google.gson.JsonParser.parseString(json);
-        } catch(Exception e) {
-            LOGGER.log(Level.WARNING, "Unable to parse json", e);
-        }
-        return null;
+    public static JsonElement parseJson(String json) throws JsonParseException {
+        return com.google.gson.JsonParser.parseString(json);
     }
 
     public static List<String> parseJsonStringArray(JsonArray jsonStringArray) {
@@ -132,25 +113,17 @@ public class JsonUtils {
         return out;
     }
 
-    public static boolean writeJsonToFile(Object toWrite, String path) {
+    public static void writeJsonToFile(Object toWrite, String path) throws IOException {
         File file = new File(path);
-        try {
-            if(!file.isFile() && ((!file.getParentFile().isDirectory() && !file.getParentFile().mkdirs()) || !file.createNewFile())) {
-                LOGGER.log(Level.SEVERE, "Unable to create file " + path);
-                return false;
-            }
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Unable to create file " + path, e);
-            return false;
+        if(!file.isFile() && ((!file.getParentFile().isDirectory() && !file.getParentFile().mkdirs()) || !file.createNewFile())) {
+            throw new IOException("Unable to create file " + path);
         }
         try (FileWriter writer = new FileWriter(path)) {
             getGson().toJson(toWrite, writer);
             writer.flush();
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Unable to write json", e);
-            return false;
+        } catch (JsonIOException e) {
+            throw new IOException("Unable to write to file " + path, e);
         }
-        return true;
     }
 
     public static Gson getGson() {

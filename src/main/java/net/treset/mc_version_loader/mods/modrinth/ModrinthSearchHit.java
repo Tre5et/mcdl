@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
 import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.mods.GenericModData;
 import net.treset.mc_version_loader.mods.ModData;
@@ -127,12 +128,12 @@ public class ModrinthSearchHit extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> getVersions() {
+    public List<ModVersionData> getVersions() throws FileDownloadException {
         return getVersions(null, null);
     }
 
     @Override
-    public List<ModVersionData> getVersions(String gameVersion, String modLoader) {
+    public List<ModVersionData> getVersions(String gameVersion, String modLoader) throws FileDownloadException {
         if(versionData == null) {
             updateVersions(gameVersion, modLoader);
         }
@@ -140,11 +141,11 @@ public class ModrinthSearchHit extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> updateVersions() {
+    public List<ModVersionData> updateVersions() throws FileDownloadException {
         return updateVersions(null, null);
     }
 
-    public List<ModVersionData> updateVersions(String gameVersion, String modLoader) {
+    public List<ModVersionData> updateVersions(String gameVersion, String modLoader) throws FileDownloadException {
         versionData = List.copyOf(VersionLoader.getModrinthVersion(projectId, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader)));
         return versionData;
     }

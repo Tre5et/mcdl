@@ -1,5 +1,6 @@
 package net.treset.mc_version_loader.files;
 
+import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.minecraft.MinecraftFileDownloads;
 import net.treset.mc_version_loader.minecraft.MinecraftLibrary;
 import net.treset.mc_version_loader.os.OsDetails;
@@ -9,64 +10,60 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MinecraftVersionFileDownloader {
-    private static final Logger LOGGER = Logger.getLogger(MinecraftVersionFileDownloader.class.toString());
 
-    public static boolean downloadVersionDownload(MinecraftFileDownloads.Downloads download, File baseDir) {
+    public static void downloadVersionDownload(MinecraftFileDownloads.Downloads download, File baseDir) throws FileDownloadException {
         if(download == null || download.getUrl() == null || download.getUrl().isBlank() || baseDir == null || !baseDir.isDirectory()) {
-            LOGGER.log(Level.WARNING, "Unable to start version download; unmet requirements");
-            return false;
+            throw new FileDownloadException("Unmet requirements for version download: download=" + download);
         }
 
         URL downloadUrl;
         try {
             downloadUrl = new URL(download.getUrl());
         } catch (MalformedURLException e) {
-            LOGGER.log(Level.WARNING, "Unable to convert download url", e);
-            return false;
+            throw new FileDownloadException("Unable to convert version download url: download=" + download.getUrl(), e);
         }
 
         File outFile = new File(baseDir, download.getUrl().substring(download.getUrl().lastIndexOf('/')));
-        return FileUtils.downloadFile(downloadUrl, outFile);
+        FileUtils.downloadFile(downloadUrl, outFile);
     }
 
-    public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File baseDir, List<String> features) {
+    public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File baseDir, List<String> features) throws FileDownloadException {
         ArrayList<String> result = new ArrayList<>();
-        boolean success = libraries.stream()
-                .allMatch(library -> addVersionLibrary(library, baseDir, result, features));
-        if(!success) {
-            LOGGER.log(Level.WARNING, "Unable to download all libraries");
-            return null;
+        List<Exception> exceptionQueue = new ArrayList<>();
+        libraries.forEach(l -> {
+                    try {
+                        addVersionLibrary(l, baseDir, result, features);
+                    } catch (FileDownloadException e) {
+                        exceptionQueue.add(e);
+                    }
+        });
+        if(!exceptionQueue.isEmpty()) {
+            throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " libraries", exceptionQueue);
         }
         return result;
     }
 
-    public static boolean addVersionLibrary(MinecraftLibrary library, File baseDir, ArrayList<String> result, List<String> features) {
+    public static void addVersionLibrary(MinecraftLibrary library, File baseDir, ArrayList<String> result, List<String> features) throws FileDownloadException {
         if(library == null || library.getRules() != null && !library.getRules().stream().allMatch(r -> r.isApplicable(features))) {
-            LOGGER.log(Level.INFO, "Skipping library " + library.getName() + " due to rules");
-            return true;
+            return;
         }
 
         if(library.getDownloads().getArtifacts().getUrl() == null || library.getDownloads().getArtifacts().getUrl().isBlank() || library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || baseDir == null || !baseDir.isDirectory()) {
-            LOGGER.log(Level.WARNING, "Unable to start library download; unmet requirements");
-            return false;
+            throw new FileDownloadException("Unmet requirements for library download: library=" + library);
         }
 
         URL downloadUrl;
         try {
             downloadUrl = new URL(library.getDownloads().getArtifacts().getUrl());
         } catch (MalformedURLException e) {
-            LOGGER.log(Level.WARNING, "Unable to convert download url", e);
-            return false;
+            throw new FileDownloadException("Unable to convert download url: library=" + library.getName(), e);
         }
 
         File outDir = new File(baseDir,library.getDownloads().getArtifacts().getPath().substring(0, library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
         if(!outDir.isDirectory() && !outDir.mkdirs()) {
-            LOGGER.log(Level.WARNING, "Unable to make required dirs");
-            return false;
+            throw new FileDownloadException("Unable to make required dirs: library=" + library.getName());
         }
 
         if(library.getNatives() != null) {
@@ -86,20 +83,15 @@ public class MinecraftVersionFileDownloader {
                         try {
                             nativeUrl = new URL(na.getArtifact().getUrl());
                         } catch (MalformedURLException e) {
-                            LOGGER.log(Level.WARNING, "Unable to convert native download url", e);
-                            return false;
+                            throw new FileDownloadException("Unable to convert native download url: library=" + library.getName() + ", native=" + na.getName(), e);
                         }
 
                         File nativeOutDir = new File(baseDir, na.getArtifact().getPath().substring(0, na.getArtifact().getPath().lastIndexOf('/')));
                         if(!nativeOutDir.isDirectory() && !nativeOutDir.mkdirs()) {
-                            LOGGER.log(Level.WARNING, "Unable to make required dirs");
-                            return false;
+                            throw new FileDownloadException("Unable to make required native dirs: library=" + library.getName()  + ", native=" + na.getName());
                         }
                         File outFile = new File(outDir, na.getArtifact().getPath().substring(na.getArtifact().getPath().lastIndexOf('/')));
-                        if(!FileUtils.downloadFile(nativeUrl, outFile)) {
-                            LOGGER.log(Level.WARNING, "Unable to download native file");
-                            return false;
-                        }
+                        FileUtils.downloadFile(nativeUrl, outFile);
                         result.add(na.getArtifact().getPath());
                     }
                 }
@@ -108,6 +100,6 @@ public class MinecraftVersionFileDownloader {
 
         File outFile = new File(outDir, library.getDownloads().getArtifacts().getPath().substring(library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
         result.add(library.getDownloads().getArtifact().getPath());
-        return FileUtils.downloadFile(downloadUrl, outFile);
+        FileUtils.downloadFile(downloadUrl, outFile);
     }
 }

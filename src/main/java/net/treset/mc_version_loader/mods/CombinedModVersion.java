@@ -1,5 +1,7 @@
 package net.treset.mc_version_loader.mods;
 
+import net.treset.mc_version_loader.exception.FileDownloadException;
+
 import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -77,7 +79,7 @@ public class CombinedModVersion extends GenericModVersion {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) {
+    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
         if(requiredDependencies == null) {
             requiredDependencies = new ArrayList<>();
             List<ModVersionData> rdo1 = parent1.getRequiredDependencies(gameVersion, modLoader);

@@ -1,5 +1,7 @@
 package net.treset.mc_version_loader.mods;
 
+import net.treset.mc_version_loader.exception.FileDownloadException;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,9 +19,9 @@ public interface ModData extends Comparable<ModData> {
     boolean supportsModLoader(String modLoader);
     String getSlug();
     String getName();
-    List<ModVersionData> getVersions();
-    List<ModVersionData> getVersions(String gameVersion, String modLoader);
-    List<ModVersionData> updateVersions();
+    List<ModVersionData> getVersions() throws FileDownloadException;
+    List<ModVersionData> getVersions(String gameVersion, String modLoader) throws FileDownloadException;
+    List<ModVersionData> updateVersions() throws FileDownloadException;
     List<ModProvider> getModProviders();
     List<String> getProjectIds();
 

@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.mods.modrinth;
 
 import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.VersionLoader;
+import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
@@ -9,6 +10,7 @@ import net.treset.mc_version_loader.json.JsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.mods.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,8 +73,8 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public boolean writeToFile(String filePath) {
-        return JsonUtils.writeJsonToFile(this, filePath);
+    public void writeToFile(String filePath) throws IOException {
+        JsonUtils.writeJsonToFile(this, filePath);
     }
 
     @Override
@@ -114,7 +116,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) {
+    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
         if(requiredDependencies == null) {
             requiredDependencies = new ArrayList<>();
             if(dependencies != null) {
