@@ -46,7 +46,7 @@ public class FabricFileDownloader {
 
     public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries) {
         ArrayList<String> result = new ArrayList<>();
-        if(!libraries.parallelStream()
+        if(!libraries.stream()
                 .allMatch(library -> addFabricLibrary(baseDir, library, result))) {
             LOGGER.log(Level.WARNING, "Unable to download all libraries");
             return null;

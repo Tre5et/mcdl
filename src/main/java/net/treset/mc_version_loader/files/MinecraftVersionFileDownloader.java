@@ -35,9 +35,8 @@ public class MinecraftVersionFileDownloader {
 
     public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File baseDir, List<String> features) {
         ArrayList<String> result = new ArrayList<>();
-        boolean success = libraries.parallelStream()
-                .map(library -> addVersionLibrary(library, baseDir, result, features))
-                .allMatch(b -> b);
+        boolean success = libraries.stream()
+                .allMatch(library -> addVersionLibrary(library, baseDir, result, features));
         if(!success) {
             LOGGER.log(Level.WARNING, "Unable to download all libraries");
             return null;
