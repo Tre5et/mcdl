@@ -53,7 +53,7 @@ public class FabricFileDownloader {
             }
         }
         if(!exceptionQueue.isEmpty()) {
-            throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " fabric libraries", exceptionQueue);
+            throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " fabric libraries", exceptionQueue.get(0));
         }
         return result;
     }

@@ -40,7 +40,7 @@ public class MinecraftVersionFileDownloader {
                     }
         });
         if(!exceptionQueue.isEmpty()) {
-            throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " libraries", exceptionQueue);
+            throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " libraries", exceptionQueue.get(0));
         }
         return result;
     }

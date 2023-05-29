@@ -143,7 +143,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
         if(requiredDependencies != null) {
             return requiredDependencies;
         }
-        List<Exception> exceptions = new ArrayList<>();
+        List<Exception> exceptionQueue = new ArrayList<>();
         if(dependencies != null) {
             requiredDependencies = dependencies.stream()
                     .filter(d -> d != null && d.getRelationType() == 3)
@@ -151,7 +151,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                         try {
                             return CurseforgeMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), d.getModId()), Sources.getCurseforgeHeaders(), List.of()));
                         } catch (FileDownloadException e) {
-                            exceptions.add(e);
+                            exceptionQueue.add(e);
                         }
                         return null;
                     })
@@ -159,15 +159,15 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                         try {
                             return VersionLoader.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
                         } catch (FileDownloadException e) {
-                            exceptions.add(e);
+                            exceptionQueue.add(e);
                         }
                         return null;
                     })
                     .filter(f -> f != null && f.getData() != null && f.getData().size() > 0)
                     .map(f -> (ModVersionData)f.getData().get(0))
                     .toList();
-            if(!exceptions.isEmpty()) {
-                throw new FileDownloadException("Error getting required dependencies: mod=" + getName(), exceptions);
+            if(!exceptionQueue.isEmpty()) {
+                throw new FileDownloadException("Error getting required dependencies: mod=" + getName(), exceptionQueue.get(0));
             }
             return requiredDependencies;
         }

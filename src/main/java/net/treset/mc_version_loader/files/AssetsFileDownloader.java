@@ -43,7 +43,7 @@ public class AssetsFileDownloader {
             }
         }
         if(!exceptionQueue.isEmpty()) {
-            throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " assets objects", exceptionQueue);
+            throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " assets objects", exceptionQueue.get(0));
         }
     }
 

@@ -16,7 +16,7 @@ public class OsDetails {
         return FormatUtils.matches(System.getProperty("os.arch").toLowerCase().replaceAll("\\s+",""), arch);
     }
 
-    public static String getJavaIdentifier() {
+    public static String getJavaIdentifier() throws IllegalArgumentException {
         if(isOsName("windows")) {
             if(isOsArch("x86")) {
                 return "windows-x86";
@@ -38,7 +38,7 @@ public class OsDetails {
             }
             return "linux";
         }
-        return null;
+        throw new IllegalArgumentException("Unknown OS");
     }
 
 }
