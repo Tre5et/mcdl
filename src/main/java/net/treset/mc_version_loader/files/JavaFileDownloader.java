@@ -39,6 +39,7 @@ public class JavaFileDownloader {
 
             File outFile = new File(outDir, file.getName().substring(file.getName().lastIndexOf('/') == -1 ? 0 : file.getName().lastIndexOf('/')));
             FileUtils.downloadFile(downloadUrl, outFile);
+            return;
         }
         throw new FileDownloadException("Unable to determine file type: file=" + file.getName());
     }
