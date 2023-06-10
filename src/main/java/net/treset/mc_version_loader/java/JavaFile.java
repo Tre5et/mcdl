@@ -43,7 +43,7 @@ public class JavaFile {
     }
 
     public boolean isFile() {
-        return Objects.equals(getType(), "file");
+        return getType() == null || Objects.equals(getType(), "file");
     }
 
     public boolean isDir() {
