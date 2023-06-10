@@ -21,7 +21,9 @@ public class MinecraftLaunchArgument {
         this.name = name;
         this.rules = rules;
         this.replaced = FormatUtils.matches(name, "\\$\\{(.*)\\}");
-        this.replacementValue = FormatUtils.firstGroup(name, "\\$\\{(.*)\\}");
+        if(replaced) {
+            this.replacementValue = FormatUtils.firstGroup(name, "\\$\\{(.*)\\}");
+        }
         this.gated = rules != null && !rules.isEmpty();
     }
 
