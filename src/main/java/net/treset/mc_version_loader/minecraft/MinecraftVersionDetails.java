@@ -193,4 +193,9 @@ public class MinecraftVersionDetails {
     public void setLogging(MinecraftLogging logging) {
         this.logging = logging;
     }
+
+    @Override
+    public String toString() {
+        return getId();
+    }
 }

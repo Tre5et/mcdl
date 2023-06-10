@@ -102,6 +102,6 @@ public class MinecraftVersion extends GenericJsonParsable {
 
     @Override
     public String toString() {
-        return "\nVersion: " + getId() + ", snapshot: "+ !isRelease() + ", url: " + getUrl();
+        return getId();
     }
 }

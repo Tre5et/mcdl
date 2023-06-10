@@ -48,4 +48,9 @@ public class FabricVersionDetails extends GenericJsonParsable {
     public void setLoader(FabricLoaderData loader) {
         this.loader = loader;
     }
+
+    @Override
+    public String toString() {
+        return this.getLoader().getVersion();
+    }
 }
