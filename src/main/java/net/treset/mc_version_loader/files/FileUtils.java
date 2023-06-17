@@ -54,6 +54,6 @@ public class FileUtils {
     }
 
     private static String parseMavenProperty(String pomFile, String property) {
-        return FormatUtils.firstGroup(pomFile, "<"+property+">(.*)</"+property+">");
+        return FormatUtils.matches(pomFile, "<"+property+">(.*)</"+property+">") ? FormatUtils.firstGroup(pomFile, "<"+property+">(.*)</"+property+">") : null;
     }
 }
