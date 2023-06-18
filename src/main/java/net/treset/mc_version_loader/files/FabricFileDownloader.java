@@ -9,15 +9,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
+import java.util.function.Consumer;
 
 public class FabricFileDownloader {
-
     public static void downloadFabricLoader(File baseDir, FabricLoaderData loader) throws FileDownloadException {
+        downloadFabricLoader(baseDir, loader, status -> {});
+    }
+
+    public static void downloadFabricLoader(File baseDir, FabricLoaderData loader, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         if(loader == null || loader.getMaven() == null || loader.getMaven().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for fabric download");
         }
 
+        statusCallback.accept(new DownloadStatus(0, 1, "fabric-client.jar", false));
         MavenPom mavenPom;
         try {
             mavenPom = FileUtils.parseMavenUrl(Sources.getFabricMavenUrl(), loader.getMaven());
@@ -40,21 +44,29 @@ public class FabricFileDownloader {
         File outFile = new File(baseDir, "fabric-client.jar");
 
         FileUtils.downloadFile(downloadUrl, outFile);
+        statusCallback.accept(new DownloadStatus(1, 1, "fabric-client.jar", false));
     }
 
-    public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries) throws FileDownloadException {
+    public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+        statusCallback.accept(new DownloadStatus(0, libraries.size(), "", false));
         ArrayList<String> result = new ArrayList<>();
         ArrayList<Exception> exceptionQueue = new ArrayList<>();
+        int size = libraries.size();
+        int current = 0;
+        boolean failed = false;
         for(FabricLibrary library : libraries) {
+            statusCallback.accept(new DownloadStatus(current++, size, library.getName(), failed));
             try {
                 addFabricLibrary(baseDir, library, result);
             } catch (FileDownloadException e) {
                 exceptionQueue.add(e);
+                failed = true;
             }
         }
         if(!exceptionQueue.isEmpty()) {
             throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " fabric libraries", exceptionQueue.get(0));
         }
+        statusCallback.accept(new DownloadStatus(size, size, "", false));
         return result;
     }
 

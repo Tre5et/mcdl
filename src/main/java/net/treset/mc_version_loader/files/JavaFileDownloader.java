@@ -6,14 +6,43 @@ import net.treset.mc_version_loader.java.JavaFile;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class JavaFileDownloader {
+    public static void downloadJavaFiles(File baseDir, List<JavaFile> files) throws FileDownloadException {
+        downloadJavaFiles(baseDir, files, status -> {});
+    }
 
-    public static void downloadJavaFile(JavaFile file, File baseDir) throws FileDownloadException {
+    public static void downloadJavaFiles(File baseDir, List<JavaFile> files, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+        if(!baseDir.isDirectory() || files == null || files.isEmpty()) {
+            throw new FileDownloadException("Unmet requirements for java download");
+        }
+
+        List<Exception> exceptionQueue = new ArrayList<>();
+        int size = files.size();
+        int current = 0;
+        boolean failed = false;
+        for(JavaFile file : files) {
+            statusCallback.accept(new DownloadStatus(current++, size, file.getName(), failed));
+            try {
+                downloadJavaFile(baseDir, file);
+            } catch (FileDownloadException e) {
+                exceptionQueue.add(e);
+                failed = true;
+            }
+        }
+        if(!exceptionQueue.isEmpty()) {
+            throw new FileDownloadException("Failed to download " + exceptionQueue.size() + " java files", exceptionQueue.get(0));
+        }
+
+    }
+
+    public static void downloadJavaFile(File baseDir, JavaFile file) throws FileDownloadException {
         if(file == null || file.getType() == null || file.getType().isBlank() || file.getName() == null || file.getName().isBlank() || (file.isFile() && (file.getRaw() == null || file.getRaw().getUrl() == null || file.getRaw().getUrl().isBlank())) || baseDir == null || !baseDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for java file download: file=" + file);
         }
-
 
         File outDir = null;
         if(file.isDir()) {

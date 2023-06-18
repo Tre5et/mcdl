@@ -9,10 +9,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class AssetsFileDownloader {
-
     public static void downloadAssets(File assetsDir, AssetIndex assetIndex, String indexFileUrl, boolean overwrite) throws FileDownloadException {
+        downloadAssets(assetsDir, assetIndex, indexFileUrl, overwrite, status -> {});
+    }
+
+    public static void downloadAssets(File assetsDir, AssetIndex assetIndex, String indexFileUrl, boolean overwrite, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+        statusCallback.accept(new DownloadStatus(0, 0, "assetIndex", false));
         File indexDir = new File(assetsDir, "indexes");
         if(!indexDir.isDirectory() && !indexDir.mkdirs()) {
             throw new FileDownloadException("Unable to create assets indexes directory");
@@ -35,16 +40,22 @@ public class AssetsFileDownloader {
         }
 
         List<Exception> exceptionQueue = new ArrayList<>();
+        int totalAmount = assetIndex.getObjects().size();
+        int currentAmount = 0;
+        boolean failed = false;
         for(AssetObject o : assetIndex.getObjects()) {
+            statusCallback.accept(new DownloadStatus(totalAmount, currentAmount++, o.getHash(), failed));
             try {
                 downloadAssetsObject(o, objectsDir, overwrite);
             } catch (FileDownloadException e) {
                 exceptionQueue.add(e);
+                failed = true;
             }
         }
         if(!exceptionQueue.isEmpty()) {
             throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " assets objects", exceptionQueue.get(0));
         }
+        statusCallback.accept(new DownloadStatus(totalAmount, totalAmount, "", false));
     }
 
     public static void downloadAssetsObject(AssetObject object, File objectsDir, boolean overwrite) throws FileDownloadException {
