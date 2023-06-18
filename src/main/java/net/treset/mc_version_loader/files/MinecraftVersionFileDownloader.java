@@ -35,14 +35,16 @@ public class MinecraftVersionFileDownloader {
         List<Exception> exceptionQueue = new ArrayList<>();
         int size = libraries.size();
         int current = 0;
-        libraries.forEach(l -> {
-            statusCallback.accept(new DownloadStatus(current, size, l.getName(), false));
+        boolean failed = false;
+        for(MinecraftLibrary l : libraries) {
+            statusCallback.accept(new DownloadStatus(current++, size, l.getName(), failed));
             try {
                 addVersionLibrary(l, baseDir, result, features);
             } catch (FileDownloadException e) {
                 exceptionQueue.add(e);
+                failed = true;
             }
-        });
+        }
         if(!exceptionQueue.isEmpty()) {
             throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " libraries", exceptionQueue.get(0));
         }
