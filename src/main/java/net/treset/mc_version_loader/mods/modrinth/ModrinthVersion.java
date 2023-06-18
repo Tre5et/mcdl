@@ -127,12 +127,13 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                                 continue;
                             }
                             ModrinthVersion version;
+                            ModrinthMod parent;
                             if (d.getProjectId() != null) {
-                                ModrinthMod parent = ModrinthMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthProjectUrl(), d.getProjectId()), Sources.getModrinthHeaders(), List.of()));
+                                parent = ModrinthMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthProjectUrl(), d.getProjectId()), Sources.getModrinthHeaders(), List.of()));
                                 version = VersionLoader.getModrinthVersion(d.getVersionId(), parent);
                             } else {
                                 version = ModrinthVersion.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionUrl(), d.getVersionId()), Sources.getModrinthHeaders(), List.of()), null);
-                                ModrinthMod parent = ModrinthMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthProjectUrl(), version.getProjectId()), Sources.getModrinthHeaders(), List.of()));
+                                parent = ModrinthMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthProjectUrl(), version.getProjectId()), Sources.getModrinthHeaders(), List.of()));
                                 version.setParentMod(parent);
                             }
                             if (version == null || !version.getGameVersions().contains(gameVersion)) {
