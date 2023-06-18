@@ -13,10 +13,6 @@ import java.util.function.Consumer;
 
 public class FabricFileDownloader {
     public static void downloadFabricLoader(File baseDir, FabricLoaderData loader) throws FileDownloadException {
-        downloadFabricLoader(baseDir, loader, status -> {});
-    }
-
-    public static void downloadFabricLoader(File baseDir, FabricLoaderData loader, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         if(loader == null || loader.getMaven() == null || loader.getMaven().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for fabric download");
         }
@@ -57,7 +53,7 @@ public class FabricFileDownloader {
         int current = 0;
         boolean failed = false;
         for(FabricLibrary library : libraries) {
-            statusCallback.accept(new DownloadStatus(current++, size, library.getName(), failed));
+            statusCallback.accept(new DownloadStatus(++current, size, library.getName(), failed));
             try {
                 addFabricLibrary(baseDir, library, result);
             } catch (FileDownloadException e) {

@@ -25,7 +25,7 @@ public class JavaFileDownloader {
         int current = 0;
         boolean failed = false;
         for(JavaFile file : files) {
-            statusCallback.accept(new DownloadStatus(current++, size, file.getName(), failed));
+            statusCallback.accept(new DownloadStatus(++current, size, file.getName(), failed));
             try {
                 downloadJavaFile(baseDir, file);
             } catch (FileDownloadException e) {

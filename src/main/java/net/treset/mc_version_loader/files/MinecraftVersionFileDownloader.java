@@ -37,7 +37,7 @@ public class MinecraftVersionFileDownloader {
         int current = 0;
         boolean failed = false;
         for(MinecraftLibrary l : libraries) {
-            statusCallback.accept(new DownloadStatus(current++, size, l.getName(), failed));
+            statusCallback.accept(new DownloadStatus(++current, size, l.getName(), failed));
             try {
                 addVersionLibrary(l, baseDir, result, features);
             } catch (FileDownloadException e) {
