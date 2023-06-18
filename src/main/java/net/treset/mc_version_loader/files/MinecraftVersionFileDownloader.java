@@ -10,6 +10,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class MinecraftVersionFileDownloader {
 
@@ -29,15 +30,18 @@ public class MinecraftVersionFileDownloader {
         FileUtils.downloadFile(downloadUrl, outFile);
     }
 
-    public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File baseDir, List<String> features) throws FileDownloadException {
-        ArrayList<String> result = new ArrayList<>();
+    public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File baseDir, List<String> features, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+                ArrayList<String> result = new ArrayList<>();
         List<Exception> exceptionQueue = new ArrayList<>();
+        int size = libraries.size();
+        int current = 0;
         libraries.forEach(l -> {
-                    try {
-                        addVersionLibrary(l, baseDir, result, features);
-                    } catch (FileDownloadException e) {
-                        exceptionQueue.add(e);
-                    }
+            statusCallback.accept(new DownloadStatus(current, size, l.getName(), false));
+            try {
+                addVersionLibrary(l, baseDir, result, features);
+            } catch (FileDownloadException e) {
+                exceptionQueue.add(e);
+            }
         });
         if(!exceptionQueue.isEmpty()) {
             throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " libraries", exceptionQueue.get(0));

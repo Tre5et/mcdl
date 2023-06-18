@@ -21,7 +21,6 @@ public class FabricFileDownloader {
             throw new FileDownloadException("Unmet requirements for fabric download");
         }
 
-        statusCallback.accept(new DownloadStatus(0, 1, "fabric-client.jar", false));
         MavenPom mavenPom;
         try {
             mavenPom = FileUtils.parseMavenUrl(Sources.getFabricMavenUrl(), loader.getMaven());
@@ -44,7 +43,10 @@ public class FabricFileDownloader {
         File outFile = new File(baseDir, "fabric-client.jar");
 
         FileUtils.downloadFile(downloadUrl, outFile);
-        statusCallback.accept(new DownloadStatus(1, 1, "fabric-client.jar", false));
+    }
+
+    public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries) throws FileDownloadException {
+        return downloadFabricLibraries(baseDir, libraries, status -> {});
     }
 
     public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
