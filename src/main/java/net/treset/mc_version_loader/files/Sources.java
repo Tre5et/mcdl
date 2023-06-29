@@ -46,6 +46,8 @@ public class Sources {
     private static final String CURSEFORGE_VERSIONS_LOADER_PARAM = CURSEFORGE_SEARCH_LOADER_PARAM; // %d := mod loader index (1=forge, 4=fabric)
     private static final String CURSEFORGE_VERSION_URL = "https://api.curseforge.com/v1/mods/%d/files/%d";
     private static final List<Map.Entry<String, String>> CURSEFORGE_HEADERS = List.of(Map.entry("Accept", "application/json"), Map.entry("x-api-key", "$2a$10$3rdQBL3FRS2RSSS4MF5F5uuOQpFr5flAzUCAdBvZDEfu1fIXFq.DW"));
+    private static final String MOJANG_USER_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s"; // %s := name
+    private static final String MOJANG_SESSION_PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s"; // %s := uuid
 
     public static String getFabricMavenUrl() {
         return FABRIC_MAVEN_URL;
@@ -175,6 +177,14 @@ public class Sources {
 
     public static String getCurseforgeVersionUrl() {
         return CURSEFORGE_VERSION_URL;
+    }
+
+    public static String getMojangUserProfileUrl() {
+        return MOJANG_USER_PROFILE_URL;
+    }
+
+    public static String getMojangSessionProfileUrl() {
+        return MOJANG_SESSION_PROFILE_URL;
     }
 
     /**

@@ -13,6 +13,7 @@ import net.treset.mc_version_loader.mods.curseforge.CurseforgeSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearchHit;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
+import net.treset.mc_version_loader.mojang.MinecraftProfile;
 
 import java.util.*;
 
@@ -198,5 +199,9 @@ public class VersionLoader {
      */
     public static CurseforgeFile getCurseforgeVersion(int modId, int versionId) throws FileDownloadException {
         return CurseforgeFile.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeVersionUrl(), modId, versionId), Sources.getCurseforgeHeaders(), List.of()));
+    }
+
+    public static MinecraftProfile getMinecraftProfile(String uuid) throws FileDownloadException {
+        return MinecraftProfile.fromJson(Sources.getFileFromUrl(String.format(Sources.getMojangSessionProfileUrl(), uuid)));
     }
  }
