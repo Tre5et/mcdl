@@ -3,7 +3,7 @@ package net.treset.mc_version_loader.minecraft;
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.util.DownloadStatus;
 import net.treset.mc_version_loader.util.FileUtil;
-import net.treset.mc_version_loader.os.OsDetails;
+import net.treset.mc_version_loader.util.OsUtil;
 import net.treset.mc_version_loader.util.Sources;
 
 import java.io.File;
@@ -75,11 +75,11 @@ public class MinecraftUtil {
 
         if(library.getNatives() != null) {
             List<String> applicableNatives = new ArrayList<>();
-            if(OsDetails.isOsName("windows") && library.getNatives().getWindows() != null) {
+            if(OsUtil.isOsName("windows") && library.getNatives().getWindows() != null) {
                 applicableNatives.add(library.getNatives().getWindows());
-            } else if(OsDetails.isOsName("linux") && library.getNatives().getLinux() != null) {
+            } else if(OsUtil.isOsName("linux") && library.getNatives().getLinux() != null) {
                 applicableNatives.add(library.getNatives().getLinux());
-            } else if(OsDetails.isOsName("osx") && library.getNatives().getOsx() != null) {
+            } else if(OsUtil.isOsName("osx") && library.getNatives().getOsx() != null) {
                 applicableNatives.add(library.getNatives().getOsx());
             }
 

@@ -1,6 +1,6 @@
 package net.treset.mc_version_loader.minecraft;
 
-import net.treset.mc_version_loader.os.OsDetails;
+import net.treset.mc_version_loader.util.OsUtil;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class MinecraftRule {
         }
 
         public boolean isAllow() {
-            return (name == null || OsDetails.isOsName(name)) && (version == null || OsDetails.isOsVersion(version)) && (arch == null || OsDetails.isOsArch(arch));
+            return (name == null || OsUtil.isOsName(name)) && (version == null || OsUtil.isOsVersion(version)) && (arch == null || OsUtil.isOsArch(arch));
         }
 
         public String getName() {

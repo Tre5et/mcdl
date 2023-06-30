@@ -1,8 +1,8 @@
-package net.treset.mc_version_loader.os;
+package net.treset.mc_version_loader.util;
 
 import net.treset.mc_version_loader.format.FormatUtils;
 
-public class OsDetails {
+public class OsUtil {
 
     public static boolean isOsName(String name) {
         return FormatUtils.matches(System.getProperty("os.name").toLowerCase().replaceAll("\\s+",""), name);

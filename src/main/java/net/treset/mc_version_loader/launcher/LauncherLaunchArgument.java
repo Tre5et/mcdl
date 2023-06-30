@@ -1,7 +1,7 @@
 package net.treset.mc_version_loader.launcher;
 
 import net.treset.mc_version_loader.format.FormatUtils;
-import net.treset.mc_version_loader.os.OsDetails;
+import net.treset.mc_version_loader.util.OsUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -50,17 +50,17 @@ public class LauncherLaunchArgument {
             }
         }
         if(getOsName() != null && !getOsName().isBlank()) {
-            if(!OsDetails.isOsName(getOsName())) {
+            if(!OsUtil.isOsName(getOsName())) {
                 return false;
             }
         }
         if(getOsArch() != null && !getOsArch().isBlank()) {
-            if(!OsDetails.isOsArch(getOsArch())) {
+            if(!OsUtil.isOsArch(getOsArch())) {
                 return false;
             }
         }
         if(getOsVersion() != null && !getOsVersion().isBlank()) {
-            if(!OsDetails.isOsVersion(getOsVersion())) {
+            if(!OsUtil.isOsVersion(getOsVersion())) {
                 return false;
             }
         }

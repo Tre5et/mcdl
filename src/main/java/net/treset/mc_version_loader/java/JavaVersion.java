@@ -1,14 +1,5 @@
 package net.treset.mc_version_loader.java;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.JsonUtils;
-import net.treset.mc_version_loader.os.OsDetails;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class JavaVersion {
     private int availabilityGroup;
     private int availabilityProgress;
