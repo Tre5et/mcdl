@@ -6,6 +6,7 @@ import net.treset.mc_version_loader.mods.curseforge.CurseforgeFile;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFiles;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeSearch;
+import net.treset.mc_version_loader.mods.modrinth.ModrinthMod;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearchHit;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
@@ -222,5 +223,23 @@ public class ModUtil {
      */
     public static CurseforgeFile getCurseforgeVersion(int modId, int versionId) throws FileDownloadException {
         return CurseforgeFile.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeVersionUrl(modId, versionId), Sources.getCurseforgeHeaders(), List.of()));
+    }
+
+    public static ModrinthMod getModrinthMod(String modId) throws FileDownloadException {
+        return ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(modId), Sources.getModrinthHeaders(), List.of()));
+    }
+
+    public static CurseforgeMod getCurseforgeMod(long projectId) throws FileDownloadException {
+        return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(projectId), Sources.getCurseforgeHeaders(), List.of()));
+    }
+
+    public static boolean checkModrinthValid(String modId) throws FileDownloadException {
+        String result = FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(modId), Sources.getModrinthHeaders(), List.of());
+        return result != null && !result.isBlank();
+    }
+
+    public static boolean checkCurseforgeValid(long projectId) throws FileDownloadException {
+        String result = FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(projectId), Sources.getCurseforgeHeaders(), List.of());
+        return result != null && !result.isBlank();
     }
 }
