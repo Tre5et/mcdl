@@ -60,9 +60,7 @@ public class LauncherLaunchArgument {
             }
         }
         if(getOsVersion() != null && !getOsVersion().isBlank()) {
-            if(!OsUtil.isOsVersion(getOsVersion())) {
-                return false;
-            }
+            return OsUtil.isOsVersion(getOsVersion());
         }
         return true;
     }

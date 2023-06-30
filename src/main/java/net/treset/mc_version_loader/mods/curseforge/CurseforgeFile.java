@@ -155,6 +155,10 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                         return null;
                     })
                     .map(p -> {
+                        if(p == null) {
+                            exceptionQueue.add(new FileDownloadException("Error getting required dependencies: mod=" + getName()));
+                            return null;
+                        }
                         try {
                             return ModUtil.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
                         } catch (FileDownloadException e) {
@@ -179,9 +183,8 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public boolean setParentMod(ModData parentMod) {
+    public void setParentMod(ModData parentMod) {
         this.parentMod = parentMod;
-        return true;
     }
 
     public int getAlternateFileId() {

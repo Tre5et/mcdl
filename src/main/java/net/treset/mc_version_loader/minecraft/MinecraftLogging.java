@@ -1,7 +1,5 @@
 package net.treset.mc_version_loader.minecraft;
 
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.JsonUtils;
 
 public class MinecraftLogging {
 

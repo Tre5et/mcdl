@@ -1,13 +1,5 @@
 package net.treset.mc_version_loader.fabric;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.JsonUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class FabricLibrary {
     private String name;
     private String url;

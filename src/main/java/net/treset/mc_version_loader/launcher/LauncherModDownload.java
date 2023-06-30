@@ -1,14 +1,4 @@
 package net.treset.mc_version_loader.launcher;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.JsonUtils;
-import net.treset.mc_version_loader.mods.ModData;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class LauncherModDownload {
     private String provider;
     private String id;

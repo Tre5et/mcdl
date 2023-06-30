@@ -2,8 +2,6 @@ package net.treset.mc_version_loader.java;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.reflect.TypeToken;
-import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 
 import java.util.*;

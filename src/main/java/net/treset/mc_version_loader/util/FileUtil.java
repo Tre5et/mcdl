@@ -17,7 +17,7 @@ import java.util.Map;
 public class FileUtil {
 
     /**
-     * Downloads a file from a url to a file
+     * Downloads a file from url to a file
      * @param downloadUrl url to download from
      * @param outFile file to download to
      * @throws FileDownloadException if the file can not be downloaded

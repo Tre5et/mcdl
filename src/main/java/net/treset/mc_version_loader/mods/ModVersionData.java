@@ -17,7 +17,7 @@ public interface ModVersionData extends Comparable<ModVersionData> {
     boolean supportsGameVersion(String version);
     List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException;
     ModData getParentMod();
-    boolean setParentMod(ModData parent);
+    void setParentMod(ModData parent);
     List<ModProvider> getModProviders();
     ModVersionType getModVersionType();
 

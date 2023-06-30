@@ -1,8 +1,5 @@
 package net.treset.mc_version_loader.fabric;
 
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.JsonUtils;
-
 public class FabricLoaderData {
     private int build;
     private String maven;

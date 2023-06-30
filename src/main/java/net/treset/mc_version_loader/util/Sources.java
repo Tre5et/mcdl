@@ -56,7 +56,7 @@ public class Sources {
     }
 
     public static String getFabricIndexUrl(String mcVersion) {
-        if(mcVersion == null) {
+        if(mcVersion == null || mcVersion.isBlank()) {
             throw new IllegalArgumentException("Invalid mcVersion=" + mcVersion);
         }
         return String.format(FABRIC_INDEX_URL, mcVersion);
@@ -115,14 +115,14 @@ public class Sources {
     }
 
     public static String getModrinthProjectUrl(String projectId) {
-        if(projectId == null) {
+        if(projectId == null || projectId.isBlank()) {
             throw new IllegalArgumentException("Invalid projectId="+projectId);
         }
         return String.format(MODRINTH_PROJECT_URL, projectId);
     }
 
     public static String getModrinthProjectVersionsUrl(String projectId) {
-        if(projectId == null) {
+        if(projectId == null || projectId.isBlank()) {
             throw new IllegalArgumentException("Invalid projectId="+projectId);
         }
         return String.format(MODRINTH_VERSIONS_URL, projectId);

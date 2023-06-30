@@ -2,7 +2,6 @@ package net.treset.mc_version_loader.mods;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
 
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -10,19 +9,19 @@ import java.util.List;
 import java.util.Set;
 
 public class CombinedModVersion extends GenericModVersion {
-    LocalDateTime datePublished;
-    int downloads;
-    String name;
-    String versionNumber;
-    String downloadUrl1;
-    String downloadUrl2;
-    Set<String> modLoaders;
-    Set<String> gameVersions;
-    List<ModVersionData> requiredDependencies;
-    ModData parentMod;
-    ModVersionData parent1;
-    ModVersionData parent2;
-    ModVersionType type;
+    private LocalDateTime datePublished;
+    private int downloads;
+    private String name;
+    private String versionNumber;
+    private String downloadUrl1;
+    private String downloadUrl2;
+    private Set<String> modLoaders;
+    private Set<String> gameVersions;
+    private List<ModVersionData> requiredDependencies;
+    private ModData parentMod;
+    private final ModVersionData parent1;
+    private final ModVersionData parent2;
+    private final ModVersionType type;
 
     public CombinedModVersion(ModVersionData v1, ModVersionData v2, ModData parent) {
         LocalDateTime p1 = v1.getDatePublished();
@@ -108,9 +107,8 @@ public class CombinedModVersion extends GenericModVersion {
     }
 
     @Override
-    public boolean setParentMod(ModData parentMod) {
+    public void setParentMod(ModData parentMod) {
         this.parentMod = parentMod;
-        return true;
     }
 
     public void setDatePublished(LocalDateTime datePublished) {
@@ -155,6 +153,10 @@ public class CombinedModVersion extends GenericModVersion {
 
     public void setRequiredDependencies(List<ModVersionData> requiredDependencies) {
         this.requiredDependencies = requiredDependencies;
+    }
+
+    public ModVersionType getType() {
+        return type;
     }
 
     @Override

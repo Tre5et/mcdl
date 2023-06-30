@@ -4,5 +4,5 @@ public enum ModVersionType {
     RELEASE,
     BETA,
     ALPHA,
-    NONE;
+    NONE
 }

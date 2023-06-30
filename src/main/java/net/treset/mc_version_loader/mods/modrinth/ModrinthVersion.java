@@ -1,7 +1,6 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
 import com.google.gson.reflect.TypeToken;
-import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
@@ -116,7 +115,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
+    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) {
         if(requiredDependencies == null) {
             requiredDependencies = new ArrayList<>();
             if(dependencies != null) {
@@ -162,9 +161,8 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public boolean setParentMod(ModData parent) {
+    public void setParentMod(ModData parent) {
         this.parent = parent;
-        return true;
     }
 
     public String getAuthorId() {
