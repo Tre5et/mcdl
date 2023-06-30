@@ -1,16 +1,11 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
-import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
-import net.treset.mc_version_loader.mods.GenericModData;
-import net.treset.mc_version_loader.mods.ModData;
-import net.treset.mc_version_loader.mods.ModProvider;
-import net.treset.mc_version_loader.mods.ModVersionData;
+import net.treset.mc_version_loader.mods.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ModrinthMod extends GenericModData {
@@ -168,7 +163,7 @@ public class ModrinthMod extends GenericModData {
     }
 
     public List<ModVersionData> updateVersions(String gameVersion, String modLoader) throws FileDownloadException {
-        versionData = List.copyOf(VersionLoader.getModrinthVersion(id, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader)));
+        versionData = List.copyOf(ModUtil.getModrinthVersion(id, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader)));
         return versionData;
     }
 

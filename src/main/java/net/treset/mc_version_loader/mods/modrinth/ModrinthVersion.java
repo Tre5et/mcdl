@@ -1,9 +1,9 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
 import com.google.gson.reflect.TypeToken;
-import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.exception.FileDownloadException;
-import net.treset.mc_version_loader.files.Sources;
+import net.treset.mc_version_loader.util.FileUtil;
+import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonParsable;
@@ -129,11 +129,11 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                             ModrinthVersion version;
                             ModrinthMod parent;
                             if (d.getProjectId() != null) {
-                                parent = ModrinthMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthProjectUrl(), d.getProjectId()), Sources.getModrinthHeaders(), List.of()));
-                                version = VersionLoader.getModrinthVersion(d.getVersionId(), parent);
+                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(d.getProjectId()), Sources.getModrinthHeaders(), List.of()));
+                                version = ModUtil.getModrinthVersion(d.getVersionId(), parent);
                             } else {
-                                version = ModrinthVersion.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionUrl(), d.getVersionId()), Sources.getModrinthHeaders(), List.of()), null);
-                                parent = ModrinthMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthProjectUrl(), version.getProjectId()), Sources.getModrinthHeaders(), List.of()));
+                                version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(), List.of()), null);
+                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(), List.of()));
                                 version.setParentMod(parent);
                             }
                             if (version == null || !version.getGameVersions().contains(gameVersion)) {

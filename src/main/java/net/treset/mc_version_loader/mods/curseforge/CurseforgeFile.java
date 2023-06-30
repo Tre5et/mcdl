@@ -1,8 +1,8 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
-import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.exception.FileDownloadException;
-import net.treset.mc_version_loader.files.Sources;
+import net.treset.mc_version_loader.util.FileUtil;
+import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonParsable;
@@ -12,7 +12,6 @@ import net.treset.mc_version_loader.mods.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -149,7 +148,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                     .filter(d -> d != null && d.getRelationType() == 3)
                     .map(d -> {
                         try {
-                            return CurseforgeMod.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), d.getModId()), Sources.getCurseforgeHeaders(), List.of()));
+                            return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(d.getModId()), Sources.getCurseforgeHeaders(), List.of()));
                         } catch (FileDownloadException e) {
                             exceptionQueue.add(e);
                         }
@@ -157,7 +156,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                     })
                     .map(p -> {
                         try {
-                            return VersionLoader.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
+                            return ModUtil.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
                         } catch (FileDownloadException e) {
                             exceptionQueue.add(e);
                         }

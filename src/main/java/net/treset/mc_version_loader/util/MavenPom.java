@@ -1,4 +1,4 @@
-package net.treset.mc_version_loader.files;
+package net.treset.mc_version_loader.util;
 
 public class MavenPom {
     private String modelVersion;

@@ -1,15 +1,12 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
-import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
-import net.treset.mc_version_loader.minecraft.MinecraftLogging;
 import net.treset.mc_version_loader.mods.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CurseforgeMod extends GenericModData {
@@ -168,7 +165,7 @@ public class CurseforgeMod extends GenericModData {
     }
 
     public List<ModVersionData> updateVersions(String gameVersion, int modLoader) throws FileDownloadException {
-        versions = List.copyOf(VersionLoader.getCurseforgeVersions(id, this, gameVersion, modLoader).getData());
+        versions = List.copyOf(ModUtil.getCurseforgeVersions(id, this, gameVersion, modLoader).getData());
         return versions;
     }
 

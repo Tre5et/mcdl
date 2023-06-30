@@ -10,14 +10,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class JavaRuntime extends GenericJsonParsable {
+public class JavaRuntimes extends GenericJsonParsable {
     List<JavaRuntimeOs> runtimes;
 
-    public JavaRuntime(List<JavaRuntimeOs> runtimes) {
+    public JavaRuntimes(List<JavaRuntimeOs> runtimes) {
         this.runtimes = runtimes;
     }
 
-    public static JavaRuntime fromJson(String json) {
+    public static JavaRuntimes fromJson(String json) {
         JsonObject javaObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(json));
         Set<Map.Entry<String, JsonElement>> runtimeMembers = JsonUtils.getMembers(javaObj);
         List<JavaRuntimeOs> runtimes = new ArrayList<>();
@@ -26,7 +26,7 @@ public class JavaRuntime extends GenericJsonParsable {
                 runtimes.add(JavaRuntimeOs.fromJsonObject(JsonUtils.getAsJsonObject(e.getValue()), e.getKey()));
             }
         }
-        return new JavaRuntime(runtimes);
+        return new JavaRuntimes(runtimes);
     }
 
     public List<JavaRuntimeOs> getRuntimes() {

@@ -1,15 +1,10 @@
 package net.treset.mc_version_loader.launcher;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.VersionLoader;
 import net.treset.mc_version_loader.exception.FileDownloadException;
-import net.treset.mc_version_loader.files.Sources;
-import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.util.FileUtil;
+import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.mods.CombinedModData;
 import net.treset.mc_version_loader.mods.ModData;
-import net.treset.mc_version_loader.mods.ModProvider;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthMod;
 
@@ -41,7 +36,7 @@ public class LauncherMod {
         ArrayList<ModData> mods = new ArrayList<>();
         for(LauncherModDownload download : downloads) {
             if(download.getProvider().equals("modrinth")) {
-                String json = Sources.getFileFromHttpGet(String.format(Sources.getModrinthProjectUrl(), download.getId()), Sources.getModrinthHeaders(), List.of());
+                String json = FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(download.getId()), Sources.getModrinthHeaders(), List.of());
                 if(json == null || json.isBlank()) {
                     continue;
                 }
@@ -51,7 +46,7 @@ public class LauncherMod {
                 }
             }
             if(download.getProvider().equals("curseforge")) {
-                String json = Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeProjectUrl(), Integer.parseInt(download.getId())), Sources.getCurseforgeHeaders(), List.of());
+                String json = FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(Integer.parseInt(download.getId())), Sources.getCurseforgeHeaders(), List.of());
                 if(json == null || json.isBlank()) {
                     continue;
                 }

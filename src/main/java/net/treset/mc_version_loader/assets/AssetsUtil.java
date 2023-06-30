@@ -1,8 +1,9 @@
-package net.treset.mc_version_loader.files;
+package net.treset.mc_version_loader.assets;
 
-import net.treset.mc_version_loader.assets.AssetIndex;
-import net.treset.mc_version_loader.assets.AssetObject;
 import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.util.DownloadStatus;
+import net.treset.mc_version_loader.util.FileUtil;
+import net.treset.mc_version_loader.util.Sources;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class AssetsFileDownloader {
+public class AssetsUtil {
     public static void downloadAssets(File assetsDir, AssetIndex assetIndex, String indexFileUrl, boolean overwrite) throws FileDownloadException {
         downloadAssets(assetsDir, assetIndex, indexFileUrl, overwrite, status -> {});
     }
@@ -25,7 +26,7 @@ public class AssetsFileDownloader {
         File indexFile = new File(indexDir, indexFileUrlSplit[indexFileUrlSplit.length - 1]);
         if(!indexFile.exists() || overwrite) {
             try {
-                FileUtils.downloadFile(new URL(indexFileUrl), indexFile);
+                FileUtil.downloadFile(new URL(indexFileUrl), indexFile);
             } catch (MalformedURLException e) {
                 throw new FileDownloadException("Unable to parse assets index url", e);
             } catch (FileDownloadException e) {
@@ -63,10 +64,10 @@ public class AssetsFileDownloader {
         }
         File objectFile = new File(dir, object.getHash());
         try {
-            URL url = new URL(Sources.getAssetsBaseUrl() + object.getHash().substring(0, 2) + "/" + object.getHash());
+            URL url = new URL(Sources.getAssetUrl(object.getHash()));
             if(!objectFile.exists() || overwrite) {
                 try {
-                    FileUtils.downloadFile(url, objectFile);
+                    FileUtil.downloadFile(url, objectFile);
                 } catch (FileDownloadException e) {
                     throw new FileDownloadException("Unable to download assets object, id=" + object.getHash(), e);
                 }
@@ -74,5 +75,9 @@ public class AssetsFileDownloader {
         } catch (MalformedURLException e) {
             throw new FileDownloadException("Unable to parse asset object url, id=" + object.getHash(), e);
         }
+    }
+
+    public static AssetIndex getAssetIndex(String url) throws FileDownloadException {
+        return AssetIndex.fromJson(FileUtil.getStringFromUrl(url));
     }
 }

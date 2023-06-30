@@ -1,9 +1,10 @@
-package net.treset.mc_version_loader.files;
+package net.treset.mc_version_loader.minecraft;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
-import net.treset.mc_version_loader.minecraft.MinecraftFileDownloads;
-import net.treset.mc_version_loader.minecraft.MinecraftLibrary;
+import net.treset.mc_version_loader.util.DownloadStatus;
+import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.os.OsDetails;
+import net.treset.mc_version_loader.util.Sources;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class MinecraftVersionFileDownloader {
+public class MinecraftUtil {
 
     public static void downloadVersionDownload(MinecraftFileDownloads.Downloads download, File baseDir) throws FileDownloadException {
         if(download == null || download.getUrl() == null || download.getUrl().isBlank() || baseDir == null || !baseDir.isDirectory()) {
@@ -27,7 +28,7 @@ public class MinecraftVersionFileDownloader {
         }
 
         File outFile = new File(baseDir, download.getUrl().substring(download.getUrl().lastIndexOf('/')));
-        FileUtils.downloadFile(downloadUrl, outFile);
+        FileUtil.downloadFile(downloadUrl, outFile);
     }
 
     public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File baseDir, List<String> features, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
@@ -97,7 +98,7 @@ public class MinecraftVersionFileDownloader {
                             throw new FileDownloadException("Unable to make required native dirs: library=" + library.getName()  + ", native=" + na.getName());
                         }
                         File outFile = new File(outDir, na.getArtifact().getPath().substring(na.getArtifact().getPath().lastIndexOf('/')));
-                        FileUtils.downloadFile(nativeUrl, outFile);
+                        FileUtil.downloadFile(nativeUrl, outFile);
                         result.add(na.getArtifact().getPath());
                     }
                 }
@@ -106,6 +107,32 @@ public class MinecraftVersionFileDownloader {
 
         File outFile = new File(outDir, library.getDownloads().getArtifacts().getPath().substring(library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
         result.add(library.getDownloads().getArtifact().getPath());
-        FileUtils.downloadFile(downloadUrl, outFile);
+        FileUtil.downloadFile(downloadUrl, outFile);
     }
-}
+
+    /**
+     * Gets a list of all minecraft versions
+     * @return a list of all minecraft versions
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
+    public static List<MinecraftVersion> getVersions() throws FileDownloadException {
+        return MinecraftVersion.fromVersionManifest(FileUtil.getStringFromUrl(Sources.getVersionManifestUrl()));
+    }
+
+    /**
+     * Gets a list of all minecraft release versions
+     * @return a list of all minecraft release version
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
+    public static List<MinecraftVersion> getReleases() throws FileDownloadException {
+        return getVersions().stream().filter(MinecraftVersion::isRelease).toList();
+    }
+
+    public static MinecraftVersion getVersion(String url) throws FileDownloadException {
+        return MinecraftVersion.fromJson(FileUtil.getStringFromUrl(url));
+    }
+
+    public static MinecraftVersionDetails getVersionDetails(String url) throws FileDownloadException {
+        return MinecraftVersionDetails.fromJson(FileUtil.getStringFromUrl(url));
+    }
+ }

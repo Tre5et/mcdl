@@ -1,7 +1,9 @@
-package net.treset.mc_version_loader.files;
+package net.treset.mc_version_loader.java;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
-import net.treset.mc_version_loader.java.JavaFile;
+import net.treset.mc_version_loader.util.DownloadStatus;
+import net.treset.mc_version_loader.util.FileUtil;
+import net.treset.mc_version_loader.util.Sources;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -10,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class JavaFileDownloader {
+public class JavaUtil {
     public static void downloadJavaFiles(File baseDir, List<JavaFile> files) throws FileDownloadException {
         downloadJavaFiles(baseDir, files, status -> {});
     }
@@ -67,9 +69,17 @@ public class JavaFileDownloader {
             }
 
             File outFile = new File(outDir, file.getName().substring(file.getName().lastIndexOf('/') == -1 ? 0 : file.getName().lastIndexOf('/')));
-            FileUtils.downloadFile(downloadUrl, outFile);
+            FileUtil.downloadFile(downloadUrl, outFile);
             return;
         }
         throw new FileDownloadException("Unable to determine file type: file=" + file.getName());
+    }
+
+    public static JavaRuntimes getJavaRuntimes() throws FileDownloadException {
+        return JavaRuntimes.fromJson(FileUtil.getStringFromUrl(Sources.getJavaRuntimeUrl()));
+    }
+
+    public static List<JavaFile> getJavaFile(String url) throws FileDownloadException {
+        return JavaFile.fromJsonManifest(FileUtil.getStringFromUrl(url));
     }
 }

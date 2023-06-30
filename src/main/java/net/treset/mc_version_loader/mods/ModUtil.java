@@ -1,11 +1,7 @@
-package net.treset.mc_version_loader;
+package net.treset.mc_version_loader.mods;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
-import net.treset.mc_version_loader.files.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
-import net.treset.mc_version_loader.minecraft.MinecraftVersion;
-import net.treset.mc_version_loader.mods.CombinedModData;
-import net.treset.mc_version_loader.mods.ModData;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFile;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFiles;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
@@ -13,27 +9,54 @@ import net.treset.mc_version_loader.mods.curseforge.CurseforgeSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearchHit;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
-import net.treset.mc_version_loader.mojang.MinecraftProfile;
+import net.treset.mc_version_loader.util.FileUtil;
+import net.treset.mc_version_loader.launcher.LauncherMod;
+import net.treset.mc_version_loader.launcher.LauncherModDownload;
+import net.treset.mc_version_loader.util.Sources;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
-public class VersionLoader {
-    /**
-     * Gets a list of all minecraft versions
-     * @return a list of all minecraft versions
-     * @throws FileDownloadException if there is an error downloading the version manifest
-     */
-    public static List<MinecraftVersion> getVersions() throws FileDownloadException {
-        return MinecraftVersion.fromVersionManifest(Sources.getVersionManifestJson());
-    }
+public class ModUtil {
+    public static LauncherMod downloadModFile(ModVersionData data, File parentDir, boolean enabled) throws FileDownloadException {
+        if(data == null || data.getParentMod() == null) {
+            throw new FileDownloadException("Unable to download mod: unmet requirements: mod=" + data);
+        }
 
-    /**
-     * Gets a list of all minecraft release versions
-     * @return a list of all minecraft release version
-     * @throws FileDownloadException if there is an error downloading the version manifest
-     */
-    public static List<MinecraftVersion> getReleases() throws FileDownloadException {
-        return getVersions().stream().filter(MinecraftVersion::isRelease).toList();
+        List<ModProvider> providers = data.getParentMod().getModProviders();
+        List<String> projectIds = data.getParentMod().getProjectIds();
+        if(providers.size() != projectIds.size()) {
+            throw new FileDownloadException("Unable to download mod, provider count does not match project id count: mod=" + data.getName());
+        }
+
+        String[] urlParts = data.getDownloadUrl().split("/");
+        String fileName = urlParts[urlParts.length - 1];
+        File modFile = new File(parentDir, fileName);
+        URL downloadUrl;
+        try {
+            downloadUrl = new URL(data.getDownloadUrl());
+        } catch (MalformedURLException e) {
+            throw new FileDownloadException("Unable to download mod, malformed url: mod=" + data.getName(), e);
+        }
+        FileUtil.downloadFile(downloadUrl, modFile);
+
+        ArrayList<LauncherModDownload> downloads = new ArrayList<>();
+        for(int i = 0; i < providers.size(); i++) {
+            downloads.add(new LauncherModDownload(providers.get(i).toString().toLowerCase(), projectIds.get(i)));
+        }
+
+        return new LauncherMod(
+                data.getModProviders().get(0).toString().toLowerCase(),
+                data.getParentMod().getDescription(),
+                enabled,
+                data.getParentMod().getIconUrl(),
+                data.getParentMod().getName(),
+                fileName,
+                data.getVersionNumber(),
+                downloads
+        );
     }
 
     /**
@@ -95,14 +118,14 @@ public class VersionLoader {
         if(versions != null && !versions.isEmpty() || loaders != null && !loaders.isEmpty()) {
             StringBuilder facets = new StringBuilder().append("[");
             if(versions != null && !versions.isEmpty()) {
-                versions.forEach(v -> facets.append(String.format(Sources.getModrinthVersionsFacet(), v)).append(","));
+                versions.forEach(v -> facets.append(Sources.getModrinthVersionsFacet(v)).append(","));
             }
             if(loaders != null && !loaders.isEmpty()) {
-                loaders.forEach(l -> facets.append(String.format(Sources.getModrinthCategoryFacet(), l)).append(","));
+                loaders.forEach(l -> facets.append(Sources.getModrinthCategoryFacet(l)).append(","));
             }
             params.add(Map.entry(Sources.getModrinthSearchFacetsParam(), facets.substring(0, facets.length() - 1) + "]"));
         }
-        return ModrinthSearch.fromJson(Sources.getFileFromHttpGet(Sources.getModrinthSearchUrl(), Sources.getModrinthHeaders(), params));
+        return ModrinthSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthSearchUrl(), Sources.getModrinthHeaders(), params));
     }
 
     /**
@@ -126,7 +149,7 @@ public class VersionLoader {
             modLoaders.forEach(l -> loaders.append("\"").append(l).append("\","));
             params.add(Map.entry(Sources.getModrinthVersionsLoadersParam(), loaders.substring(0, loaders.length() - 1) + "]"));
         }
-        return ModrinthVersion.fromJsonArray(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionsUrl(), modId), Sources.getModrinthHeaders(), params), parent);
+        return ModrinthVersion.fromJsonArray(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectVersionsUrl(modId), Sources.getModrinthHeaders(), params), parent);
     }
 
     /**
@@ -137,7 +160,7 @@ public class VersionLoader {
      * @throws FileDownloadException if there is an error downloading the version
      */
     public static ModrinthVersion getModrinthVersion(String versionId, ModData parent) throws FileDownloadException {
-        return ModrinthVersion.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getModrinthVersionUrl(), versionId), Sources.getModrinthHeaders(), List.of()), parent);
+        return ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(versionId), Sources.getModrinthHeaders(), List.of()), parent);
     }
 
     /**
@@ -167,7 +190,7 @@ public class VersionLoader {
         if(offset > 0) {
             params.add(Map.entry(Sources.getCurseforgeSearchOffsetParam(), String.valueOf(offset)));
         }
-        return CurseforgeSearch.fromJson(Sources.getFileFromHttpGet(Sources.getCurseforgeSearchUrl(), Sources.getCurseforgeHeaders(), params));
+        return CurseforgeSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeSearchUrl(), Sources.getCurseforgeHeaders(), params));
     }
 
     /**
@@ -187,7 +210,7 @@ public class VersionLoader {
         if(modLoader >= 0) {
             params.add(Map.entry(Sources.getCurseforgeSearchLoaderParam(), String.valueOf(modLoader)));
         }
-        return CurseforgeFiles.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeVersionsUrl(), modId), Sources.getCurseforgeHeaders(), params), parent);
+        return CurseforgeFiles.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectVersionsUrl(modId), Sources.getCurseforgeHeaders(), params), parent);
     }
 
     /**
@@ -198,10 +221,6 @@ public class VersionLoader {
      * @throws FileDownloadException if there is an error downloading the version
      */
     public static CurseforgeFile getCurseforgeVersion(int modId, int versionId) throws FileDownloadException {
-        return CurseforgeFile.fromJson(Sources.getFileFromHttpGet(String.format(Sources.getCurseforgeVersionUrl(), modId, versionId), Sources.getCurseforgeHeaders(), List.of()));
+        return CurseforgeFile.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeVersionUrl(modId, versionId), Sources.getCurseforgeHeaders(), List.of()));
     }
-
-    public static MinecraftProfile getMinecraftProfile(String uuid) throws FileDownloadException {
-        return MinecraftProfile.fromJson(Sources.getFileFromUrl(String.format(Sources.getMojangSessionProfileUrl(), uuid)));
-    }
- }
+}
