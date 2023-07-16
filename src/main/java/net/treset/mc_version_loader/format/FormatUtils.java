@@ -56,12 +56,12 @@ public class FormatUtils {
     /**
      * Parses a LocalDateTime from a string
      * @param time string representation of a LocalDateTime
-     * @return LocalDateTime parsed from the string
+     * @return LocalDateTime parsed from the string, null if input is null
      * @throws IllegalArgumentException if the time string is invalid
      */
     public static LocalDateTime parseLocalDateTime(String time) throws IllegalArgumentException {
-        if(time == null || time.isBlank()) {
-            throw new IllegalArgumentException("Invalid time: " + time);
+        if(time == null) {
+            return null;
         }
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
         try {

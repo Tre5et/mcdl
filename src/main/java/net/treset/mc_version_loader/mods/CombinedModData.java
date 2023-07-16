@@ -28,10 +28,10 @@ public class CombinedModData extends GenericModData {
         categories.addAll(m2.getCategories());
         LocalDateTime c1 = m1.getDateCreated();
         LocalDateTime c2 = m2.getDateCreated();
-        dateCreated = c1 == null ? c2 : c1.isAfter(c2) ? c2 : c1;
+        dateCreated = c1 == null ? c2 : c2 == null ? c1 : c1.isAfter(c2) ? c2 : c1;
         LocalDateTime dm1 = m1.getDateModified();
         LocalDateTime dm2 = m2.getDateModified();
-        dateModified = dm1 == null ? dm2 : dm1.isAfter(dm2) ? dm2 : dm1;
+        dateModified = dm1 == null ? dm2 : dm2 == null ? dm1 : dm1.isAfter(dm2) ? dm2 : dm1;
         description = m1.getDescription() == null ? m2.getDescription() : m1.getDescription();
         downloadCount = m1.getDownloadsCount() + m2.getDownloadsCount();
         iconUrl = m1.getIconUrl() == null ? m2.getIconUrl() : m1.getIconUrl();
