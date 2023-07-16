@@ -30,7 +30,7 @@ public class ModrinthMod extends GenericModData {
     private String issuesUrl;
     private ModrinthLicense license;
     private List<String> loaders;
-    private String moderatorMessage;
+    private ModrinthModeratorMessage moderatorMessage;
     private String projectType;
     private String datePublished;
     private String queued;
@@ -46,7 +46,7 @@ public class ModrinthMod extends GenericModData {
     private String wikiUrl;
     private transient List<ModVersionData> versionData;
 
-    public ModrinthMod(List<String> additionalCategories, String approved, String body, String bodyUrl, List<String> categories, String clientSide, int color, String description, String discordUrl, List<ModrinthDonationUrl> donationUrls, int downloads, String flameAnvilProject, String flameAnvilUser, int followers, List<ModrinthGalleryImage> gallery, List<String> gameVersion, String iconUrl, String id, String issuesUrl, ModrinthLicense license, List<String> loaders, String moderatorMessage, String projectType, String datePublished, String queued, String requestedStatus, String serverSide, String slug, String sourceUrl, String status, String team, String title, String updated, List<String> versions, String wikiUrl) {
+    public ModrinthMod(List<String> additionalCategories, String approved, String body, String bodyUrl, List<String> categories, String clientSide, int color, String description, String discordUrl, List<ModrinthDonationUrl> donationUrls, int downloads, String flameAnvilProject, String flameAnvilUser, int followers, List<ModrinthGalleryImage> gallery, List<String> gameVersion, String iconUrl, String id, String issuesUrl, ModrinthLicense license, List<String> loaders, ModrinthModeratorMessage moderatorMessage, String projectType, String datePublished, String queued, String requestedStatus, String serverSide, String slug, String sourceUrl, String status, String team, String title, String updated, List<String> versions, String wikiUrl) {
         this.additionalCategories = additionalCategories;
         this.approved = approved;
         this.body = body;
@@ -319,11 +319,11 @@ public class ModrinthMod extends GenericModData {
         this.loaders = loaders;
     }
 
-    public String getModeratorMessage() {
+    public ModrinthModeratorMessage getModeratorMessage() {
         return moderatorMessage;
     }
 
-    public void setModeratorMessage(String moderatorMessage) {
+    public void setModeratorMessage(ModrinthModeratorMessage moderatorMessage) {
         this.moderatorMessage = moderatorMessage;
     }
 
