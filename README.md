@@ -17,5 +17,11 @@ A Java-library that allows you to easily interface with most Minecraft-related A
 - Downloading Fabric Mods from Modrinth and CurseForge
 - Querying Mojang-Playerdata and Skins
 
+## Installation
+- Get the latest version from Maven: 
+  - Repository: `https://raw.githubusercontent.com/Tre5et/maven/main/`
+  - Dependency: `net.treset:mc-version-loader:[version]`
+  - Latest version: probably `1.0.0` (better go check, im bad at updating this)
+
 ## Usage
 - All methods can be found in the [API]Util classes
