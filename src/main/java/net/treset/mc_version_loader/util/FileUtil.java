@@ -3,6 +3,8 @@ package net.treset.mc_version_loader.util;
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.format.FormatUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.net.http.HttpClient;
@@ -11,6 +13,7 @@ import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +118,14 @@ public class FileUtil {
             return stringBuilder.toString().trim();
         } catch (IOException e) {
             throw new FileDownloadException("Unable to download file: url=" + url, e);
+        }
+    }
+
+    public static BufferedImage loadImage(File file) throws IOException {
+        byte[] bytes = Files.readAllBytes(file.toPath());
+        try (InputStream is = new ByteArrayInputStream(bytes))
+        {
+            return ImageIO.read(is);
         }
     }
 }
