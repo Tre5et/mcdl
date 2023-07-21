@@ -24,19 +24,43 @@ public class Resourcepack {
         this.image = image;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public PackMcmeta getPackMcmeta() {
+        return packMcmeta;
+    }
+
+    public void setPackMcmeta(PackMcmeta packMcmeta) {
+        this.packMcmeta = packMcmeta;
+    }
+
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    public void setImage(BufferedImage image) {
+        this.image = image;
+    }
+
     public static Resourcepack from(File file) throws IOException {
         if(!file.exists()) {
-            return null;
+            throw new IOException("File does not exist");
         }
         if(file.isDirectory()) {
             File packMcmetaFile = new File(file, "pack.mcmeta");
             File packPngFile = new File(file, "pack.png");
             if(!packMcmetaFile.exists()) {
-                return null;
+                throw new IOException("pack.mcmeta does not exist");
             }
             PackMcmeta mcmeta = PackMcmeta.fromJson(Files.readString(packMcmetaFile.toPath()));
             if(mcmeta == null) {
-                return null;
+                throw new IOException("pack.mcmeta is not valid json");
             }
             return new Resourcepack(
                     file.getName(),
@@ -45,7 +69,7 @@ public class Resourcepack {
             );
         }
         if(!file.getName().endsWith(".zip")) {
-            return null;
+            throw new IOException("File is not a zip file");
         }
 
         ZipFile zipFile = new ZipFile(file);
@@ -68,7 +92,7 @@ public class Resourcepack {
             }
         }
         if(mcmeta == null) {
-            return null;
+            throw new IOException("pack.mcmeta does not exist");
         }
         return new Resourcepack(
                 file.getName().substring(0, file.getName().length() - 4),

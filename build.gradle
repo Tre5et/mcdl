@@ -3,12 +3,14 @@ plugins {
 }
 
 group = "net.treset"
-version = "1.0.0"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io/' }
 }
 
 dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.github.Querz:NBT:6.1'
 }
