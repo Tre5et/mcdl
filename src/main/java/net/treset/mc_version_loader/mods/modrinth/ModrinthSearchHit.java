@@ -124,6 +124,11 @@ public class ModrinthSearchHit extends GenericModData {
     }
 
     @Override
+    public String getUrl() {
+        return "https://modrinth.com/project/" + projectId;
+    }
+
+    @Override
     public List<ModVersionData> getVersions() throws FileDownloadException {
         return getVersions(null, null);
     }

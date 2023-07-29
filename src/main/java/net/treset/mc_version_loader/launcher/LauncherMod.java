@@ -15,16 +15,18 @@ public class LauncherMod {
     private String currentProvider;
     private String description;
     private boolean enabled;
+    private String url;
     private String iconUrl;
     private String name;
     private String fileName;
     private String version;
     private List<LauncherModDownload> downloads;
 
-    public LauncherMod(String currentProvider, String description, boolean enabled, String iconUrl, String name, String fileName, String version, List<LauncherModDownload> downloads) {
+    public LauncherMod(String currentProvider, String description, boolean enabled, String url, String iconUrl, String name, String fileName, String version, List<LauncherModDownload> downloads) {
         this.currentProvider = currentProvider;
         this.description = description;
         this.enabled = enabled;
+        this.url = url;
         this.iconUrl = iconUrl;
         this.name = name;
         this.fileName = fileName;
@@ -87,6 +89,14 @@ public class LauncherMod {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public String getIconUrl() {

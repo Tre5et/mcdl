@@ -26,4 +26,9 @@ public abstract class GenericModVersion implements ModVersionData {
     public int compareTo(ModVersionData versionData) {
         return getDatePublished().compareTo(versionData.getDatePublished());
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

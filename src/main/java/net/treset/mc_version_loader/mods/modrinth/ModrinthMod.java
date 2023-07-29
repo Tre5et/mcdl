@@ -145,6 +145,11 @@ public class ModrinthMod extends GenericModData {
     }
 
     @Override
+    public String getUrl() {
+        return "https://modrinth.com/project/" + id;
+    }
+
+    @Override
     public List<ModVersionData> getVersions() throws FileDownloadException {
         return getVersions(null, null);
     }

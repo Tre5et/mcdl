@@ -17,6 +17,7 @@ public class CombinedModData extends GenericModData {
     private Set<String> modLoaders;
     private String slug;
     private String name;
+    private String url;
     private List<ModVersionData> versions;
     private ModData parent1;
     private ModData parent2;
@@ -41,6 +42,7 @@ public class CombinedModData extends GenericModData {
         if(m2.getModLoaders() != null) modLoaders.addAll(m2.getModLoaders());
         slug = m1.getSlug() == null ? m2.getSlug() : m1.getSlug();
         name = m1.getName() == null ? m2.getName() : m1.getName();
+        url = m1.getUrl() == null ? m2.getUrl() : m1.getUrl();
         parent1 = m1;
         parent2 = m2;
     }
@@ -98,6 +100,11 @@ public class CombinedModData extends GenericModData {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String getUrl() {
+        return url;
     }
 
     @Override
@@ -203,6 +210,10 @@ public class CombinedModData extends GenericModData {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     public void setVersions(List<ModVersionData> versions) {

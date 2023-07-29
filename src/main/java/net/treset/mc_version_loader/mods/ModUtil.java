@@ -52,6 +52,7 @@ public class ModUtil {
                 data.getModProviders().get(0).toString().toLowerCase(),
                 data.getParentMod().getDescription(),
                 enabled,
+                data.getParentMod().getUrl(),
                 data.getParentMod().getIconUrl(),
                 data.getParentMod().getName(),
                 fileName,

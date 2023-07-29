@@ -150,6 +150,11 @@ public class CurseforgeMod extends GenericModData {
     }
 
     @Override
+    public String getUrl() {
+        return "https://www.curseforge.com/projects/" + id;
+    }
+
+    @Override
     public List<ModVersionData> getVersions() throws FileDownloadException {
         return getVersions(null, -1);
     }
