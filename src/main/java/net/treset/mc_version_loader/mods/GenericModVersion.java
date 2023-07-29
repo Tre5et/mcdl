@@ -29,6 +29,6 @@ public abstract class GenericModVersion implements ModVersionData {
 
     @Override
     public String toString() {
-        return getName();
+        return getVersionNumber();
     }
 }
