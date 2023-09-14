@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.launcher;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.mods.ModUtil;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.mods.CombinedModData;
@@ -35,10 +36,13 @@ public class LauncherMod {
     }
 
     public ModData getModData() throws FileDownloadException {
+        if(ModUtil.getModrinthUserAgent() == null || ModUtil.getCurseforgeApiKey().isBlank()) {
+            throw new FileDownloadException("Modrinth user agent or curseforge api key not set");
+        }
         ArrayList<ModData> mods = new ArrayList<>();
         for(LauncherModDownload download : downloads) {
             if(download.getProvider().equals("modrinth")) {
-                String json = FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(download.getId()), Sources.getModrinthHeaders(), List.of());
+                String json = FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(download.getId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of());
                 if(json == null || json.isBlank()) {
                     continue;
                 }
@@ -48,7 +52,7 @@ public class LauncherMod {
                 }
             }
             if(download.getProvider().equals("curseforge")) {
-                String json = FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(Integer.parseInt(download.getId())), Sources.getCurseforgeHeaders(), List.of());
+                String json = FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(Integer.parseInt(download.getId())), Sources.getCurseforgeHeaders(ModUtil.getCurseforgeApiKey()), List.of());
                 if(json == null || json.isBlank()) {
                     continue;
                 }
@@ -58,7 +62,7 @@ public class LauncherMod {
                 }
             }
         }
-        if(mods.size() == 0) {
+        if(mods.isEmpty()) {
             throw new FileDownloadException("No mod data found: mod=" + name);
         }
         if(mods.size() == 1) {

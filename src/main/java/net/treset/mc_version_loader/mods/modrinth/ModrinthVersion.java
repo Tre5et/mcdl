@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
 import com.google.gson.reflect.TypeToken;
+import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
@@ -98,7 +99,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
 
     @Override
     public String getDownloadUrl() {
-        if(files == null || files.size() < 1) {
+        if(files == null || files.isEmpty()) {
             return null;
         }
         return files.get(0).getUrl();
@@ -115,39 +116,38 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) {
+    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
+        if(ModUtil.getModrinthUserAgent() == null) {
+            throw new FileDownloadException("Modrinth user agent is null");
+        }
         if(requiredDependencies == null) {
             requiredDependencies = new ArrayList<>();
             if(dependencies != null) {
                 for(ModrinthVersionDependency d : dependencies) {
-                    try {
-                        if (d.isRequired()) {
-                            if (d.getVersionId() == null) {
-                                continue;
-                            }
-                            ModrinthVersion version;
-                            ModrinthMod parent;
-                            if (d.getProjectId() != null) {
-                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(d.getProjectId()), Sources.getModrinthHeaders(), List.of()));
-                                version = ModUtil.getModrinthVersion(d.getVersionId(), parent);
-                            } else {
-                                version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(), List.of()), null);
-                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(), List.of()));
-                                version.setParentMod(parent);
-                            }
-                            if (version == null || !version.getGameVersions().contains(gameVersion)) {
-                                List<ModVersionData> versions = parent.getVersions(gameVersion, modLoader);
-                                if (versions != null && versions.size() > 0) {
-                                    requiredDependencies.add(versions.get(0));
-                                } else {
-                                    requiredDependencies.add(version);
-                                }
+                    if (d.isRequired()) {
+                        if (d.getVersionId() == null) {
+                            continue;
+                        }
+                        ModrinthVersion version;
+                        ModrinthMod parent;
+                        if (d.getProjectId() != null) {
+                            parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(d.getProjectId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()));
+                            version = ModUtil.getModrinthVersion(d.getVersionId(), parent);
+                        } else {
+                            version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()), null);
+                            parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()));
+                            version.setParentMod(parent);
+                        }
+                        if (version == null || !version.getGameVersions().contains(gameVersion)) {
+                            List<ModVersionData> versions = parent.getVersions(gameVersion, modLoader);
+                            if (versions != null && !versions.isEmpty()) {
+                                requiredDependencies.add(versions.get(0));
                             } else {
                                 requiredDependencies.add(version);
                             }
+                        } else {
+                            requiredDependencies.add(version);
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
                     }
                 }
             }
