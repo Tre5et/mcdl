@@ -21,6 +21,9 @@ import java.net.URL;
 import java.util.*;
 
 public class ModUtil {
+    private static String modrinthUserAgent;
+    private static String curseforgeApiKey;
+
     public static LauncherMod downloadModFile(ModVersionData data, File parentDir, boolean enabled) throws FileDownloadException {
         if(data == null || data.getParentMod() == null) {
             throw new FileDownloadException("Unable to download mod: unmet requirements: mod=" + data);
@@ -107,6 +110,9 @@ public class ModUtil {
      * @throws FileDownloadException if there is an error during the search
      */
     public static ModrinthSearch searchModrinth(String query, List<String> versions, List<String> loaders, int limit, int offset) throws FileDownloadException {
+        if(modrinthUserAgent == null) {
+            throw new FileDownloadException("Modrinth user agent not set");
+        }
         List<Map.Entry<String, String>> params = new ArrayList<>();
         if(query != null) {
             params.add(Map.entry(Sources.getModrinthSearchQueryParam(), query));
@@ -127,7 +133,7 @@ public class ModUtil {
             }
             params.add(Map.entry(Sources.getModrinthSearchFacetsParam(), facets.substring(0, facets.length() - 1) + "]"));
         }
-        return ModrinthSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthSearchUrl(), Sources.getModrinthHeaders(), params));
+        return ModrinthSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthSearchUrl(), Sources.getModrinthHeaders(modrinthUserAgent), params));
     }
 
     /**
@@ -140,6 +146,9 @@ public class ModUtil {
      * @throws FileDownloadException if there is an error downloading the project versions
      */
     public static List<ModrinthVersion> getModrinthVersion(String modId, ModData parent, List<String> versions, List<String> modLoaders) throws FileDownloadException {
+        if(modrinthUserAgent == null) {
+            throw new FileDownloadException("Modrinth user agent not set");
+        }
         List<Map.Entry<String, String>> params = new ArrayList<>();
         if(versions != null && !versions.isEmpty()) {
             StringBuilder ver = new StringBuilder("[");
@@ -151,7 +160,7 @@ public class ModUtil {
             modLoaders.forEach(l -> loaders.append("\"").append(l).append("\","));
             params.add(Map.entry(Sources.getModrinthVersionsLoadersParam(), loaders.substring(0, loaders.length() - 1) + "]"));
         }
-        return ModrinthVersion.fromJsonArray(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectVersionsUrl(modId), Sources.getModrinthHeaders(), params), parent);
+        return ModrinthVersion.fromJsonArray(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectVersionsUrl(modId), Sources.getModrinthHeaders(modrinthUserAgent), params), parent);
     }
 
     /**
@@ -162,7 +171,10 @@ public class ModUtil {
      * @throws FileDownloadException if there is an error downloading the version
      */
     public static ModrinthVersion getModrinthVersion(String versionId, ModData parent) throws FileDownloadException {
-        return ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(versionId), Sources.getModrinthHeaders(), List.of()), parent);
+        if(modrinthUserAgent == null) {
+            throw new FileDownloadException("Modrinth user agent not set");
+        }
+        return ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(versionId), Sources.getModrinthHeaders(modrinthUserAgent), List.of()), parent);
     }
 
     /**
@@ -176,6 +188,9 @@ public class ModUtil {
      * @throws FileDownloadException if there is an error during the search
      */
     public static CurseforgeSearch searchCurseforge(String query, String gameVersion, int modLoader, int limit, int offset) throws FileDownloadException {
+        if(curseforgeApiKey == null) {
+            throw new FileDownloadException("Curseforge api key not set");
+        }
         List<Map.Entry<String, String>> params = new ArrayList<>(Sources.getCurseforgeSearchDefaultParams());
         if(query != null && !query.isBlank()) {
             params.add(Map.entry(Sources.getCurseforgeSearchQueryParam(), query));
@@ -192,7 +207,7 @@ public class ModUtil {
         if(offset > 0) {
             params.add(Map.entry(Sources.getCurseforgeSearchOffsetParam(), String.valueOf(offset)));
         }
-        return CurseforgeSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeSearchUrl(), Sources.getCurseforgeHeaders(), params));
+        return CurseforgeSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeSearchUrl(), Sources.getCurseforgeHeaders(curseforgeApiKey), params));
     }
 
     /**
@@ -205,6 +220,9 @@ public class ModUtil {
      * @throws FileDownloadException if there is an error downloading the project versions
      */
     public static CurseforgeFiles getCurseforgeVersions(int modId, ModData parent, String gameVersion, int modLoader) throws FileDownloadException {
+        if(curseforgeApiKey == null) {
+            throw new FileDownloadException("Curseforge api key not set");
+        }
         List<Map.Entry<String, String>> params = new ArrayList<>();
         if(gameVersion != null && !gameVersion.isBlank()) {
             params.add(Map.entry(Sources.getCurseforgeSearchGameversionParam(), gameVersion));
@@ -212,7 +230,7 @@ public class ModUtil {
         if(modLoader >= 0) {
             params.add(Map.entry(Sources.getCurseforgeSearchLoaderParam(), String.valueOf(modLoader)));
         }
-        return CurseforgeFiles.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectVersionsUrl(modId), Sources.getCurseforgeHeaders(), params), parent);
+        return CurseforgeFiles.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectVersionsUrl(modId), Sources.getCurseforgeHeaders(curseforgeApiKey), params), parent);
     }
 
     /**
@@ -223,24 +241,55 @@ public class ModUtil {
      * @throws FileDownloadException if there is an error downloading the version
      */
     public static CurseforgeFile getCurseforgeVersion(int modId, int versionId) throws FileDownloadException {
-        return CurseforgeFile.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeVersionUrl(modId, versionId), Sources.getCurseforgeHeaders(), List.of()));
+        if(curseforgeApiKey == null) {
+            throw new FileDownloadException("Curseforge api key not set");
+        }
+        return CurseforgeFile.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeVersionUrl(modId, versionId), Sources.getCurseforgeHeaders(curseforgeApiKey), List.of()));
     }
 
     public static ModrinthMod getModrinthMod(String modId) throws FileDownloadException {
-        return ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(modId), Sources.getModrinthHeaders(), List.of()));
+        if(modrinthUserAgent == null) {
+            throw new FileDownloadException("Modrinth user agent not set");
+        }
+        return ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(modId), Sources.getModrinthHeaders(modrinthUserAgent), List.of()));
     }
 
     public static CurseforgeMod getCurseforgeMod(long projectId) throws FileDownloadException {
-        return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(projectId), Sources.getCurseforgeHeaders(), List.of()));
+        if(curseforgeApiKey == null) {
+            throw new FileDownloadException("Curseforge api key not set");
+        }
+        return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(projectId), Sources.getCurseforgeHeaders(curseforgeApiKey), List.of()));
     }
 
     public static boolean checkModrinthValid(String modId) throws FileDownloadException {
-        String result = FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(modId), Sources.getModrinthHeaders(), List.of());
+        if(modrinthUserAgent == null) {
+            throw new FileDownloadException("Modrinth user agent not set");
+        }
+        String result = FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(modId), Sources.getModrinthHeaders(modrinthUserAgent), List.of());
         return result != null && !result.isBlank();
     }
 
     public static boolean checkCurseforgeValid(long projectId) throws FileDownloadException {
-        String result = FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(projectId), Sources.getCurseforgeHeaders(), List.of());
+        if(curseforgeApiKey == null) {
+            throw new FileDownloadException("Curseforge api key not set");
+        }
+        String result = FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(projectId), Sources.getCurseforgeHeaders(curseforgeApiKey), List.of());
         return result != null && !result.isBlank();
+    }
+
+    public static String getModrinthUserAgent() {
+        return modrinthUserAgent;
+    }
+
+    public static void setModrinthUserAgent(String modrinthUserAgent) {
+        ModUtil.modrinthUserAgent = modrinthUserAgent;
+    }
+
+    public static String getCurseforgeApiKey() {
+        return curseforgeApiKey;
+    }
+
+    public static void setCurseforgeApiKey(String curseforgeApiKey) {
+        ModUtil.curseforgeApiKey = curseforgeApiKey;
     }
 }
