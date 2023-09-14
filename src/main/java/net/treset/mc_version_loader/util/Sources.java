@@ -195,7 +195,7 @@ public class Sources {
     }
 
     public static List<Map.Entry<String, String>> getCurseforgeHeaders(String apiKey) {
-        return List.of(JSON_TYPE_HEADER, Map.entry("X-Api-Token", apiKey));
+        return List.of(JSON_TYPE_HEADER, Map.entry("x-api-key", apiKey));
     }
 
     public static String getMojangUserProfileUrl(String playerName) {
