@@ -23,6 +23,11 @@ public abstract class GenericJsonParsable implements JsonParsable {
     }
 
     @Override
+    public String toJson() {
+        return JsonUtils.getGson().toJson(this);
+    }
+
+    @Override
     public void writeToFile(String filePath) throws IOException {
         JsonUtils.writeJsonToFile(this, filePath);
     }
