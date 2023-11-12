@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class AssetIndex extends GenericJsonParsable {
         this.objects = objects;
     }
 
-    public static AssetIndex fromJson(String json) {
+    public static AssetIndex fromJson(String json) throws SerializationException {
         JsonObject objectsObj = JsonUtils.getAsJsonObject(JsonUtils.getAsJsonObject(JsonUtils.parseJson(json)), "objects");
         Set<Map.Entry<String, JsonElement>> children = JsonUtils.getMembers(objectsObj);
         List<AssetObject> objects = new ArrayList<>();

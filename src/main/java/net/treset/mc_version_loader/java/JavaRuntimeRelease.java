@@ -1,8 +1,5 @@
 package net.treset.mc_version_loader.java;
 
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.GenericJsonParsable;
-
 public class JavaRuntimeRelease {
     private String id;
     private Availability availability;
@@ -102,13 +99,6 @@ public class JavaRuntimeRelease {
         this.availability = availability;
         this.manifest = manifest;
         this.version = version;
-    }
-
-    public static JavaRuntimeRelease fromJsonObject(JsonObject json, String id) {
-        if(json == null) return new JavaRuntimeRelease(id, null, null, null);
-        JavaRuntimeRelease result = GenericJsonParsable.fromJson(json.toString(), JavaRuntimeRelease.class);
-        result.setId(id);
-        return result;
     }
 
     public String getId() {

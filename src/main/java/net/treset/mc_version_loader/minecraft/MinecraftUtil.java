@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.minecraft;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.util.DownloadStatus;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.OsUtil;
@@ -116,7 +117,11 @@ public class MinecraftUtil {
      * @throws FileDownloadException if there is an error downloading the version manifest
      */
     public static List<MinecraftVersion> getVersions() throws FileDownloadException {
-        return MinecraftVersion.fromVersionManifest(FileUtil.getStringFromUrl(Sources.getVersionManifestUrl()));
+        try {
+            return MinecraftVersion.fromVersionManifest(FileUtil.getStringFromUrl(Sources.getVersionManifestUrl()));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse version manifest", e);
+        }
     }
 
     /**
@@ -129,10 +134,18 @@ public class MinecraftUtil {
     }
 
     public static MinecraftVersion getVersion(String url) throws FileDownloadException {
-        return MinecraftVersion.fromJson(FileUtil.getStringFromUrl(url));
+        try {
+            return MinecraftVersion.fromJson(FileUtil.getStringFromUrl(url));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse version manifest", e);
+        }
     }
 
     public static MinecraftVersionDetails getVersionDetails(String url) throws FileDownloadException {
-        return MinecraftVersionDetails.fromJson(FileUtil.getStringFromUrl(url));
+        try {
+            return MinecraftVersionDetails.fromJson(FileUtil.getStringFromUrl(url));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse version manifest", e);
+        }
     }
  }

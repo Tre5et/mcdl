@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.assets;
 
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 public class AssetObject {
     private String hash;
@@ -12,7 +13,7 @@ public class AssetObject {
         this.size = size;
     }
 
-    public static AssetObject fromJson(JsonObject jsonObject) {
+    public static AssetObject fromJson(JsonObject jsonObject) throws SerializationException {
         return new AssetObject(
                 JsonUtils.getAsString(jsonObject, "hash"),
                 JsonUtils.getAsInt(jsonObject, "size")

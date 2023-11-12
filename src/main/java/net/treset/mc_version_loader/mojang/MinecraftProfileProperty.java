@@ -1,5 +1,7 @@
 package net.treset.mc_version_loader.mojang;
 
+import net.treset.mc_version_loader.json.SerializationException;
+
 import java.util.Base64;
 
 public class MinecraftProfileProperty {
@@ -13,7 +15,7 @@ public class MinecraftProfileProperty {
         this.signature = signature;
     }
 
-    public MinecraftProfileTextures getTextures() {
+    public MinecraftProfileTextures getTextures() throws SerializationException {
         if(!name.equals("textures")) {
             return null;
         }

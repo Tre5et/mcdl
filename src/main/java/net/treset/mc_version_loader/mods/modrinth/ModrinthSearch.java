@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.mods.modrinth;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.List;
 
@@ -17,7 +18,7 @@ public class ModrinthSearch extends GenericJsonParsable {
         this.totalHits = totalHits;
     }
 
-    public static ModrinthSearch fromJson(String json) {
+    public static ModrinthSearch fromJson(String json) throws SerializationException {
         return fromJson(json, ModrinthSearch.class);
     }
 

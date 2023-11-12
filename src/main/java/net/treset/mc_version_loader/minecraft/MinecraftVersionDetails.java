@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class MinecraftVersionDetails {
         this.logging = logging;
     }
 
-    public static MinecraftVersionDetails fromJson(String jsonData) {
+    public static MinecraftVersionDetails fromJson(String jsonData) throws SerializationException {
         MinecraftVersionDetails details = GenericJsonParsable.fromJson(jsonData, MinecraftVersionDetails.class, JsonUtils.getGsonCamelCase());
         JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(jsonData));
         details.setLaunchArguments(MinecraftLaunchArguments.fromJson(JsonUtils.getAsJsonObject(versionObj, "arguments")));

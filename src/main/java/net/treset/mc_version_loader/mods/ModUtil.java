@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.mods;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.format.FormatUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFile;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeFiles;
 import net.treset.mc_version_loader.mods.curseforge.CurseforgeMod;
@@ -133,7 +134,11 @@ public class ModUtil {
             }
             params.add(Map.entry(Sources.getModrinthSearchFacetsParam(), facets.substring(0, facets.length() - 1) + "]"));
         }
-        return ModrinthSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthSearchUrl(), Sources.getModrinthHeaders(modrinthUserAgent), params));
+        try {
+            return ModrinthSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthSearchUrl(), Sources.getModrinthHeaders(modrinthUserAgent), params));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse modrinth search results", e);
+        }
     }
 
     /**
@@ -160,7 +165,11 @@ public class ModUtil {
             modLoaders.forEach(l -> loaders.append("\"").append(l).append("\","));
             params.add(Map.entry(Sources.getModrinthVersionsLoadersParam(), loaders.substring(0, loaders.length() - 1) + "]"));
         }
-        return ModrinthVersion.fromJsonArray(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectVersionsUrl(modId), Sources.getModrinthHeaders(modrinthUserAgent), params), parent);
+        try {
+            return ModrinthVersion.fromJsonArray(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectVersionsUrl(modId), Sources.getModrinthHeaders(modrinthUserAgent), params), parent);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse modrinth project versions", e);
+        }
     }
 
     /**
@@ -174,7 +183,11 @@ public class ModUtil {
         if(modrinthUserAgent == null) {
             throw new FileDownloadException("Modrinth user agent not set");
         }
-        return ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(versionId), Sources.getModrinthHeaders(modrinthUserAgent), List.of()), parent);
+        try {
+            return ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(versionId), Sources.getModrinthHeaders(modrinthUserAgent), List.of()), parent);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse modrinth version", e);
+        }
     }
 
     /**
@@ -207,7 +220,11 @@ public class ModUtil {
         if(offset > 0) {
             params.add(Map.entry(Sources.getCurseforgeSearchOffsetParam(), String.valueOf(offset)));
         }
-        return CurseforgeSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeSearchUrl(), Sources.getCurseforgeHeaders(curseforgeApiKey), params));
+        try {
+            return CurseforgeSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeSearchUrl(), Sources.getCurseforgeHeaders(curseforgeApiKey), params));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse curseforge search results", e);
+        }
     }
 
     /**
@@ -230,7 +247,11 @@ public class ModUtil {
         if(modLoader >= 0) {
             params.add(Map.entry(Sources.getCurseforgeSearchLoaderParam(), String.valueOf(modLoader)));
         }
-        return CurseforgeFiles.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectVersionsUrl(modId), Sources.getCurseforgeHeaders(curseforgeApiKey), params), parent);
+        try {
+            return CurseforgeFiles.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectVersionsUrl(modId), Sources.getCurseforgeHeaders(curseforgeApiKey), params), parent);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse curseforge project versions", e);
+        }
     }
 
     /**
@@ -244,21 +265,33 @@ public class ModUtil {
         if(curseforgeApiKey == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
-        return CurseforgeFile.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeVersionUrl(modId, versionId), Sources.getCurseforgeHeaders(curseforgeApiKey), List.of()));
+        try {
+            return CurseforgeFile.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeVersionUrl(modId, versionId), Sources.getCurseforgeHeaders(curseforgeApiKey), List.of()));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse curseforge version", e);
+        }
     }
 
     public static ModrinthMod getModrinthMod(String modId) throws FileDownloadException {
         if(modrinthUserAgent == null) {
             throw new FileDownloadException("Modrinth user agent not set");
         }
-        return ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(modId), Sources.getModrinthHeaders(modrinthUserAgent), List.of()));
+        try {
+            return ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(modId), Sources.getModrinthHeaders(modrinthUserAgent), List.of()));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse modrinth mod", e);
+        }
     }
 
     public static CurseforgeMod getCurseforgeMod(long projectId) throws FileDownloadException {
         if(curseforgeApiKey == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
-        return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(projectId), Sources.getCurseforgeHeaders(curseforgeApiKey), List.of()));
+        try {
+            return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(projectId), Sources.getCurseforgeHeaders(curseforgeApiKey), List.of()));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse curseforge mod", e);
+        }
     }
 
     public static boolean checkModrinthValid(String modId) throws FileDownloadException {

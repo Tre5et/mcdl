@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,26 +28,35 @@ public class MinecraftLaunchArgument {
         this.gated = rules != null && !rules.isEmpty();
     }
 
-    public static List<MinecraftLaunchArgument> fromJsonArray(JsonArray argumentArray) {
+    public static List<MinecraftLaunchArgument> fromJsonArray(JsonArray argumentArray) throws SerializationException {
         List<MinecraftLaunchArgument> arguments = new ArrayList<>();
         if(argumentArray != null) {
             for (JsonElement e : argumentArray) {
-                String ruleString = JsonUtils.getAsString(e);
-                if (ruleString != null) {
-                    arguments.add(new MinecraftLaunchArgument(ruleString, null));
-                } else {
+                try {
+                    String ruleString = JsonUtils.getAsString(e);
+                    if(ruleString != null) {
+                        arguments.add(new MinecraftLaunchArgument(ruleString, null));
+                    }
+                } catch (SerializationException ex1) {
                     JsonObject eObj = JsonUtils.getAsJsonObject(e);
                     JsonArray rules = JsonUtils.getAsJsonArray(eObj, "rules");
                     List<MinecraftRule> currentRules = JsonUtils.getGson().fromJson(rules, new TypeToken<>(){});
-                    JsonArray values = JsonUtils.getAsJsonArray(eObj, "value");
-                    if (values != null) {
-                        for (JsonElement v : values) {
-                            arguments.add(new MinecraftLaunchArgument(JsonUtils.getAsString(v), currentRules));
+                    try {
+                        JsonArray values = JsonUtils.getAsJsonArray(eObj, "value");
+                        if (values != null) {
+                            for (JsonElement v : values) {
+                                arguments.add(new MinecraftLaunchArgument(JsonUtils.getAsString(v), currentRules));
+                            }
                         }
-                    }
-                    String value = JsonUtils.getAsString(eObj, "value");
-                    if(value != null) {
-                        arguments.add(new MinecraftLaunchArgument(value, currentRules));
+                    } catch (SerializationException ex2) {
+                        try {
+                            String value = JsonUtils.getAsString(eObj, "value");
+                            if(value != null) {
+                                arguments.add(new MinecraftLaunchArgument(value, currentRules));
+                            }
+                        } catch (SerializationException ex3) {
+                            throw new SerializationException("No valid json format for launch argument: " + eObj);
+                        }
                     }
                 }
 

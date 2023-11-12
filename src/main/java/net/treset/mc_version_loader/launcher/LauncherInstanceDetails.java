@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.launcher;
 
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,7 +30,7 @@ public class LauncherInstanceDetails extends GenericJsonParsable {
         this.versionComponent = versionComponent;
     }
 
-    public static LauncherInstanceDetails fromJson(String json) {
+    public static LauncherInstanceDetails fromJson(String json) throws SerializationException {
         return fromJson(json, LauncherInstanceDetails.class);
     }
 

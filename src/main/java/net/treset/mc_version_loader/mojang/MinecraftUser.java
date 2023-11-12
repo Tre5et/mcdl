@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.mojang;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.SerializationException;
 
 public class MinecraftUser extends GenericJsonParsable {
     private String uuid;
@@ -15,7 +16,7 @@ public class MinecraftUser extends GenericJsonParsable {
         this.demo = demo;
     }
 
-    public static MinecraftUser fromJson(String json) {
+    public static MinecraftUser fromJson(String json) throws SerializationException {
         return fromJson(json, MinecraftUser.class);
     }
 

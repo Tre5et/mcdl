@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.mojang;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class MinecraftProfile extends GenericJsonParsable {
         this.properties = properties;
     }
 
-    public static MinecraftProfile fromJson(String json) {
+    public static MinecraftProfile fromJson(String json) throws SerializationException {
         return fromJson(json, MinecraftProfile.class);
     }
 

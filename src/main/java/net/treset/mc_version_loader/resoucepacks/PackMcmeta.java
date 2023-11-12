@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.resoucepacks;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.SerializationException;
 
 public class PackMcmeta extends GenericJsonParsable {
     private Pack pack;
@@ -17,7 +18,7 @@ public class PackMcmeta extends GenericJsonParsable {
         this.pack = pack;
     }
 
-    public static PackMcmeta fromJson(String json) {
+    public static PackMcmeta fromJson(String json) throws SerializationException {
         return fromJson(json, PackMcmeta.class);
     }
 

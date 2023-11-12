@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.mods.curseforge;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public class CurseforgeSearch extends GenericJsonParsable {
         this.pagination = pagination;
     }
 
-    public static CurseforgeSearch fromJson(String json) {
+    public static CurseforgeSearch fromJson(String json) throws SerializationException {
         return fromJson(json, CurseforgeSearch.class, JsonUtils.getGsonCamelCase());
     }
 

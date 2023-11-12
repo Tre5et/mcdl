@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.fabric;
 import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.List;
 
@@ -17,11 +18,11 @@ public class FabricVersionDetails extends GenericJsonParsable {
         this.loader = loader;
     }
 
-    public static FabricVersionDetails fromJson(String versionJson) {
+    public static FabricVersionDetails fromJson(String versionJson) throws SerializationException {
         return fromJson(versionJson, FabricVersionDetails.class, JsonUtils.getGsonCamelCase());
     }
 
-    public static List<FabricVersionDetails> fromJsonArray(String jsonArray) {
+    public static List<FabricVersionDetails> fromJsonArray(String jsonArray) throws SerializationException {
         return fromJson(jsonArray, new TypeToken<>(){}, JsonUtils.getGsonCamelCase());
     }
 

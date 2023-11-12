@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.mods.curseforge;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.mods.ModData;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public class CurseforgeFiles extends GenericJsonParsable {
         this.pagination = pagination;
     }
 
-    public static CurseforgeFiles fromJson(String json, ModData parent) {
+    public static CurseforgeFiles fromJson(String json, ModData parent) throws SerializationException {
         CurseforgeFiles out = fromJson(json, CurseforgeFiles.class, JsonUtils.getGsonCamelCase());
         for(CurseforgeFile f : out.data) {
             f.setParentMod(parent);

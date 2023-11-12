@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.assets;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.util.DownloadStatus;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
@@ -78,6 +79,10 @@ public class AssetsUtil {
     }
 
     public static AssetIndex getAssetIndex(String url) throws FileDownloadException {
-        return AssetIndex.fromJson(FileUtil.getStringFromUrl(url));
+        try {
+            return AssetIndex.fromJson(FileUtil.getStringFromUrl(url));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse asset index", e);
+        }
     }
 }

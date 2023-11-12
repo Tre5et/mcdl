@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.java;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.util.DownloadStatus;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
@@ -76,10 +77,18 @@ public class JavaUtil {
     }
 
     public static JavaRuntimes getJavaRuntimes() throws FileDownloadException {
-        return JavaRuntimes.fromJson(FileUtil.getStringFromUrl(Sources.getJavaRuntimeUrl()));
+        try {
+            return JavaRuntimes.fromJson(FileUtil.getStringFromUrl(Sources.getJavaRuntimeUrl()));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Failed to parse runtimes file", e);
+        }
     }
 
     public static List<JavaFile> getJavaFile(String url) throws FileDownloadException {
-        return JavaFile.fromJsonManifest(FileUtil.getStringFromUrl(url));
+        try {
+            return JavaFile.fromJson(FileUtil.getStringFromUrl(url));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Failed to parse java file", e);
+        }
     }
 }

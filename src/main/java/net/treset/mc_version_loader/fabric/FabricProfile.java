@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.fabric;
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.minecraft.MinecraftLaunchArguments;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class FabricProfile extends GenericJsonParsable {
         this.type = type;
     }
 
-    public static FabricProfile fromJson(String json) {
+    public static FabricProfile fromJson(String json) throws SerializationException {
         FabricProfile result = fromJson(json, FabricProfile.class, JsonUtils.getGsonCamelCase());
         JsonObject argumentsObj = JsonUtils.getAsJsonObject(JsonUtils.getAsJsonObject(JsonUtils.parseJson(json)), "arguments");
         result.setLaunchArguments(MinecraftLaunchArguments.fromJson(argumentsObj));

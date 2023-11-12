@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.minecraft;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class MinecraftLaunchArguments {
         this.jvm = jvm;
     }
 
-    public static MinecraftLaunchArguments fromJson(JsonObject argumentsObj) {
+    public static MinecraftLaunchArguments fromJson(JsonObject argumentsObj) throws SerializationException {
         JsonArray gameArgumentArray = JsonUtils.getAsJsonArray(argumentsObj, "game");
         JsonArray jvmArgumentArray = JsonUtils.getAsJsonArray(argumentsObj, "jvm");
 

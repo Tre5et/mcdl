@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.launcher;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.List;
 import java.util.Map;
@@ -27,13 +28,13 @@ public class LauncherManifest extends GenericJsonParsable {
         this.typeConversion = typeConversion;
     }
 
-    public static LauncherManifest fromJson(String json, Map<String, LauncherManifestType> typeConversion) {
+    public static LauncherManifest fromJson(String json, Map<String, LauncherManifestType> typeConversion) throws SerializationException {
         LauncherManifest launcherManifest = fromJson(json, LauncherManifest.class);
         launcherManifest.setTypeConversion(typeConversion);
         return launcherManifest;
     }
 
-    public static LauncherManifest fromJson(String json) {
+    public static LauncherManifest fromJson(String json) throws SerializationException {
         return fromJson(json, LauncherManifestTypeUtils.getDefaultConversion());
     }
 

@@ -1,8 +1,5 @@
 package net.treset.mc_version_loader.java;
 
-import com.google.gson.JsonObject;
-import net.treset.mc_version_loader.json.JsonUtils;
-
 public class JavaDownload {
     private String sha1;
     private int size;
@@ -12,10 +9,6 @@ public class JavaDownload {
         this.sha1 = sha1;
         this.size = size;
         this.url = url;
-    }
-
-    public static JavaDownload fromJsonObject(JsonObject jsonObject) {
-        return JsonUtils.getGson().fromJson(jsonObject, JavaDownload.class);
     }
 
     public String getSha1() {

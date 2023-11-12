@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.List;
 import java.util.Objects;
@@ -31,13 +32,17 @@ public class MinecraftVersion extends GenericJsonParsable {
         this(-1, id, null, null, null, type, url);
     }
 
-    public static MinecraftVersion fromJson(String json) {
+    public static MinecraftVersion fromJson(String json) throws SerializationException {
         return fromJson(json, MinecraftVersion.class, JsonUtils.getGsonCamelCase());
     }
 
-    public static List<MinecraftVersion> fromVersionManifest(String versionManifest) {
+    public static List<MinecraftVersion> fromVersionManifest(String versionManifest) throws SerializationException {
         JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(versionManifest));
-        return JsonUtils.getGsonCamelCase().fromJson(JsonUtils.getAsJsonArray(versionObj, "versions"), new TypeToken<>(){});
+        try {
+            return JsonUtils.getGsonCamelCase().fromJson(JsonUtils.getAsJsonArray(versionObj, "versions"), new TypeToken<>() {});
+        } catch(Exception e) {
+            throw new SerializationException("Could not parse version manifest: " + versionManifest, e);
+        }
     }
 
     public boolean isRelease() {

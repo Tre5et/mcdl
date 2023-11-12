@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.launcher;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.mods.ModUtil;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
@@ -46,7 +47,12 @@ public class LauncherMod {
                 if(json == null || json.isBlank()) {
                     continue;
                 }
-                ModrinthMod modrinthMod = ModrinthMod.fromJson(json);
+                ModrinthMod modrinthMod;
+                try {
+                    modrinthMod = ModrinthMod.fromJson(json);
+                } catch (SerializationException e) {
+                    throw new FileDownloadException("Could not parse modrinth mod data: " + json, e);
+                }
                 if(modrinthMod.getName() != null && !modrinthMod.getName().isBlank()) {
                     mods.add(modrinthMod);
                 }
@@ -56,7 +62,12 @@ public class LauncherMod {
                 if(json == null || json.isBlank()) {
                     continue;
                 }
-                CurseforgeMod curseforgeMod = CurseforgeMod.fromJson(json);
+                CurseforgeMod curseforgeMod;
+                try {
+                    curseforgeMod = CurseforgeMod.fromJson(json);
+                } catch (SerializationException e) {
+                    throw new FileDownloadException("Could not parse curseforge mod data: " + json, e);
+                }
                 if(curseforgeMod.getName() != null && !curseforgeMod.getName().isBlank()) {
                     mods.add(curseforgeMod);
                 }

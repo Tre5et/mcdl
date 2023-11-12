@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.mods.modrinth;
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.mods.*;
 
 import java.time.LocalDateTime;
@@ -84,7 +85,7 @@ public class ModrinthMod extends GenericModData {
         this.wikiUrl = wikiUrl;
     }
 
-    public static ModrinthMod fromJson(String json) {
+    public static ModrinthMod fromJson(String json) throws SerializationException {
         return GenericJsonParsable.fromJson(json, ModrinthMod.class);
     }
 

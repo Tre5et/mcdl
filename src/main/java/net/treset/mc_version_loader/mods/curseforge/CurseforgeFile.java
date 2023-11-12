@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.mods.curseforge;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
@@ -63,7 +64,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
         this.parentMod = parentMod;
     }
 
-    public static CurseforgeFile fromJson(String json) {
+    public static CurseforgeFile fromJson(String json) throws SerializationException {
         return GenericJsonParsable.fromJson(json, CurseforgeFile.class);
     }
 
@@ -157,7 +158,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                     .map(d -> {
                         try {
                             return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(d.getModId()), Sources.getCurseforgeHeaders(ModUtil.getCurseforgeApiKey()), List.of()));
-                        } catch (FileDownloadException e) {
+                        } catch (FileDownloadException | SerializationException e) {
                             exceptionQueue.add(e);
                         }
                         return null;

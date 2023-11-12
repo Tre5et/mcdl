@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +115,7 @@ public class MinecraftLibrary {
                     this.artifact = artifact;
                 }
 
-                public static Native from(String name, JsonObject nativeObj) {
+                public static Native from(String name, JsonObject nativeObj) throws SerializationException {
                     if(nativeObj == null) {
                         return null;
                     }
@@ -141,7 +142,7 @@ public class MinecraftLibrary {
                 }
             }
 
-            public static Classifiers from(JsonObject classifiers) {
+            public static Classifiers from(JsonObject classifiers) throws SerializationException {
                 Set<Map.Entry<String, JsonElement>> entries = JsonUtils.getMembers(classifiers);
                 if(entries == null) {
                     return null;

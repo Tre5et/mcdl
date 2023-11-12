@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.fabric;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.util.DownloadStatus;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.MavenPom;
@@ -109,14 +110,26 @@ public class FabricUtil {
     }
 
     public static FabricProfile getFabricProfile(String mcVersion, String fabricVersion) throws FileDownloadException {
-        return FabricProfile.fromJson(FileUtil.getStringFromUrl(Sources.getFabricProfileUrl(mcVersion, fabricVersion)));
+        try {
+            return FabricProfile.fromJson(FileUtil.getStringFromUrl(Sources.getFabricProfileUrl(mcVersion, fabricVersion)));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse fabric profile", e);
+        }
     }
 
     public static FabricVersionDetails getFabricVersionDetails(String mcVersion, String fabricVersion) throws FileDownloadException {
-        return FabricVersionDetails.fromJson(FileUtil.getStringFromUrl(Sources.getFabricVersionUrl(mcVersion, fabricVersion)));
+        try {
+            return FabricVersionDetails.fromJson(FileUtil.getStringFromUrl(Sources.getFabricVersionUrl(mcVersion, fabricVersion)));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse fabric version details", e);
+        }
     }
 
     public static List<FabricVersionDetails> getFabricVersions(String mcVersion) throws FileDownloadException {
-        return FabricVersionDetails.fromJsonArray(FileUtil.getStringFromUrl(Sources.getFabricIndexUrl(mcVersion)));
+        try {
+            return FabricVersionDetails.fromJsonArray(FileUtil.getStringFromUrl(Sources.getFabricIndexUrl(mcVersion)));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse fabric version details", e);
+        }
     }
 }

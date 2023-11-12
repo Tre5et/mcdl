@@ -4,6 +4,7 @@ import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.mods.*;
 
 import java.time.LocalDateTime;
@@ -65,7 +66,7 @@ public class CurseforgeMod extends GenericModData {
         this.thumbsUpCount = thumbsUpCount;
     }
 
-    public static CurseforgeMod fromJson(String json) {
+    public static CurseforgeMod fromJson(String json) throws SerializationException {
         if(json != null && json.startsWith("{\"data\":")) {
             json = json.substring(8);
             json = json.substring(0, json.length() - 1);

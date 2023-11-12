@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.mods.modrinth;
 
 import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.exception.FileDownloadException;
+import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
@@ -58,7 +59,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
         this.parent = parent;
     }
 
-    public static ModrinthVersion fromJson(String json, ModData parent) {
+    public static ModrinthVersion fromJson(String json, ModData parent) throws SerializationException {
         ModrinthVersion v = GenericJsonParsable.fromJson(json, ModrinthVersion.class);
         if(v != null) {
             v.setParentMod(parent);
@@ -66,7 +67,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
         return v;
     }
 
-    public static List<ModrinthVersion> fromJsonArray(String json, ModData parent) {
+    public static List<ModrinthVersion> fromJsonArray(String json, ModData parent) throws SerializationException {
         List<ModrinthVersion> out = GenericJsonParsable.fromJson(json, new TypeToken<>(){});
         out.forEach(v -> v.setParentMod(parent));
         return out;
@@ -136,11 +137,19 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                         ModrinthVersion version;
                         ModrinthMod parent;
                         if (d.getProjectId() != null) {
-                            parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(d.getProjectId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()));
+                            try {
+                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(d.getProjectId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()));
+                            } catch (SerializationException e) {
+                                throw new FileDownloadException("Failed to parse modrinth project json", e);
+                            }
                             version = ModUtil.getModrinthVersion(d.getVersionId(), parent);
                         } else {
-                            version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()), null);
-                            parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()));
+                            try {
+                                version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()), null);
+                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()));
+                            } catch (SerializationException e) {
+                                throw new FileDownloadException("Failed to parse modrinth version json", e);
+                            }
                             version.setParentMod(parent);
                         }
                         if (version == null || !version.getGameVersions().contains(gameVersion)) {

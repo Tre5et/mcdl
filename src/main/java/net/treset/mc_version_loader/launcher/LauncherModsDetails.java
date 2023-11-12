@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.launcher;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class LauncherModsDetails extends GenericJsonParsable {
         this.mods = mods;
     }
 
-    public static LauncherModsDetails fromJson(String json) {
+    public static LauncherModsDetails fromJson(String json) throws SerializationException {
         return fromJson(json, LauncherModsDetails.class);
     }
 

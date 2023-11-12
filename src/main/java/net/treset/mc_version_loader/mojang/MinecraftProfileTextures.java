@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.mojang;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
 
 public class MinecraftProfileTextures extends GenericJsonParsable {
     public static class Textures {
@@ -101,7 +102,7 @@ public class MinecraftProfileTextures extends GenericJsonParsable {
         this.textures = textures;
     }
 
-    public static MinecraftProfileTextures fromJson(String json) {
+    public static MinecraftProfileTextures fromJson(String json) throws SerializationException {
         return fromJson(json, MinecraftProfileTextures.class, JsonUtils.getGsonCamelCase());
     }
 

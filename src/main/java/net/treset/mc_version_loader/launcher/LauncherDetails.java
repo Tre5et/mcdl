@@ -1,6 +1,7 @@
 package net.treset.mc_version_loader.launcher;
 
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class LauncherDetails extends GenericJsonParsable {
         this.versionType = versionType;
     }
 
-    public static LauncherDetails fromJson(String json) {
+    public static LauncherDetails fromJson(String json) throws SerializationException {
         return fromJson(json, LauncherDetails.class);
     }
 
