@@ -21,11 +21,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
-public class ModUtil {
+public class MinecraftMods {
     private static String modrinthUserAgent;
     private static String curseforgeApiKey;
 
-    public static LauncherMod downloadModFile(ModVersionData data, File parentDir, boolean enabled) throws FileDownloadException {
+    /**
+     * Downloads a mod version to the specified directory.
+     * @param data The version to download
+     * @param parentDir The directory to download the mod to
+     * @return The downloaded launcher mod data
+     * @throws FileDownloadException If there is an error downloading or writing the mod
+     */
+    public static LauncherMod downloadModFile(ModVersionData data, File parentDir) throws FileDownloadException {
         if(data == null || data.getParentMod() == null) {
             throw new FileDownloadException("Unable to download mod: unmet requirements: mod=" + data);
         }
@@ -55,7 +62,7 @@ public class ModUtil {
         return new LauncherMod(
                 data.getModProviders().get(0).toString().toLowerCase(),
                 data.getParentMod().getDescription(),
-                enabled,
+                true,
                 data.getParentMod().getUrl(),
                 data.getParentMod().getIconUrl(),
                 data.getParentMod().getName(),
@@ -272,6 +279,12 @@ public class ModUtil {
         }
     }
 
+    /**
+     * Gets the Modrinth mod with the specified id.
+     * @param modId The mod id
+     * @return The modrinth mod
+     * @throws FileDownloadException If there is an error loading or parsing the mod
+     */
     public static ModrinthMod getModrinthMod(String modId) throws FileDownloadException {
         if(modrinthUserAgent == null) {
             throw new FileDownloadException("Modrinth user agent not set");
@@ -283,6 +296,12 @@ public class ModUtil {
         }
     }
 
+    /**
+     * Gets the Curseforge mod with the specified id.
+     * @param projectId The project id
+     * @return The curseforge mod
+     * @throws FileDownloadException If there is an error loading or parsing the mod
+     */
     public static CurseforgeMod getCurseforgeMod(long projectId) throws FileDownloadException {
         if(curseforgeApiKey == null) {
             throw new FileDownloadException("Curseforge api key not set");
@@ -294,6 +313,12 @@ public class ModUtil {
         }
     }
 
+    /**
+     * Checks if a Modrinth mod with the specified id exists.
+     * @param modId The mod id
+     * @return Whether the mod exists
+     * @throws FileDownloadException If there is an error making the mod request
+     */
     public static boolean checkModrinthValid(String modId) throws FileDownloadException {
         if(modrinthUserAgent == null) {
             throw new FileDownloadException("Modrinth user agent not set");
@@ -302,6 +327,12 @@ public class ModUtil {
         return result != null && !result.isBlank();
     }
 
+    /**
+     * Checks if a Curseforge mod with the specified id exists.
+     * @param projectId The project id
+     * @return Whether the mod exists
+     * @throws FileDownloadException If there is an error making the mod request
+     */
     public static boolean checkCurseforgeValid(long projectId) throws FileDownloadException {
         if(curseforgeApiKey == null) {
             throw new FileDownloadException("Curseforge api key not set");
@@ -314,15 +345,23 @@ public class ModUtil {
         return modrinthUserAgent;
     }
 
+    /**
+     * Sets the modrinth user agent. This must be done before any requests involving modrinth are made.
+     * @param modrinthUserAgent The modrinth user agent
+     */
     public static void setModrinthUserAgent(String modrinthUserAgent) {
-        ModUtil.modrinthUserAgent = modrinthUserAgent;
+        MinecraftMods.modrinthUserAgent = modrinthUserAgent;
     }
 
     public static String getCurseforgeApiKey() {
         return curseforgeApiKey;
     }
 
+    /**
+     * Sets the curseforge api key. This must be done before any requests involving curseforge are made.
+     * @param curseforgeApiKey The curseforge api key
+     */
     public static void setCurseforgeApiKey(String curseforgeApiKey) {
-        ModUtil.curseforgeApiKey = curseforgeApiKey;
+        MinecraftMods.curseforgeApiKey = curseforgeApiKey;
     }
 }

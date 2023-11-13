@@ -49,6 +49,12 @@ public class Resourcepack {
         this.image = image;
     }
 
+    /**
+     * Reads resourcepack data from a resourcepack directory or zip file.
+     * @param file The resourcepack directory or zip file
+     * @return The resourcepack data
+     * @throws IOException If there is an error reading or parsing the resourcepack
+     */
     public static Resourcepack from(File file) throws IOException {
         if(!file.exists()) {
             throw new IOException("File does not exist");

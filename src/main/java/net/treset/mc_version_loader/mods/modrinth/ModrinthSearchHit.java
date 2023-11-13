@@ -147,7 +147,7 @@ public class ModrinthSearchHit extends GenericModData {
     }
 
     public List<ModVersionData> updateVersions(String gameVersion, String modLoader) throws FileDownloadException {
-        versionData = List.copyOf(ModUtil.getModrinthVersion(projectId, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader)));
+        versionData = List.copyOf(MinecraftMods.getModrinthVersion(projectId, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader)));
         return versionData;
     }
 

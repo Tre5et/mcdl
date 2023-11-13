@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class MinecraftUtil {
+public class MinecraftGame {
 
     public static void downloadVersionDownload(MinecraftFileDownloads.Downloads download, File baseDir) throws FileDownloadException {
         if(download == null || download.getUrl() == null || download.getUrl().isBlank() || baseDir == null || !baseDir.isDirectory()) {

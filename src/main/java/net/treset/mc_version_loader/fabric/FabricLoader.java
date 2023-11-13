@@ -14,7 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class FabricUtil {
+public class FabricLoader {
+    /**
+     * Downloads the fabric loader jar to a specified directory.
+     * @param baseDir The directory to download the loader to
+     * @param loader The loader to download
+     * @throws FileDownloadException If there is an error downloading or writing the loader
+     */
     public static void downloadFabricLoader(File baseDir, FabricLoaderData loader) throws FileDownloadException {
         if(loader == null || loader.getMaven() == null || loader.getMaven().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for fabric download");
@@ -44,10 +50,25 @@ public class FabricUtil {
         FileUtil.downloadFile(downloadUrl, outFile);
     }
 
+    /**
+     * Downloads a list of fabric libraries to a specified directory and returns a list of library paths.
+     * @param baseDir The directory to download the libraries to
+     * @param libraries The libraries to download
+     * @return A list of library paths
+     * @throws FileDownloadException If there is an error downloading or writing a library
+     */
     public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries) throws FileDownloadException {
         return downloadFabricLibraries(baseDir, libraries, status -> {});
     }
 
+    /**
+     * Downloads a list of fabric libraries to a specified directory and returns a list of library paths.
+     * @param baseDir The directory to download the libraries to
+     * @param libraries The libraries to download
+     * @param statusCallback A callback to be called when a library is downloaded
+     * @return A list of library paths
+     * @throws FileDownloadException If there is an error downloading or writing a library
+     */
     public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         statusCallback.accept(new DownloadStatus(0, libraries.size(), "", false));
         ArrayList<String> result = new ArrayList<>();
@@ -70,6 +91,13 @@ public class FabricUtil {
         return result;
     }
 
+    /**
+     * Downloads a fabric library to a specified directory and adds it to a list of library paths.
+     * @param baseDir The directory to download the library to
+     * @param library The library to download
+     * @param result The list of library paths to add the library to
+     * @throws FileDownloadException If there is an error downloading or writing the library
+     */
     public static void addFabricLibrary(File baseDir, FabricLibrary library, ArrayList<String> result) throws FileDownloadException {
         if(library == null || library.getUrl() == null || library.getUrl().isBlank() || library.getName() == null || library.getName().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for fabric library download: library=" + library);
@@ -109,6 +137,13 @@ public class FabricUtil {
         FileUtil.downloadFile(downloadUrl, libraryFile);
     }
 
+    /**
+     * Gets the fabric profile for a specified minecraft version and fabric version.
+     * @param mcVersion The minecraft version to get the fabric profile for
+     * @param fabricVersion The fabric version to get the profile for
+     * @return The fabric profile
+     * @throws FileDownloadException If there is an error loading or parsing the profile
+     */
     public static FabricProfile getFabricProfile(String mcVersion, String fabricVersion) throws FileDownloadException {
         try {
             return FabricProfile.fromJson(FileUtil.getStringFromUrl(Sources.getFabricProfileUrl(mcVersion, fabricVersion)));
@@ -117,6 +152,13 @@ public class FabricUtil {
         }
     }
 
+    /**
+     * Gets the fabric version details for a specified minecraft version and fabric version.
+     * @param mcVersion The minecraft version to get fabric version details for
+     * @param fabricVersion The fabric version to get details for
+     * @return The fabric version details
+     * @throws FileDownloadException If there is an error loading or parsing the version details
+     */
     public static FabricVersionDetails getFabricVersionDetails(String mcVersion, String fabricVersion) throws FileDownloadException {
         try {
             return FabricVersionDetails.fromJson(FileUtil.getStringFromUrl(Sources.getFabricVersionUrl(mcVersion, fabricVersion)));
@@ -125,6 +167,12 @@ public class FabricUtil {
         }
     }
 
+    /**
+     * Gets all fabric loader versions for a specified minecraft version.
+     * @param mcVersion The minecraft version to get fabric loader versions for
+     * @return A list of fabric loader versions
+     * @throws FileDownloadException If there is an error loading or parsing the versions
+     */
     public static List<FabricVersionDetails> getFabricVersions(String mcVersion) throws FileDownloadException {
         try {
             return FabricVersionDetails.fromJsonArray(FileUtil.getStringFromUrl(Sources.getFabricIndexUrl(mcVersion)));

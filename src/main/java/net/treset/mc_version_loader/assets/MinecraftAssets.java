@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.assets;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.json.SerializationException;
+import net.treset.mc_version_loader.minecraft.MinecraftVersionDetails;
 import net.treset.mc_version_loader.util.DownloadStatus;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
@@ -13,11 +14,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class AssetsUtil {
+public class MinecraftAssets {
+    /**
+     * Downloads all assets from the specified asset index to the specified directory.
+     * @param assetsDir The directory to download the assets to
+     * @param assetIndex The asset index to download all assets from
+     * @param indexFileUrl The url to the asset index file. Needed to download the index file itself
+     * @param overwrite Whether to overwrite a file if it already exists
+     * @throws FileDownloadException If there is an error downloading or writing a file
+     */
     public static void downloadAssets(File assetsDir, AssetIndex assetIndex, String indexFileUrl, boolean overwrite) throws FileDownloadException {
         downloadAssets(assetsDir, assetIndex, indexFileUrl, overwrite, status -> {});
     }
 
+    /**
+     * Downloads all assets from the specified asset index to the specified directory.
+     * @param assetsDir The directory to download the assets to
+     * @param assetIndex The asset index to download all assets from
+     * @param indexFileUrl The url to the asset index file. Needed to download the index file itself
+     * @param overwrite Whether to overwrite a file if it already exists
+     * @param statusCallback A callback to be called when a file is downloaded
+     * @throws FileDownloadException If there is an error downloading or writing a file
+     */
     public static void downloadAssets(File assetsDir, AssetIndex assetIndex, String indexFileUrl, boolean overwrite, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         File indexDir = new File(assetsDir, "indexes");
         if(!indexDir.isDirectory() && !indexDir.mkdirs()) {
@@ -58,6 +76,13 @@ public class AssetsUtil {
         }
     }
 
+    /**
+     * Downloads a singe asset object to the specified directory.
+     * @param object The object to download
+     * @param objectsDir The asset directory
+     * @param overwrite Whether to overwrite the file if it already exists
+     * @throws FileDownloadException If there is an error downloading or writing the file
+     */
     public static void downloadAssetsObject(AssetObject object, File objectsDir, boolean overwrite) throws FileDownloadException {
         File dir = new File(objectsDir, object.getHash().substring(0, 2));
         if(!dir.isDirectory() && !dir.mkdirs()) {
@@ -78,6 +103,12 @@ public class AssetsUtil {
         }
     }
 
+    /**
+     * Parses a asset index from a specified url.
+     * @param url The url to get the asset index from. Typically found in {@link MinecraftVersionDetails#getAssetIndex()}.
+     * @return The asset index as a object
+     * @throws FileDownloadException If there is an error downloading or parsing the file
+     */
     public static AssetIndex getAssetIndex(String url) throws FileDownloadException {
         try {
             return AssetIndex.fromJson(FileUtil.getStringFromUrl(url));

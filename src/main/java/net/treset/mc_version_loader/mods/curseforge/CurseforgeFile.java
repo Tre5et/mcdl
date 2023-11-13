@@ -145,7 +145,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
 
     @Override
     public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
-        if(ModUtil.getCurseforgeApiKey() == null) {
+        if(MinecraftMods.getCurseforgeApiKey() == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
         if(requiredDependencies != null) {
@@ -157,7 +157,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                     .filter(d -> d != null && d.getRelationType() == 3)
                     .map(d -> {
                         try {
-                            return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(d.getModId()), Sources.getCurseforgeHeaders(ModUtil.getCurseforgeApiKey()), List.of()));
+                            return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(d.getModId()), Sources.getCurseforgeHeaders(MinecraftMods.getCurseforgeApiKey()), List.of()));
                         } catch (FileDownloadException | SerializationException e) {
                             exceptionQueue.add(e);
                         }
@@ -169,7 +169,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                             return null;
                         }
                         try {
-                            return ModUtil.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
+                            return MinecraftMods.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
                         } catch (FileDownloadException e) {
                             exceptionQueue.add(e);
                         }

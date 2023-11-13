@@ -171,7 +171,7 @@ public class CurseforgeMod extends GenericModData {
     }
 
     public List<ModVersionData> updateVersions(String gameVersion, int modLoader) throws FileDownloadException {
-        versions = List.copyOf(ModUtil.getCurseforgeVersions(id, this, gameVersion, modLoader).getData());
+        versions = List.copyOf(MinecraftMods.getCurseforgeVersions(id, this, gameVersion, modLoader).getData());
         return versions;
     }
 

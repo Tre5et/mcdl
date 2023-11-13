@@ -87,14 +87,30 @@ public class FormatUtils {
         }
     }
 
+    /**
+     * Formats a mod name for comparison with other names. Improves accuracy determining whether mods from different sources are the same.
+     * @param input mod name to format
+     * @return formatted mod name
+     */
     public static String formatModComparison(String input) {
         return input == null ? "" : input.toLowerCase().replaceAll("\\s", "").replace("_", "");
     }
 
+    /**
+     * Formats a mod version id for comparison with other version ids. Improves accuracy determining whether mod versions from different sources are the same.
+     * @param input mod version id to format
+     * @return formatted mod version id
+     */
     public static String formatVersionComparison(String input) {
         return formatModComparison(input).replaceAll("[a-zA-Z]", "").replaceAll("-", "").replaceAll("\\+", "");
     }
 
+    /**
+     * Converts a curseforge mod loader id to a (modrinth) mod loader string
+     * @param cfModLoader curseforge mod loader id
+     * @return mod loader string
+     * @throws IllegalArgumentException if the curseforge mod loader id is invalid
+     */
     public static String curseforgeModLoaderToModLoader(int cfModLoader) throws IllegalArgumentException {
         switch (cfModLoader) {
             case 0 -> {
@@ -119,6 +135,12 @@ public class FormatUtils {
         throw new IllegalArgumentException("Invalid curseforge mod loader: " + cfModLoader);
     }
 
+    /**
+     * Converts a (modrith) mod loader string to a curseforge mod loader id.
+     * @param modLoader mod loader string
+     * @return curseforge mod loader id
+     * @throws IllegalArgumentException if the mod loader string is invalid
+     */
     public static int modLoaderToCurseforgeModLoader(String modLoader) throws IllegalArgumentException {
         if(modLoader == null) {
             return 0;

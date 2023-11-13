@@ -123,7 +123,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
 
     @Override
     public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
-        if(ModUtil.getModrinthUserAgent() == null) {
+        if(MinecraftMods.getModrinthUserAgent() == null) {
             throw new FileDownloadException("Modrinth user agent is null");
         }
         if(requiredDependencies == null) {
@@ -138,15 +138,15 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                         ModrinthMod parent;
                         if (d.getProjectId() != null) {
                             try {
-                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(d.getProjectId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()));
+                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(d.getProjectId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()));
                             } catch (SerializationException e) {
                                 throw new FileDownloadException("Failed to parse modrinth project json", e);
                             }
-                            version = ModUtil.getModrinthVersion(d.getVersionId(), parent);
+                            version = MinecraftMods.getModrinthVersion(d.getVersionId(), parent);
                         } else {
                             try {
-                                version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()), null);
-                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of()));
+                                version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()), null);
+                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()));
                             } catch (SerializationException e) {
                                 throw new FileDownloadException("Failed to parse modrinth version json", e);
                             }

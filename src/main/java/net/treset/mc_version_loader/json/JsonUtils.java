@@ -11,9 +11,15 @@ import java.util.Map;
 import java.util.Set;
 
 public class JsonUtils {
-    private static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
-    private static Gson gsonCamelCase = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
+    private static final Gson gsonCamelCase = new GsonBuilder().setPrettyPrinting().create();
 
+    /**
+     * Converts the element to a json object.
+     * @param element The element to convert
+     * @return The json object or null if the element is null.
+     * @throws SerializationException If the element is not a json object
+     */
     public static JsonObject getAsJsonObject(JsonElement element) throws SerializationException {
         if(element == null) {
             return null;
@@ -24,6 +30,12 @@ public class JsonUtils {
         throw new SerializationException("Not a json object: " + element);
     }
 
+    /**
+     * Converts the element to a json array.
+     * @param element The element to convert
+     * @return The json array or null if the element is null
+     * @throws SerializationException If the element is not a json array
+     */
     public static JsonArray getAsJsonArray(JsonElement element) throws SerializationException {
         if(element == null) {
             return null;
@@ -34,6 +46,13 @@ public class JsonUtils {
         throw new SerializationException("Not a json array: " + element);
     }
 
+
+    /**
+     * Converts the element to a string.
+     * @param element The element to convert
+     * @return The string or null if the element is null
+     * @throws SerializationException If the element is not a json string
+     */
     public static String getAsString(JsonElement element) throws SerializationException {
         if(element == null) {
             return null;
@@ -44,6 +63,12 @@ public class JsonUtils {
         throw new SerializationException("Not a json string: " + element);
     }
 
+    /**
+     * Converts the element to an int.
+     * @param element The element to convert
+     * @return The int or -1 if the element is null
+     * @throws SerializationException If the element is not a json int
+     */
     public static int getAsInt(JsonElement element) throws SerializationException {
         if(element == null) {
             return -1;
@@ -54,6 +79,12 @@ public class JsonUtils {
         throw new SerializationException("Not a json int: " + element);
     }
 
+    /**
+     * Converts the element to a boolean.
+     * @param element The element to convert
+     * @return The string or false if the element is null
+     * @throws SerializationException If the element is not a json boolean
+     */
     public static boolean getAsBoolean(JsonElement element) throws SerializationException {
         if(element == null) {
             return false;
@@ -64,6 +95,13 @@ public class JsonUtils {
         throw new SerializationException("Not a json boolean: " + element);
     }
 
+    /**
+     * Converts a member of the json object to a json object.
+     * @param obj The json object to get the member from
+     * @param memberName The name of the member to be converted
+     * @return The json object or null if the member is null
+     * @throws SerializationException If the member is not a json object
+     */
     public static JsonObject getAsJsonObject(JsonObject obj, String memberName) throws SerializationException {
         if(obj == null || obj.get(memberName) == null) {
             return null;
@@ -74,6 +112,13 @@ public class JsonUtils {
         throw new SerializationException("Not a json object: " + obj.get(memberName));
     }
 
+    /**
+     * Converts a member of the json object to a json array.
+     * @param obj The json object to get the member from
+     * @param memberName The name of the member to be converted
+     * @return The json array or null if the member is null
+     * @throws SerializationException If the member is not a json array
+     */
     public static JsonArray getAsJsonArray(JsonObject obj, String memberName) throws SerializationException {
         if(obj == null || obj.get(memberName) == null) {
             return null;
@@ -84,6 +129,13 @@ public class JsonUtils {
         throw new SerializationException("Not a json array: " + obj.get(memberName));
     }
 
+    /**
+     * Converts a member of the json object to a string.
+     * @param obj The json object to get the member from
+     * @param memberName The name of the member to be converted
+     * @return The string or null if the member is null
+     * @throws SerializationException If the member is not a json string
+     */
     public static String getAsString(JsonObject obj, String memberName) throws SerializationException {
         if(obj == null || obj.get(memberName) == null) {
             return null;
@@ -94,6 +146,13 @@ public class JsonUtils {
         throw new SerializationException("Not a json string: " + obj.get(memberName));
     }
 
+    /**
+     * Converts a member of the json object to an int.
+     * @param obj The json object to get the member from
+     * @param memberName The name of the member to be converted
+     * @return The int or -1 if the member is null
+     * @throws SerializationException If the member is not a json int
+     */
     public static int getAsInt(JsonObject obj, String memberName) throws SerializationException {
         if(obj == null || obj.get(memberName) == null) {
             return -1;
@@ -104,6 +163,13 @@ public class JsonUtils {
         throw new SerializationException("Not a json int: " + obj.get(memberName));
     }
 
+    /**
+     * Converts a member of the json object to a boolean.
+     * @param obj The json object to get the member from
+     * @param memberName The name of the member to be converted
+     * @return The boolean or false if the member is null
+     * @throws SerializationException If the member is not a json boolean
+     */
     public static boolean getAsBoolean(JsonObject obj, String memberName) throws SerializationException {
         if(obj == null || obj.get(memberName) == null) {
             return false;
@@ -114,6 +180,11 @@ public class JsonUtils {
         throw new SerializationException("Not a json boolean: " + obj.get(memberName));
     }
 
+    /**
+     * Gets all members from a json object.
+     * @param obj The json object to get the members from
+     * @return A set of Entries, where the key is the property name and value is the property value as a json element
+     */
     public static Set<Map.Entry<String, JsonElement>> getMembers(JsonObject obj) {
         if(obj == null) {
             return null;
@@ -121,7 +192,12 @@ public class JsonUtils {
         return obj.entrySet();
     }
 
-
+    /**
+     * Converts a string to a json element.
+     * @param json The string to convert
+     * @return A json element as represented in the string
+     * @throws SerializationException If the string is not valid json
+     */
     public static JsonElement parseJson(String json) throws SerializationException {
         try {
             return JsonParser.parseString(json);
@@ -130,6 +206,12 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * Converts a json array consisting only of strings to a list of strings.
+     * @param jsonStringArray The array to convert
+     * @return A list of strings in order of the json array
+     * @throws SerializationException If any of the arrays members aren't strings
+     */
     public static List<String> parseJsonStringArray(JsonArray jsonStringArray) throws SerializationException {
         if(jsonStringArray == null) {
             return null;
@@ -141,10 +223,23 @@ public class JsonUtils {
         return out;
     }
 
+    /**
+     * Writes a serialized object to a file.
+     * @param toWrite The object to serialize
+     * @param path The path to the file
+     * @throws IOException If the file can not be created or written to
+     */
     public static void writeJsonToFile(Object toWrite, String path) throws IOException {
         writeJsonToFile(toWrite, path, getGson());
     }
 
+    /**
+     * Writes a serialized object to a file.
+     * @param toWrite The object to serialize
+     * @param path The path to the file
+     * @param gson The gson instance to use for serialization
+     * @throws IOException If the file can not be created or written to
+     */
     public static void writeJsonToFile(Object toWrite, String path, Gson gson) throws IOException {
         File file = new File(path);
         if(!file.isFile() && ((!file.getParentFile().isDirectory() && !file.getParentFile().mkdirs()) || !file.createNewFile())) {
@@ -158,19 +253,19 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * Return a gson instance that uses the lower case with underscores naming policy and pretty printing.
+     * @return The gson instance
+     */
     public static Gson getGson() {
         return gson;
     }
 
-    public static void setGson(Gson gson) {
-        JsonUtils.gson = gson;
-    }
-
+    /**
+     * Return a gson instance that uses the camel case naming policy and pretty printing.
+     * @return The gson instance
+     */
     public static Gson getGsonCamelCase() {
         return gsonCamelCase;
-    }
-
-    public static void setGsonCamelCase(Gson gsonCamelCase) {
-        JsonUtils.gsonCamelCase = gsonCamelCase;
     }
 }

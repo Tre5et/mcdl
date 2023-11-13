@@ -121,6 +121,12 @@ public class FileUtil {
         }
     }
 
+    /**
+     * Reads an image file as a {@link BufferedImage}
+     * @param file the file to read
+     * @return the image as a {@link BufferedImage}
+     * @throws IOException if the file can not be read
+     */
     public static BufferedImage loadImage(File file) throws IOException {
         byte[] bytes = Files.readAllBytes(file.toPath());
         try (InputStream is = new ByteArrayInputStream(bytes))

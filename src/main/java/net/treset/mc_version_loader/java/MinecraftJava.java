@@ -13,11 +13,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class JavaUtil {
+public class MinecraftJava {
+    /**
+     * Downloads all java files in a list to the specified directory while creating any necessary subdirectories.
+     * @param baseDir The directory to download the files to
+     * @param files The list of files to download
+     * @throws FileDownloadException If there is an error downloading or writing a file
+     */
     public static void downloadJavaFiles(File baseDir, List<JavaFile> files) throws FileDownloadException {
         downloadJavaFiles(baseDir, files, status -> {});
     }
 
+    /**
+     * Downloads all java files in a list to the specified directory while creating any necessary subdirectories.
+     * @param baseDir The directory to download the files to
+     * @param files The list of files to download
+     * @param statusCallback A callback to be called when a file is downloaded
+     * @throws FileDownloadException If there is an error downloading or writing a file
+     */
     public static void downloadJavaFiles(File baseDir, List<JavaFile> files, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         if(!baseDir.isDirectory() || files == null || files.isEmpty()) {
             throw new FileDownloadException("Unmet requirements for java download");
@@ -42,6 +55,12 @@ public class JavaUtil {
 
     }
 
+    /**
+     * Downloads a single java file to the specified directory while creating any necessary subdirectories.
+     * @param baseDir The directory to download the file to
+     * @param file The file to download
+     * @throws FileDownloadException If there is an error downloading or writing the file
+     */
     public static void downloadJavaFile(File baseDir, JavaFile file) throws FileDownloadException {
         if(file == null || file.getType() == null || file.getType().isBlank() || file.getName() == null || file.getName().isBlank() || (file.isFile() && (file.getRaw() == null || file.getRaw().getUrl() == null || file.getRaw().getUrl().isBlank())) || baseDir == null || !baseDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for java file download: file=" + file);
@@ -76,6 +95,11 @@ public class JavaUtil {
         throw new FileDownloadException("Unable to determine file type: file=" + file.getName());
     }
 
+    /**
+     * Gets a list of all available java runtimes.
+     * @return A list of java runtimes
+     * @throws FileDownloadException If there is an error downloading or parsing the runtimes
+     */
     public static JavaRuntimes getJavaRuntimes() throws FileDownloadException {
         try {
             return JavaRuntimes.fromJson(FileUtil.getStringFromUrl(Sources.getJavaRuntimeUrl()));
@@ -84,7 +108,13 @@ public class JavaUtil {
         }
     }
 
-    public static List<JavaFile> getJavaFile(String url) throws FileDownloadException {
+    /**
+     * Gets the java files from the specified url.
+     * @param url The url to get the java files from. Typically found in {@link JavaRuntimeRelease#getManifest()}
+     * @return A list of java file objects
+     * @throws FileDownloadException If there is an error downloading or parsing the file
+     */
+    public static List<JavaFile> getJavaFiles(String url) throws FileDownloadException {
         try {
             return JavaFile.fromJson(FileUtil.getStringFromUrl(url));
         } catch (SerializationException e) {

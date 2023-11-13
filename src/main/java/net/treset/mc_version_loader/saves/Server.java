@@ -59,6 +59,12 @@ public class Server {
         this.hidden = hidden;
     }
 
+    /**
+     * Reads a list of servers from a {@code servers.dat} file.
+     * @param file The file to read from
+     * @return A list of servers
+     * @throws IOException If there is an error reading or parsing the file
+     */
     public static List<Server> from(File file) throws IOException {
         if(!file.exists()) {
             throw new IOException("File does not exist");

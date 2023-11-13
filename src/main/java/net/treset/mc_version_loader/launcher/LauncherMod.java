@@ -2,7 +2,7 @@ package net.treset.mc_version_loader.launcher;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.json.SerializationException;
-import net.treset.mc_version_loader.mods.ModUtil;
+import net.treset.mc_version_loader.mods.MinecraftMods;
 import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.mods.CombinedModData;
@@ -37,13 +37,13 @@ public class LauncherMod {
     }
 
     public ModData getModData() throws FileDownloadException {
-        if(ModUtil.getModrinthUserAgent() == null || ModUtil.getCurseforgeApiKey().isBlank()) {
+        if(MinecraftMods.getModrinthUserAgent() == null || MinecraftMods.getCurseforgeApiKey().isBlank()) {
             throw new FileDownloadException("Modrinth user agent or curseforge api key not set");
         }
         ArrayList<ModData> mods = new ArrayList<>();
         for(LauncherModDownload download : downloads) {
             if(download.getProvider().equals("modrinth")) {
-                String json = FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(download.getId()), Sources.getModrinthHeaders(ModUtil.getModrinthUserAgent()), List.of());
+                String json = FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(download.getId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of());
                 if(json == null || json.isBlank()) {
                     continue;
                 }
@@ -58,7 +58,7 @@ public class LauncherMod {
                 }
             }
             if(download.getProvider().equals("curseforge")) {
-                String json = FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(Integer.parseInt(download.getId())), Sources.getCurseforgeHeaders(ModUtil.getCurseforgeApiKey()), List.of());
+                String json = FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(Integer.parseInt(download.getId())), Sources.getCurseforgeHeaders(MinecraftMods.getCurseforgeApiKey()), List.of());
                 if(json == null || json.isBlank()) {
                     continue;
                 }
