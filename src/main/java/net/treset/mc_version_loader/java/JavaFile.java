@@ -1,7 +1,10 @@
 package net.treset.mc_version_loader.java;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.*;
@@ -22,7 +25,28 @@ public class JavaFile extends GenericJsonParsable {
     }
 
     public static List<JavaFile> fromJson(String jsonManifest) throws SerializationException {
-        return fromJson(jsonManifest, new TypeToken<>() {});
+        JsonObject manifestObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(jsonManifest));
+        JsonObject filesObj = JsonUtils.getAsJsonObject(manifestObj, "files");
+        Set<Map.Entry<String, JsonElement>> files = JsonUtils.getMembers(filesObj);
+        if(files != null) {
+            return files.stream().map(f -> {
+                try {
+                    return JavaFile.fromJsonObject(f.getKey(), JsonUtils.getAsJsonObject(f.getValue()));
+                } catch (SerializationException e) {
+                    return null;
+                }
+            }).toList();
+        }
+        return List.of();
+    }
+
+    public static JavaFile fromJsonObject(String name, JsonObject jsonObject) throws SerializationException {
+        JavaFile file = JsonUtils.getGson().fromJson(jsonObject, JavaFile.class);
+        JsonObject downloadsObj = JsonUtils.getAsJsonObject(jsonObject, "downloads");
+        file.setName(name);
+        file.setLzma(JavaDownload.fromJsonObject(JsonUtils.getAsJsonObject(downloadsObj, "lzma")));
+        file.setRaw(JavaDownload.fromJsonObject(JsonUtils.getAsJsonObject(downloadsObj, "raw")));
+        return file;
     }
 
     public boolean isFile() {
