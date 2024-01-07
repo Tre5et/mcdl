@@ -1,6 +1,15 @@
 package net.treset.mc_version_loader.java;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
+
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class JavaRuntimeOs {
     String id;
@@ -9,6 +18,20 @@ public class JavaRuntimeOs {
     public JavaRuntimeOs(String id, List<JavaRuntimeRelease> releases) {
         this.id = id;
         this.releases = releases;
+    }
+
+    public static JavaRuntimeOs fromJsonObject(JsonObject object, String id) throws SerializationException {
+        JavaRuntimeOs result = new JavaRuntimeOs(id, null);
+        Set<Map.Entry<String, JsonElement>> elements = JsonUtils.getMembers(object);
+        List<JavaRuntimeRelease> releases = new ArrayList<>();
+        for(Map.Entry<String, JsonElement> e : elements) {
+            JsonArray array = JsonUtils.getAsJsonArray(e.getValue());
+            if(array != null && !array.isEmpty()) {
+                releases.add(JavaRuntimeRelease.fromJsonObject(JsonUtils.getAsJsonObject(array.get(0)), e.getKey()));
+            }
+        }
+        result.setReleases(releases);
+        return result;
     }
 
     public String getId() {
