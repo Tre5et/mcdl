@@ -1,8 +1,10 @@
 package net.treset.mc_version_loader.launcher;
 
+import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.SerializationException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ public class LauncherManifest extends GenericJsonParsable {
     private String details;
     private String prefix;
     private String name;
+    private String lastUsed;
     private List<String> includedFiles;
     private List<String> components;
     private transient Map<String, LauncherManifestType> typeConversion;
@@ -76,6 +79,22 @@ public class LauncherManifest extends GenericJsonParsable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLastUsed() {
+        return lastUsed;
+    }
+
+    public void setLastUsed(String lastUsed) {
+        this.lastUsed = lastUsed;
+    }
+
+    private LocalDateTime getLastUsedTime() {
+        return FormatUtils.parseLocalDateTime(getLastUsed());
+    }
+
+    public void setLastUsedTime(LocalDateTime lastPlayed) {
+        setLastUsed(FormatUtils.formatLocalDateTime(lastPlayed));
     }
 
     public List<String> getIncludedFiles() {

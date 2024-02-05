@@ -10,7 +10,7 @@ import java.util.List;
 public class LauncherInstanceDetails extends GenericJsonParsable {
     private List<LauncherFeature> features;
     private List<String> ignoredFiles;
-    private List<LauncherLaunchArgument> jvm_arguments;
+    private List<LauncherLaunchArgument> jvmArguments;
     private String lastPlayed;
     private long totalTime;
     private String modsComponent;
@@ -19,10 +19,10 @@ public class LauncherInstanceDetails extends GenericJsonParsable {
     private String savesComponent;
     private String versionComponent;
 
-    public LauncherInstanceDetails(List<LauncherFeature> features, List<String> ignoredFiles, List<LauncherLaunchArgument> jvm_arguments, String modsComponent, String optionsComponent, String resourcepacksComponent, String savesComponent, String versionComponent) {
+    public LauncherInstanceDetails(List<LauncherFeature> features, List<String> ignoredFiles, List<LauncherLaunchArgument> jvmArguments, String modsComponent, String optionsComponent, String resourcepacksComponent, String savesComponent, String versionComponent) {
         this.features = features;
         this.ignoredFiles = ignoredFiles;
-        this.jvm_arguments = jvm_arguments;
+        this.jvmArguments = jvmArguments;
         this.modsComponent = modsComponent;
         this.optionsComponent = optionsComponent;
         this.resourcepacksComponent = resourcepacksComponent;
@@ -50,12 +50,12 @@ public class LauncherInstanceDetails extends GenericJsonParsable {
         this.ignoredFiles = ignoredFiles;
     }
 
-    public List<LauncherLaunchArgument> getJvm_arguments() {
-        return jvm_arguments;
+    public List<LauncherLaunchArgument> getJvmArguments() {
+        return jvmArguments;
     }
 
-    public void setJvm_arguments(List<LauncherLaunchArgument> jvm_arguments) {
-        this.jvm_arguments = jvm_arguments;
+    public void setJvmArguments(List<LauncherLaunchArgument> jvmArguments) {
+        this.jvmArguments = jvmArguments;
     }
 
     private LocalDateTime getLastPlayedTime() {
