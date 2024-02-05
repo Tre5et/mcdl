@@ -1,5 +1,10 @@
 package net.treset.mc_version_loader.java;
 
+import com.google.gson.JsonObject;
+import net.treset.mc_version_loader.json.GenericJsonParsable;
+import net.treset.mc_version_loader.json.JsonUtils;
+import net.treset.mc_version_loader.json.SerializationException;
+
 public class JavaDownload {
     private String sha1;
     private int size;
@@ -9,6 +14,10 @@ public class JavaDownload {
         this.sha1 = sha1;
         this.size = size;
         this.url = url;
+    }
+
+    public static JavaDownload fromJsonObject(JsonObject jsonObject) throws SerializationException {
+        return JsonUtils.getGson().fromJson(jsonObject, JavaDownload.class);
     }
 
     public String getSha1() {
