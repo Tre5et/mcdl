@@ -16,8 +16,8 @@ import java.util.function.Consumer;
 
 public class MinecraftGame {
 
-    public static void downloadVersionDownload(MinecraftFileDownloads.Downloads download, File baseDir) throws FileDownloadException {
-        if(download == null || download.getUrl() == null || download.getUrl().isBlank() || baseDir == null || !baseDir.isDirectory()) {
+    public static void downloadVersionDownload(MinecraftFileDownloads.Downloads download, File targetFile) throws FileDownloadException {
+        if(download == null || download.getUrl() == null || download.getUrl().isBlank() || targetFile == null || !targetFile.getParentFile().isDirectory()) {
             throw new FileDownloadException("Unmet requirements for version download: download=" + download);
         }
 
@@ -28,8 +28,7 @@ public class MinecraftGame {
             throw new FileDownloadException("Unable to convert version download url: download=" + download.getUrl(), e);
         }
 
-        File outFile = new File(baseDir, download.getUrl().substring(download.getUrl().lastIndexOf('/')));
-        FileUtil.downloadFile(downloadUrl, outFile);
+        FileUtil.downloadFile(downloadUrl, targetFile);
     }
 
     public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File baseDir, List<String> features, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
