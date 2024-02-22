@@ -54,11 +54,11 @@ public class MinecraftGame {
     }
 
     public static void addVersionLibrary(MinecraftLibrary library, File baseDir, ArrayList<String> result, List<String> features) throws FileDownloadException {
-        if(library == null || library.getRules() != null && !library.getRules().stream().allMatch(r -> r.isApplicable(features))) {
+        if(library == null || library.getDownloads().getArtifacts().getUrl() == null || library.getDownloads().getArtifacts().getUrl().isBlank() || library.getRules() != null && !library.getRules().stream().allMatch(r -> r.isApplicable(features))) {
             return;
         }
 
-        if(library.getDownloads().getArtifacts().getUrl() == null || library.getDownloads().getArtifacts().getUrl().isBlank() || library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || baseDir == null || !baseDir.isDirectory()) {
+        if(library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for library download: library=" + library);
         }
 

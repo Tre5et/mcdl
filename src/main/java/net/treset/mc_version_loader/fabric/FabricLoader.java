@@ -16,13 +16,13 @@ import java.util.function.Consumer;
 
 public class FabricLoader {
     /**
-     * Downloads the fabric loader jar to a specified directory.
-     * @param baseDir The directory to download the loader to
+     * Downloads the fabric client jar to a specified directory.
+     * @param outFile The file to download the fabric client as
      * @param loader The loader to download
      * @throws FileDownloadException If there is an error downloading or writing the loader
      */
-    public static void downloadFabricLoader(File baseDir, FabricLoaderData loader) throws FileDownloadException {
-        if(loader == null || loader.getMaven() == null || loader.getMaven().isBlank() || baseDir == null || !baseDir.isDirectory()) {
+    public static void downloadFabricClient(File outFile, FabricLoaderData loader) throws FileDownloadException {
+        if(loader == null || loader.getMaven() == null || loader.getMaven().isBlank() || outFile == null || !outFile.getParentFile().isDirectory()) {
             throw new FileDownloadException("Unmet requirements for fabric download");
         }
 
@@ -44,8 +44,6 @@ public class FabricLoader {
         } catch (MalformedURLException e) {
             throw new FileDownloadException("Unable to parse fabric download Url", e);
         }
-
-        File outFile = new File(baseDir, "fabric-client.jar");
 
         FileUtil.downloadFile(downloadUrl, outFile);
     }
