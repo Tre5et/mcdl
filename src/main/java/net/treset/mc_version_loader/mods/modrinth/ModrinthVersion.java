@@ -68,7 +68,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     }
 
     public static List<ModrinthVersion> fromJsonArray(String json, ModData parent) throws SerializationException {
-        List<ModrinthVersion> out = GenericJsonParsable.fromJson(json, new TypeToken<>(){});
+        List<ModrinthVersion> out = GenericJsonParsable.fromJsonArray(json, new TypeToken<>(){});
         out.forEach(v -> v.setParentMod(parent));
         return out;
     }

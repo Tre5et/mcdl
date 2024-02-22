@@ -18,7 +18,7 @@ public abstract class GenericJsonParsable implements JsonParsable {
         return fromJson(json, type, JsonUtils.getGson());
     }
 
-    public static <T> List<T> fromJson(String json, TypeToken<List<T>> typeToken, Gson gson) throws SerializationException {
+    public static <T> List<T> fromJsonArray(String json, TypeToken<List<T>> typeToken, Gson gson) throws SerializationException {
         try {
             return gson.fromJson(json, typeToken);
         } catch (Exception e) {
@@ -26,8 +26,20 @@ public abstract class GenericJsonParsable implements JsonParsable {
         }
     }
 
-    public static <T> List<T> fromJson(String json, TypeToken<List<T>> typeToken) throws SerializationException {
+    public static <T> List<T> fromJsonArray(String json, TypeToken<List<T>> typeToken) throws SerializationException {
+        return fromJsonArray(json, typeToken, JsonUtils.getGson());
+    }
+
+    public static <T> T fromJson(String json, TypeToken<T> typeToken) throws SerializationException {
         return fromJson(json, typeToken, JsonUtils.getGson());
+    }
+
+    public static <T> T fromJson(String json, TypeToken<T> typeToken, Gson gson) throws SerializationException {
+        try {
+            return gson.fromJson(json, typeToken);
+        } catch (Exception e) {
+            throw new SerializationException("Failed to deserialize JSON", e);
+        }
     }
 
     @Override

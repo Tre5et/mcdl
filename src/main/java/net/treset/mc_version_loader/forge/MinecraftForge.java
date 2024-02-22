@@ -94,6 +94,18 @@ public class MinecraftForge {
      * @param version The version id to create the client jar for
      * @param profile The install profile to use
      * @param minecraftJar A vanilla minecraft client jar of the correct version
+     * @throws FileDownloadException If there is an error processing the client jar
+     */
+    public static void createForgeClient(File outFile, String version, ForgeInstallProfile profile, File minecraftJar) throws FileDownloadException {
+        createForgeClient(outFile, version, profile, minecraftJar, status -> {});
+    }
+
+    /**
+     * Creates a forge client jar from a specified version and install profile.
+     * @param outFile The file to write the client jar to
+     * @param version The version id to create the client jar for
+     * @param profile The install profile to use
+     * @param minecraftJar A vanilla minecraft client jar of the correct version
      * @param statusCallback A callback to be called when a step in the process is started
      * @throws FileDownloadException If there is an error processing the client jar
      */
@@ -267,7 +279,7 @@ public class MinecraftForge {
                     if(profileData == null) {
                         throw new NoSuchElementException("Failed to find replacement for: " + key);
                     }
-                    yield profileData.getResolvedClient();  
+                    yield profileData.getResolvedClient();
                 }
             };
         }

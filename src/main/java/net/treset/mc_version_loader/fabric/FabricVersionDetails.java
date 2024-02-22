@@ -23,7 +23,7 @@ public class FabricVersionDetails extends GenericJsonParsable {
     }
 
     public static List<FabricVersionDetails> fromJsonArray(String jsonArray) throws SerializationException {
-        return fromJson(jsonArray, new TypeToken<>(){}, JsonUtils.getGsonCamelCase());
+        return fromJsonArray(jsonArray, new TypeToken<>(){}, JsonUtils.getGsonCamelCase());
     }
 
     public FabricIntermediaryData getIntermediary() {

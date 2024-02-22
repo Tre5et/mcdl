@@ -1,11 +1,14 @@
 package net.treset.mc_version_loader.java;
 
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.SerializationException;
 
-public class JavaRuntimeRelease {
-    private String id;
+import java.util.List;
+import java.util.Map;
+
+public class JavaRuntimeRelease extends GenericJsonParsable {
     private Availability availability;
     private Manifest manifest;
     private Version version;
@@ -99,25 +102,18 @@ public class JavaRuntimeRelease {
     }
 
     public JavaRuntimeRelease(String id, Availability availability, Manifest manifest, Version version) {
-        this.id = id;
         this.availability = availability;
         this.manifest = manifest;
         this.version = version;
     }
 
+    public static Map<String, Map<String, List<JavaRuntimeRelease>>> fromJson(String json) throws SerializationException {
+        return fromJson(json, new TypeToken<>() {});
+    }
+
     public static JavaRuntimeRelease fromJsonObject(JsonObject json, String id) throws SerializationException {
         if(json == null) return new JavaRuntimeRelease(id, null, null, null);
-        JavaRuntimeRelease result = GenericJsonParsable.fromJson(json.toString(), JavaRuntimeRelease.class);
-        result.setId(id);
-        return result;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        return GenericJsonParsable.fromJson(json.toString(), JavaRuntimeRelease.class);
     }
 
     public Availability getAvailability() {

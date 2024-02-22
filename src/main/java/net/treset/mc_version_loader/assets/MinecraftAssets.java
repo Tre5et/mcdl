@@ -62,7 +62,7 @@ public class MinecraftAssets {
         int totalAmount = assetIndex.getObjects().size();
         int currentAmount = 0;
         boolean failed = false;
-        for(AssetObject o : assetIndex.getObjects()) {
+        for(AssetObject o : assetIndex.getObjects().values()) {
             statusCallback.accept(new DownloadStatus(++currentAmount, totalAmount, o.getHash(), failed));
             try {
                 downloadAssetsObject(o, objectsDir, overwrite);
