@@ -36,7 +36,7 @@ public class ForgeInstallDataPath {
     public static String decodeLibraryPath(String path) {
         if(path.startsWith("[") && path.endsWith("]")) {
             //Library location
-            StringBuilder pathBuilder = new StringBuilder("libs/");
+            StringBuilder pathBuilder = new StringBuilder();
             StringBuilder fileBuilder = new StringBuilder();
 
             boolean inFilePart = false;

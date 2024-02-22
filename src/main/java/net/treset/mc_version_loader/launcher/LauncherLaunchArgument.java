@@ -3,6 +3,7 @@ package net.treset.mc_version_loader.launcher;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.util.OsUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -28,18 +29,17 @@ public class LauncherLaunchArgument {
 
     public boolean replace(Map<String, String> replacements) {
         boolean allReplaced = true;
-        for(Map.Entry<String, String> e : replacements.entrySet()) {
-            if(getReplacementValues().contains(e.getKey())) {
-                int index = Math.max(0, getParsedArgument().indexOf(e.getKey()));
-                String firstStringPart = getParsedArgument().substring(0, Math.max(0, index - 2));
-                String tempLastPart = getParsedArgument().substring(index);
-                String lastStringPart = tempLastPart.substring(Math.max(0, Math.min(tempLastPart.length(), tempLastPart.indexOf('}') + 1)));
-                parsedArgument = firstStringPart + e.getValue() + lastStringPart;
-                replacementValues.remove(e.getKey());
+        ArrayList<String> toRemove = new ArrayList<>();
+        for(String r : getReplacementValues()) {
+            if(replacements.get(r) != null) {
+                parsedArgument = getParsedArgument().replace("${" + r + "}", replacements.get(r));
+                toRemove.add(r);
             } else {
                 allReplaced = false;
             }
         }
+        replacementValues.removeAll(toRemove);
+
         return allReplaced;
     }
 

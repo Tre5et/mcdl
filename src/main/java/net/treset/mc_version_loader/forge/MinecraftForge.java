@@ -89,27 +89,27 @@ public class MinecraftForge {
     }
 
     /**
-     * Creates a forge client jar from a specified version and install profile.
-     * @param outFile The file to write the client jar to
-     * @param version The version id to create the client jar for
+     * Creates a forge client libraries from a specified version and install profile and returns a list of crated libraries.
+     * @param version The version id to create the client libraries for
      * @param profile The install profile to use
      * @param minecraftJar A vanilla minecraft client jar of the correct version
+     * @return A list of created libraries
      * @throws FileDownloadException If there is an error processing the client jar
      */
-    public static void createForgeClient(File outFile, String version, ForgeInstallProfile profile, File minecraftJar) throws FileDownloadException {
-        createForgeClient(outFile, version, profile, minecraftJar, status -> {});
+    public static List<String> createForgeClient(String version, File librariesDir, ForgeInstallProfile profile, File minecraftJar) throws FileDownloadException {
+        return createForgeClient(version, librariesDir, profile, minecraftJar, status -> {});
     }
 
     /**
-     * Creates a forge client jar from a specified version and install profile.
-     * @param outFile The file to write the client jar to
-     * @param version The version id to create the client jar for
+     * Creates a forge client libraries from a specified version and install profile and returns a list of crated libraries.
+     * @param version The version id to create the client libraries for
      * @param profile The install profile to use
      * @param minecraftJar A vanilla minecraft client jar of the correct version
      * @param statusCallback A callback to be called when a step in the process is started
+     * @return A list of created libraries
      * @throws FileDownloadException If there is an error processing the client jar
      */
-    public static void createForgeClient(File outFile, String version, ForgeInstallProfile profile, File minecraftJar, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+    public static List<String> createForgeClient(String version, File librariesDir, ForgeInstallProfile profile, File minecraftJar, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         File tempDir = new File(FileUtil.getTempDir(), "forge-" + version + "-installer");
         if(!tempDir.isDirectory() && !tempDir.mkdirs()) {
             throw new FileDownloadException("Failed to create directory for forge installer");
@@ -120,6 +120,8 @@ public class MinecraftForge {
         statusCallback.accept(new DownloadStatus(1, processors.size() + 3, "Download Installer Libraries", false));
         List<LibraryData> libraries = downloadInstallerLibraries(profile, tempDir);
 
+        List<String> emptyLibs = getAllEmptyLibraryPaths(profile, tempDir);
+
         statusCallback.accept(new DownloadStatus(2, processors.size() + 3, "Extract Installer Data", false));
         extractData(version, tempDir);
 
@@ -128,18 +130,8 @@ public class MinecraftForge {
             startProcessor(processors.get(i), libraries, profile, minecraftJar, tempDir);
         }
 
-        statusCallback.accept(new DownloadStatus(processors.size() + 2, processors.size() + 3, "Copy Client Jar", false));
-        ForgeInstallDataPath patched = profile.getData().get("PATCHED");
-        if(patched == null) {
-            throw new FileDownloadException("Failed to find patched client jar");
-        }
-        File clientJar = new File(tempDir, patched.getResolvedClient());
-
-        try {
-            Files.copy(clientJar.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException e) {
-            throw new FileDownloadException("Failed to copy client jar", e);
-        }
+        statusCallback.accept(new DownloadStatus(processors.size() + 2, processors.size() + 3, "Copy Processed Libraries", false));
+        return copyAddedLibs(emptyLibs, tempDir, librariesDir);
     }
 
     /**
@@ -187,6 +179,35 @@ public class MinecraftForge {
         } catch (IOException e) {
             throw new FileDownloadException("Failed to extract data from forge installer", e);
         }
+    }
+
+    private static List<String> getAllEmptyLibraryPaths(ForgeInstallProfile profile, File baseDir) {
+        return profile.getData().values().stream()
+                .filter(p -> p.getClient().startsWith("[") && p.getClient().endsWith("]"))
+                .map(ForgeInstallDataPath::getResolvedClient)
+                .filter(p -> !new File(baseDir, "libs/" + p).isFile())
+                .toList();
+    }
+
+    private static List<String> copyAddedLibs(List<String> emptyLibs, File baseDir, File librariesDir) throws FileDownloadException {
+        ArrayList<String> copied = new ArrayList<>();
+        for (String l : emptyLibs) {
+            File lib = new File(baseDir, "libs/" + l);
+            if(lib.isFile()) {
+                File newFile = new File(librariesDir, l);
+
+                if(!newFile.getParentFile().isDirectory() && !newFile.getParentFile().mkdirs()) {
+                    throw new FileDownloadException("Failed to create directory for forge library: " + l);
+                }
+                try {
+                    Files.copy(lib.toPath(), newFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                   throw new FileDownloadException("Failed to copy library: " + l, e);
+                }
+                copied.add(l);
+            }
+        }
+        return copied;
     }
 
     private static void startProcessor(ForgeInstallProcessor processor, List<LibraryData> libraries, ForgeInstallProfile profile, File minecraftJar, File tempDir) throws FileDownloadException {
@@ -255,7 +276,7 @@ public class MinecraftForge {
     private static String processArg(String arg, ForgeInstallProfile profile, File minecraftJar, File tempDir) throws NoSuchElementException {
         String replacement;
         if(arg.startsWith("[") && arg.endsWith("]")) {
-            replacement = ForgeInstallDataPath.decodeLibraryPath(arg);
+            replacement = "libs/" + ForgeInstallDataPath.decodeLibraryPath(arg);
         } else if(arg.startsWith("{") && arg.endsWith("}")) {
             replacement = getReplacement(arg, profile, minecraftJar);
         } else {
@@ -279,7 +300,10 @@ public class MinecraftForge {
                     if(profileData == null) {
                         throw new NoSuchElementException("Failed to find replacement for: " + key);
                     }
-                    yield profileData.getResolvedClient();
+                    if(profileData.getClient().startsWith("[") && profileData.getClient().endsWith("]")) {
+                        yield "libs/" + profileData.getResolvedClient();
+                    }
+                    yield profileData.getClient();
                 }
             };
         }
