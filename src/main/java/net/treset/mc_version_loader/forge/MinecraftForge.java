@@ -4,11 +4,9 @@ import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.json.SerializationException;
 import net.treset.mc_version_loader.minecraft.MinecraftGame;
 import net.treset.mc_version_loader.minecraft.MinecraftLibrary;
-import net.treset.mc_version_loader.resoucepacks.PackMcmeta;
 import net.treset.mc_version_loader.util.DownloadStatus;
 import net.treset.mc_version_loader.util.FileUtil;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -113,10 +111,14 @@ public class MinecraftForge {
             throw new FileDownloadException("Failed to create directory for forge installer");
         }
 
+        extractMaven(version, tempDir);
+
+        File localLibrariesDir = new File(tempDir, "maven");
+
         List<ForgeInstallProcessor> processors = profile.getProcessors().stream().filter(p -> p.getSides() == null || p.getSides().contains("client")).toList();
 
         statusCallback.accept(new DownloadStatus(1, processors.size() + 3, "Download Installer Libraries", false));
-        List<LibraryData> libraries = downloadInstallerLibraries(profile, librariesDir);
+        List<LibraryData> libraries = downloadInstallerLibraries(profile, librariesDir, localLibrariesDir);
 
         statusCallback.accept(new DownloadStatus(2, processors.size() + 3, "Extract Installer Data", false));
         extractData(version, tempDir);
@@ -131,25 +133,27 @@ public class MinecraftForge {
 
     /**
      * Downloads a list of forge libraries to a specified directory and returns a list of library paths.
-     * @param baseDir The directory to download the libraries to
+     * @param targetDir The directory to download the libraries to
      * @param libraries The libraries to download
      * @return A list of library paths
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
-    public static List<String> downloadForgeLibraries(File baseDir, List<MinecraftLibrary> libraries) throws FileDownloadException {
-        return MinecraftGame.downloadVersionLibraries(libraries, baseDir, List.of(), status -> {});
+    public static List<String> downloadForgeLibraries(File targetDir, String version, List<MinecraftLibrary> libraries) throws FileDownloadException {
+        return downloadForgeLibraries(targetDir, version, libraries, status -> {});
     }
 
     /**
      * Downloads a list of forge libraries to a specified directory and returns a list of library paths.
-     * @param baseDir The directory to download the libraries to
+     * @param targetDir The directory to download the libraries to
      * @param libraries The libraries to download
      * @param statusCallback A callback to be called when a library is downloaded
      * @return A list of library paths
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
-    public static List<String> downloadForgeLibraries(File baseDir, List<MinecraftLibrary> libraries, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
-        return MinecraftGame.downloadVersionLibraries(libraries, baseDir, List.of(), statusCallback);
+    public static List<String> downloadForgeLibraries(File targetDir, String version, List<MinecraftLibrary> libraries, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+        extractMaven(version, targetDir);
+        File localLibsDir = new File(targetDir, "maven");
+        return MinecraftGame.downloadVersionLibraries(libraries, targetDir, localLibsDir, List.of(), statusCallback);
     }
 
     private static void extractData(String versionId, File tempDir) throws FileDownloadException {
@@ -158,8 +162,6 @@ public class MinecraftForge {
         try(ZipFile zipFile = new ZipFile(jarFile)) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-            PackMcmeta mcmeta = null;
-            BufferedImage image = null;
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
                 if (!entry.isDirectory() && entry.getName().startsWith("data/")) {
@@ -305,7 +307,7 @@ public class MinecraftForge {
         return arg;
     }
 
-    private static List<LibraryData> downloadInstallerLibraries(ForgeInstallProfile profile, File libsDir) throws FileDownloadException {
+    private static List<LibraryData> downloadInstallerLibraries(ForgeInstallProfile profile, File libsDir, File localLibsDir) throws FileDownloadException {
         if(!libsDir.exists() && !libsDir.mkdirs()) {
             throw new FileDownloadException("Failed to create directory for forge libraries");
         }
@@ -317,14 +319,26 @@ public class MinecraftForge {
                 throw new FileDownloadException("Failed to create directory for forge library: " + lib.getName());
             }
 
-            String mainClass = null;
-            if(lib.getDownloads().getArtifacts().getUrl() != null && !lib.getDownloads().getArtifacts().getUrl().isBlank()) {
-                try {
-                    FileUtil.downloadFile(new URL(lib.getDownloads().getArtifacts().getUrl()), outFile);
-                } catch (MalformedURLException e) {
-                    throw new FileDownloadException("Failed to parse forge library Url: " + lib.getName(), e);
+            boolean found = false;
+            try {
+                FileUtil.downloadFile(new URL(lib.getDownloads().getArtifacts().getUrl()), outFile);
+                found = true;
+            } catch (MalformedURLException e) {
+                if(localLibsDir != null) {
+                    File localFile = new File(localLibsDir, lib.getDownloads().getArtifacts().getPath());
+                    if (localFile.isFile()) {
+                        try {
+                            Files.copy(localFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        } catch (IOException ex) {
+                            throw new FileDownloadException("Unable to copy local library: library=" + lib.getName(), ex);
+                        }
+                        found = true;
+                    }
                 }
+            }
 
+            String mainClass = null;
+            if(found) {
                 try {
                     String mainManifestContent = new String(FileUtil.getZipEntry(outFile, "META-INF/MANIFEST.MF"));
                     String[] lines = mainManifestContent.split("\n");
@@ -334,7 +348,8 @@ public class MinecraftForge {
                             break;
                         }
                     }
-                } catch (IOException ignored) {}
+                } catch (IOException ignored) {
+                }
             }
 
             libraryData.add(new LibraryData(lib.getName(), outFile.getAbsolutePath(), mainClass));
@@ -397,5 +412,27 @@ public class MinecraftForge {
         jarFile.deleteOnExit();
 
         return jarFile;
+    }
+
+    private static void extractMaven(String versionId, File tempDir) throws FileDownloadException {
+        File jarFile = tempDownloadForgeInstaller(versionId);
+
+        try(ZipFile zipFile = new ZipFile(jarFile)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (!entry.isDirectory() && entry.getName().startsWith("maven/")) {
+                    File out = new File(tempDir, entry.getName());
+                    if(!out.getParentFile().isDirectory() && !out.getParentFile().mkdirs()) {
+                        throw new FileDownloadException("Failed to create directory for forge installer data");
+                    }
+
+                    FileUtil.writeToFile(zipFile.getInputStream(entry).readAllBytes(), out);
+                }
+            }
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to extract data from forge installer", e);
+        }
     }
 }

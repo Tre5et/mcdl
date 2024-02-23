@@ -8,8 +8,11 @@ import net.treset.mc_version_loader.util.OsUtil;
 import net.treset.mc_version_loader.util.Sources;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -31,8 +34,12 @@ public class MinecraftGame {
         FileUtil.downloadFile(downloadUrl, targetFile);
     }
 
-    public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File baseDir, List<String> features, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
-                ArrayList<String> result = new ArrayList<>();
+    public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File librariesDir, List<String> features, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+        return downloadVersionLibraries(libraries, librariesDir, null, features, statusCallback);
+    }
+
+    public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File librariesDir, File localLibraryDir, List<String> features, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+        ArrayList<String> result = new ArrayList<>();
         List<Exception> exceptionQueue = new ArrayList<>();
         int size = libraries.size();
         int current = 0;
@@ -40,7 +47,7 @@ public class MinecraftGame {
         for(MinecraftLibrary l : libraries) {
             statusCallback.accept(new DownloadStatus(++current, size, l.getName(), failed));
             try {
-                addVersionLibrary(l, baseDir, result, features);
+                addVersionLibrary(l, librariesDir, localLibraryDir, result, features);
             } catch (FileDownloadException e) {
                 exceptionQueue.add(e);
                 failed = true;
@@ -52,16 +59,16 @@ public class MinecraftGame {
         return result;
     }
 
-    public static void addVersionLibrary(MinecraftLibrary library, File baseDir, ArrayList<String> result, List<String> features) throws FileDownloadException {
+    public static void addVersionLibrary(MinecraftLibrary library, File librariesDir, File localLibraryDir, ArrayList<String> result, List<String> features) throws FileDownloadException {
         if(library == null || library.getRules() != null && !library.getRules().stream().allMatch(r -> r.isApplicable(features))) {
             return;
         }
 
-        if(library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || baseDir == null || !baseDir.isDirectory()) {
+        if(library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || librariesDir == null || !librariesDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for library download: library=" + library.getName());
         }
 
-        File outDir = new File(baseDir, library.getDownloads().getArtifacts().getPath().substring(0, library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
+        File outDir = new File(librariesDir, library.getDownloads().getArtifacts().getPath().substring(0, library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
         if (!outDir.isDirectory() && !outDir.mkdirs()) {
             throw new FileDownloadException("Unable to make required dirs: library=" + library.getName());
         }
@@ -86,7 +93,7 @@ public class MinecraftGame {
                             throw new FileDownloadException("Unable to convert native download url: library=" + library.getName() + ", native=" + na.getName(), e);
                         }
 
-                        File nativeOutDir = new File(baseDir, na.getArtifact().getPath().substring(0, na.getArtifact().getPath().lastIndexOf('/')));
+                        File nativeOutDir = new File(librariesDir, na.getArtifact().getPath().substring(0, na.getArtifact().getPath().lastIndexOf('/')));
                         if (!nativeOutDir.isDirectory() && !nativeOutDir.mkdirs()) {
                             throw new FileDownloadException("Unable to make required native dirs: library=" + library.getName() + ", native=" + na.getName());
                         }
@@ -98,17 +105,24 @@ public class MinecraftGame {
             }
         }
 
-        if(library.getDownloads().getArtifacts().getUrl() != null && !library.getDownloads().getArtifacts().getUrl().isBlank()) {
-            URL downloadUrl;
-            try {
-                downloadUrl = new URL(library.getDownloads().getArtifacts().getUrl());
-            } catch (MalformedURLException e) {
-                throw new FileDownloadException("Unable to convert download url: library=" + library.getName(), e);
-            }
-
-            File outFile = new File(outDir, library.getDownloads().getArtifacts().getPath().substring(library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
+        URL downloadUrl;
+        File outFile = new File(outDir, library.getDownloads().getArtifacts().getPath().substring(library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
+        try {
+            downloadUrl = new URL(library.getDownloads().getArtifacts().getUrl());
             FileUtil.downloadFile(downloadUrl, outFile);
+        } catch (MalformedURLException | FileDownloadException e) {
+            if(localLibraryDir != null) {
+                File localFile = new File(localLibraryDir, library.getDownloads().getArtifacts().getPath());
+                if (localFile.isFile()) {
+                    try {
+                        Files.copy(localFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException ex) {
+                        throw new FileDownloadException("Unable to copy local library: library=" + library.getName(), ex);
+                    }
+                }
+            }
         }
+
         result.add(library.getDownloads().getArtifact().getPath());
     }
 
