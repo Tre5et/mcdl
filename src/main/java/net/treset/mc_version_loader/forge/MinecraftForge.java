@@ -317,23 +317,25 @@ public class MinecraftForge {
                 throw new FileDownloadException("Failed to create directory for forge library: " + lib.getName());
             }
 
-            try {
-                FileUtil.downloadFile(new URL(lib.getDownloads().getArtifacts().getUrl()), outFile);
-            } catch (MalformedURLException e) {
-                throw new FileDownloadException("Failed to parse forge library Url: " + lib.getName(), e);
-            }
-
             String mainClass = null;
-            try {
-                String mainManifestContent = new String(FileUtil.getZipEntry(outFile, "META-INF/MANIFEST.MF"));
-                String[] lines = mainManifestContent.split("\n");
-                for (String line : lines) {
-                    if (line.startsWith("Main-Class:")) {
-                        mainClass = line.substring(11).trim();
-                        break;
-                    }
+            if(lib.getDownloads().getArtifacts().getUrl() != null && !lib.getDownloads().getArtifacts().getUrl().isBlank()) {
+                try {
+                    FileUtil.downloadFile(new URL(lib.getDownloads().getArtifacts().getUrl()), outFile);
+                } catch (MalformedURLException e) {
+                    throw new FileDownloadException("Failed to parse forge library Url: " + lib.getName(), e);
                 }
-            } catch (IOException ignored) {}
+
+                try {
+                    String mainManifestContent = new String(FileUtil.getZipEntry(outFile, "META-INF/MANIFEST.MF"));
+                    String[] lines = mainManifestContent.split("\n");
+                    for (String line : lines) {
+                        if (line.startsWith("Main-Class:")) {
+                            mainClass = line.substring(11).trim();
+                            break;
+                        }
+                    }
+                } catch (IOException ignored) {}
+            }
 
             libraryData.add(new LibraryData(lib.getName(), outFile.getAbsolutePath(), mainClass));
         }
