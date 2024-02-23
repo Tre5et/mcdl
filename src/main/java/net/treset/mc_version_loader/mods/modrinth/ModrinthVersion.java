@@ -130,27 +130,42 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
             requiredDependencies = new ArrayList<>();
             if(dependencies != null) {
                 for(ModrinthVersionDependency d : dependencies) {
+                    ModrinthVersion version;
+                    ModrinthMod parent;
                     if (d.isRequired()) {
-                        if (d.getVersionId() == null) {
-                            continue;
-                        }
-                        ModrinthVersion version;
-                        ModrinthMod parent;
                         if (d.getProjectId() != null) {
                             try {
                                 parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(d.getProjectId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()));
                             } catch (SerializationException e) {
                                 throw new FileDownloadException("Failed to parse modrinth project json", e);
                             }
-                            version = MinecraftMods.getModrinthVersion(d.getVersionId(), parent);
-                        } else {
-                            try {
-                                version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()), null);
-                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()));
-                            } catch (SerializationException e) {
-                                throw new FileDownloadException("Failed to parse modrinth version json", e);
+                            if(d.getVersionId() != null) {
+                                version = MinecraftMods.getModrinthVersion(d.getVersionId(), parent);
+                            } else {
+                                ModrinthMod mod = MinecraftMods.getModrinthMod(d.getProjectId());
+                                if(mod != null) {
+                                    List<ModVersionData> versions = mod.getVersions(gameVersion, modLoader);
+                                    if (versions != null && !versions.isEmpty()) {
+                                        version = (ModrinthVersion)versions.get(0);
+                                    } else {
+                                        continue;
+                                    }
+                                } else {
+                                    continue;
+                                }
                             }
-                            version.setParentMod(parent);
+                        } else {
+                            if(d.getVersionId() != null) {
+                                try {
+                                    version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()), null);
+                                    parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()));
+                                } catch (SerializationException e) {
+                                    throw new FileDownloadException("Failed to parse modrinth version json", e);
+                                }
+                                version.setParentMod(parent);
+                            } else {
+                                continue;
+                            }
                         }
                         if (version == null || !version.getGameVersions().contains(gameVersion)) {
                             List<ModVersionData> versions = parent.getVersions(gameVersion, modLoader);
