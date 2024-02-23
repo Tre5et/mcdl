@@ -53,39 +53,32 @@ public class MinecraftGame {
     }
 
     public static void addVersionLibrary(MinecraftLibrary library, File baseDir, ArrayList<String> result, List<String> features) throws FileDownloadException {
-        if(library == null || library.getDownloads().getArtifacts().getUrl() == null || library.getDownloads().getArtifacts().getUrl().isBlank() || library.getRules() != null && !library.getRules().stream().allMatch(r -> r.isApplicable(features))) {
+        if(library == null || library.getRules() != null && !library.getRules().stream().allMatch(r -> r.isApplicable(features))) {
             return;
         }
 
         if(library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || baseDir == null || !baseDir.isDirectory()) {
-            throw new FileDownloadException("Unmet requirements for library download: library=" + library);
+            throw new FileDownloadException("Unmet requirements for library download: library=" + library.getName());
         }
 
-        URL downloadUrl;
-        try {
-            downloadUrl = new URL(library.getDownloads().getArtifacts().getUrl());
-        } catch (MalformedURLException e) {
-            throw new FileDownloadException("Unable to convert download url: library=" + library.getName(), e);
-        }
-
-        File outDir = new File(baseDir,library.getDownloads().getArtifacts().getPath().substring(0, library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
-        if(!outDir.isDirectory() && !outDir.mkdirs()) {
+        File outDir = new File(baseDir, library.getDownloads().getArtifacts().getPath().substring(0, library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
+        if (!outDir.isDirectory() && !outDir.mkdirs()) {
             throw new FileDownloadException("Unable to make required dirs: library=" + library.getName());
         }
 
-        if(library.getNatives() != null) {
+        if (library.getNatives() != null) {
             List<String> applicableNatives = new ArrayList<>();
-            if(OsUtil.isOsName("windows") && library.getNatives().getWindows() != null) {
+            if (OsUtil.isOsName("windows") && library.getNatives().getWindows() != null) {
                 applicableNatives.add(library.getNatives().getWindows());
-            } else if(OsUtil.isOsName("linux") && library.getNatives().getLinux() != null) {
+            } else if (OsUtil.isOsName("linux") && library.getNatives().getLinux() != null) {
                 applicableNatives.add(library.getNatives().getLinux());
-            } else if(OsUtil.isOsName("osx") && library.getNatives().getOsx() != null) {
+            } else if (OsUtil.isOsName("osx") && library.getNatives().getOsx() != null) {
                 applicableNatives.add(library.getNatives().getOsx());
             }
 
-            for(String n : applicableNatives) {
-                for(MinecraftLibrary.Downloads.Classifiers.Native na : library.getDownloads().getClassifiers().getNatives()) {
-                    if(n.equals(na.getName())) {
+            for (String n : applicableNatives) {
+                for (MinecraftLibrary.Downloads.Classifiers.Native na : library.getDownloads().getClassifiers().getNatives()) {
+                    if (n.equals(na.getName())) {
                         URL nativeUrl;
                         try {
                             nativeUrl = new URL(na.getArtifact().getUrl());
@@ -94,8 +87,8 @@ public class MinecraftGame {
                         }
 
                         File nativeOutDir = new File(baseDir, na.getArtifact().getPath().substring(0, na.getArtifact().getPath().lastIndexOf('/')));
-                        if(!nativeOutDir.isDirectory() && !nativeOutDir.mkdirs()) {
-                            throw new FileDownloadException("Unable to make required native dirs: library=" + library.getName()  + ", native=" + na.getName());
+                        if (!nativeOutDir.isDirectory() && !nativeOutDir.mkdirs()) {
+                            throw new FileDownloadException("Unable to make required native dirs: library=" + library.getName() + ", native=" + na.getName());
                         }
                         File outFile = new File(outDir, na.getArtifact().getPath().substring(na.getArtifact().getPath().lastIndexOf('/')));
                         FileUtil.downloadFile(nativeUrl, outFile);
@@ -105,9 +98,18 @@ public class MinecraftGame {
             }
         }
 
-        File outFile = new File(outDir, library.getDownloads().getArtifacts().getPath().substring(library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
+        if(library.getDownloads().getArtifacts().getUrl() != null && !library.getDownloads().getArtifacts().getUrl().isBlank()) {
+            URL downloadUrl;
+            try {
+                downloadUrl = new URL(library.getDownloads().getArtifacts().getUrl());
+            } catch (MalformedURLException e) {
+                throw new FileDownloadException("Unable to convert download url: library=" + library.getName(), e);
+            }
+
+            File outFile = new File(outDir, library.getDownloads().getArtifacts().getPath().substring(library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
+            FileUtil.downloadFile(downloadUrl, outFile);
+        }
         result.add(library.getDownloads().getArtifact().getPath());
-        FileUtil.downloadFile(downloadUrl, outFile);
     }
 
     /**

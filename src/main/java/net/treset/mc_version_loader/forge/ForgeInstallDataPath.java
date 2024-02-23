@@ -39,24 +39,28 @@ public class ForgeInstallDataPath {
             StringBuilder pathBuilder = new StringBuilder();
             StringBuilder fileBuilder = new StringBuilder();
 
-            boolean inFilePart = false;
+            int inFilePart = 0;
             boolean inExtensionPart = false;
             for(int i = 1; i < path.length() - 1; i++) {
                 char c = path.charAt(i);
-                if(c == '.' && !inFilePart && !inExtensionPart) {
+                if(c == '.' && inFilePart == 0 && !inExtensionPart) {
                     pathBuilder.append('/');
                 } else if(c == ':') {
-                    pathBuilder.append('/');
-                    if(inFilePart) {
+                    if(inFilePart > 0) {
                         fileBuilder.append('-');
                     }
-                    inFilePart = true;
+                    inFilePart++;
+                    if(inFilePart <= 2) {
+                        pathBuilder.append('/');
+                    }
                 } else if(c == '@') {
                     fileBuilder.append('.');
                     inExtensionPart = true;
                 } else if(!inExtensionPart) {
-                    pathBuilder.append(c);
-                    if(inFilePart) {
+                    if(inFilePart <= 2) {
+                        pathBuilder.append(c);
+                    }
+                    if(inFilePart > 0) {
                         fileBuilder.append(c);
                     }
                 } else {
