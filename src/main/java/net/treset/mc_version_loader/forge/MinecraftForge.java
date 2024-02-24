@@ -30,6 +30,9 @@ public class MinecraftForge {
         return String.format(installerUrl, versionNumber, versionNumber);
     }
 
+    private static boolean cacheVersions = false;
+    private static List<ForgeMetaVersion> versionCache = null;
+
 
     /**
      * Gets all forge versions.
@@ -37,8 +40,15 @@ public class MinecraftForge {
      * @throws FileDownloadException If there is an error downloading or parsing the forge versions
      */
     public static List<ForgeMetaVersion> getForgeVersions() throws FileDownloadException {
+        if(cacheVersions && versionCache != null) {
+            return versionCache;
+        }
         try {
-            return ForgeMetaVersion.fromJson(FileUtil.getStringFromUrl(mavenMetaUrl));
+            List<ForgeMetaVersion> v = ForgeMetaVersion.fromJson(FileUtil.getStringFromUrl(mavenMetaUrl));
+            if(cacheVersions) {
+                versionCache = v;
+            }
+            return v;
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse forge versions", e);
         }
@@ -154,6 +164,14 @@ public class MinecraftForge {
         extractMaven(version, targetDir);
         File localLibsDir = new File(targetDir, "maven");
         return MinecraftGame.downloadVersionLibraries(libraries, targetDir, localLibsDir, List.of(), statusCallback);
+    }
+
+    /**
+     * If set to true a list of forge versions will be cached when @code{getFabricVersions} is first called and reused on subsequent. Else the versions will be fetched every time. Default is false.
+     * @param useCache if true the versions will be cached
+     */
+    public static void useVersionCache(boolean useCache) {
+        cacheVersions = useCache;
     }
 
     private static void extractData(String versionId, File tempDir) throws FileDownloadException {

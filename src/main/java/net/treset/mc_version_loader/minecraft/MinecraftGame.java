@@ -19,6 +19,16 @@ import java.util.function.Consumer;
 
 public class MinecraftGame {
 
+    private static boolean cacheVersions = false;
+    private static List<MinecraftVersion> versions = null;
+
+
+    /**
+     * Downloads a minecraft download..
+     * @param download the download to download
+     * @param targetFile the file to download to
+     * @throws FileDownloadException if there is an error downloading the download
+     */
     public static void downloadVersionDownload(MinecraftFileDownloads.Downloads download, File targetFile) throws FileDownloadException {
         if(download == null || download.getUrl() == null || download.getUrl().isBlank() || targetFile == null || !targetFile.getParentFile().isDirectory()) {
             throw new FileDownloadException("Unmet requirements for version download: download=" + download);
@@ -34,10 +44,29 @@ public class MinecraftGame {
         FileUtil.downloadFile(downloadUrl, targetFile);
     }
 
+    /**
+     * Downloads a list of minecraft libraries.
+     * @param libraries the libraries to download
+     * @param librariesDir the directory to download the libraries to
+     * @param features the features to check for
+     * @param statusCallback the callback to report download status
+     * @return a list of the downloaded libraries
+     * @throws FileDownloadException if there is an error downloading the libraries
+     */
     public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File librariesDir, List<String> features, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         return downloadVersionLibraries(libraries, librariesDir, null, features, statusCallback);
     }
 
+    /**
+     * Downloads a list of minecraft libraries.
+     * @param libraries the libraries to download
+     * @param librariesDir the directory to download the libraries to
+     * @param localLibraryDir the directory to check for local libraries, null if none
+     * @param features the features to check for
+     * @param statusCallback the callback to report download status
+     * @return a list of the downloaded libraries
+     * @throws FileDownloadException if there is an error downloading the libraries
+     */
     public static List<String> downloadVersionLibraries(List<MinecraftLibrary> libraries, File librariesDir, File localLibraryDir, List<String> features, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         ArrayList<String> result = new ArrayList<>();
         List<Exception> exceptionQueue = new ArrayList<>();
@@ -132,8 +161,15 @@ public class MinecraftGame {
      * @throws FileDownloadException if there is an error downloading the version manifest
      */
     public static List<MinecraftVersion> getVersions() throws FileDownloadException {
+        if(cacheVersions && versions != null) {
+            return versions;
+        }
         try {
-            return MinecraftVersion.fromVersionManifest(FileUtil.getStringFromUrl(Sources.getVersionManifestUrl()));
+            List<MinecraftVersion> v = MinecraftVersion.fromVersionManifest(FileUtil.getStringFromUrl(Sources.getVersionManifestUrl()));
+            if(cacheVersions) {
+                versions = v;
+            }
+            return v;
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse version manifest", e);
         }
@@ -148,6 +184,12 @@ public class MinecraftGame {
         return getVersions().stream().filter(MinecraftVersion::isRelease).toList();
     }
 
+    /**
+     * Gets a specific minecraft version.
+     * @param url the url of the version manifest
+     * @return the minecraft version
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
     public static MinecraftVersion getVersion(String url) throws FileDownloadException {
         try {
             return MinecraftVersion.fromJson(FileUtil.getStringFromUrl(url));
@@ -156,11 +198,25 @@ public class MinecraftGame {
         }
     }
 
+    /**
+     * Gets details for a specific minecraft version.
+     * @param url the url of the details manifest
+     * @return the minecraft version
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
     public static MinecraftVersionDetails getVersionDetails(String url) throws FileDownloadException {
         try {
             return MinecraftVersionDetails.fromJson(FileUtil.getStringFromUrl(url));
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse version manifest", e);
         }
+    }
+
+    /**
+     * If set to true a list of minecraft versions will be cached when @code{getVersions} or @code{getReleases} is first called and reused on subsequent calls. Else the versions will be fetched every time. Default is false.
+     * @param useCache if true the versions will be cached
+     */
+    public static void useVersionCache(boolean useCache) {
+        cacheVersions = useCache;
     }
  }

@@ -11,10 +11,15 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class FabricLoader {
+    private static boolean cacheVersions = false;
+    private static final Map<String, List<FabricVersionDetails>> versionCache = new HashMap<>();
+
     /**
      * Downloads the fabric client jar to a specified directory.
      * @param outFile The file to download the fabric client as
@@ -172,10 +177,25 @@ public class FabricLoader {
      * @throws FileDownloadException If there is an error loading or parsing the versions
      */
     public static List<FabricVersionDetails> getFabricVersions(String mcVersion) throws FileDownloadException {
+        if(cacheVersions && versionCache.containsKey(mcVersion)) {
+            return versionCache.get(mcVersion);
+        }
         try {
-            return FabricVersionDetails.fromJsonArray(FileUtil.getStringFromUrl(Sources.getFabricIndexUrl(mcVersion)));
+            List<FabricVersionDetails> v = FabricVersionDetails.fromJsonArray(FileUtil.getStringFromUrl(Sources.getFabricIndexUrl(mcVersion)));
+            if(cacheVersions) {
+                versionCache.put(mcVersion, v);
+            }
+            return v;
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse fabric version details", e);
         }
+    }
+
+    /**
+     * If set to true a list of fabric versions will be cached when @code{getFabricVersions} is first called and reused on subsequent calls with the same version. Else the versions will be fetched every time. Default is false.
+     * @param useCache if true the versions will be cached
+     */
+    public static void useVersionCache(boolean useCache) {
+        cacheVersions = useCache;
     }
 }

@@ -16,12 +16,16 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class FileUtil {
+    private static boolean cacheWebRequests = false;
+    private static final Map<String, byte[]> webRequestCache = new HashMap<>();
+
 
     /**
      * Downloads a file from url to a file
@@ -68,14 +72,31 @@ public class FileUtil {
     }
 
     /**
-     * Converts the contents of a file from the specified http get url to string
-     * @param getUrl url to get the file from
+     * Gets a string from a http get request.
+     * @param getUrl url to get the string from
      * @param headers headers to send with the request
      * @param params parameters to send with the request
-     * @return the contents of the file as string
+     * @return http get body as string
      * @throws FileDownloadException if the file can not be downloaded
      */
     public static String getStringFromHttpGet(String getUrl, List<Map.Entry<String, String>> headers, List<Map.Entry<String, String>> params) throws FileDownloadException {
+        return new String(getFromHttpGet(getUrl, headers, params));
+    }
+
+    /**
+     * Gets a data from a http get request.
+     * @param getUrl url to get the data from
+     * @param headers headers to send with the request
+     * @param params parameters to send with the request
+     * @return http get body as byte array
+     * @throws FileDownloadException if the file can not be downloaded
+     */
+    public static byte[] getFromHttpGet(String getUrl, List<Map.Entry<String, String>> headers, List<Map.Entry<String, String>> params) throws FileDownloadException {
+        String cacheKey = getUrl + headers.toString() + params.toString();
+        if(cacheWebRequests && webRequestCache.containsKey(cacheKey)) {
+            return webRequestCache.get(cacheKey);
+        }
+
         HttpClient httpClient = HttpClient.newHttpClient();
 
         HttpRequest request;
@@ -95,7 +116,11 @@ public class FileUtil {
         }
 
         try {
-            return httpClient.send(request, HttpResponse.BodyHandlers.ofString()).body();
+            byte[] res = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray()).body();
+            if(cacheWebRequests) {
+                webRequestCache.put(cacheKey, res);
+            }
+            return res;
         } catch (IOException | InterruptedException e) {
             throw new FileDownloadException("Unable to download file: url=" + getUrl, e);
         }
@@ -108,21 +133,7 @@ public class FileUtil {
      * @throws FileDownloadException if the file can not be downloaded
      */
     public static String getStringFromUrl(String url) throws FileDownloadException {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new URL(url).openStream()))) {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            String inputLine;
-            while ((inputLine = bufferedReader.readLine()) != null)
-            {
-                stringBuilder.append(inputLine);
-                stringBuilder.append(System.lineSeparator());
-            }
-
-            bufferedReader.close();
-            return stringBuilder.toString().trim();
-        } catch (IOException e) {
-            throw new FileDownloadException("Unable to download file: url=" + url, e);
-        }
+        return getStringFromHttpGet(url, List.of(), List.of());
     }
 
     /**
@@ -172,10 +183,21 @@ public class FileUtil {
         return new String(Files.readAllBytes(file.toPath()));
     }
 
+    /**
+     * Writes bytes to a file
+     * @param content The bytes to write
+     * @param file The file to write to
+     * @throws IOException If the file can not be written
+     */
     public static void writeToFile(byte[] content, File file) throws IOException {
         Files.write(file.toPath(), content);
     }
 
+    /**
+     * Deletes a file or directory.
+     * @param file The file or directory to delete
+     * @throws IOException If the file or directory can not be deleted
+     */
     public static void delete(File file) throws IOException {
         File[] contents = file.listFiles();
 
@@ -191,6 +213,10 @@ public class FileUtil {
     }
 
     private static boolean temDirRegistered = false;
+    /**
+     * Gets a temporary directory for version loader.
+     * @return The temporary directory
+     */
     public static File getTempDir() {
         File tempDir = new File("versionloader");
 
@@ -204,5 +230,13 @@ public class FileUtil {
         }
 
         return tempDir;
+    }
+
+    /**
+     * If set to true results from web requests will be cached. If the same request is preformed again, the cached result will be returned again. Default is false.
+     * @param useCache if true the results will be cached
+     */
+    public static void useWebRequestCache(boolean useCache) {
+        cacheWebRequests = useCache;
     }
 }
