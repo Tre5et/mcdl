@@ -16,13 +16,13 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public class QuiltMC {
-    private static String quiltMetaUrl = "https://meta.quiltmc.org/v3/versions/";
+    private static final String quiltMetaUrl = "https://meta.quiltmc.org/v3/versions/";
     public static String getQuiltMetaUrl() {
         return quiltMetaUrl;
     }
 
     private static boolean cacheVersions = false;
-    private static Map<String, List<QuiltVersion>> versionCache = new HashMap<>();
+    private static final Map<String, List<QuiltVersion>> versionCache = new HashMap<>();
 
     /**
      * Get a list of QuiltMC versions for a specific Minecraft version.
