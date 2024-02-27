@@ -75,16 +75,16 @@ public class MinecraftMods {
     /**
      * Search for a mod on modrinth and curseforge
      * @param query the search query
-     * @param gameVersion the game version to search for
-     * @param modLoader the mod loader to search for
+     * @param gameVersions the game versions to search for
+     * @param modLoaders the mod loaders to search for
      * @param limit the maximum number of results to return
      * @param offset the offset to start the search at
      * @return a list of mods that match the search query sorted by download count
      * @throws FileDownloadException if there is an error during the search
      */
-    public static List<ModData> searchCombinedMods(String query, String gameVersion, String modLoader, int limit, int offset) throws FileDownloadException {
-        ModrinthSearch mrSearch = searchModrinth(query, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader), limit, offset);
-        CurseforgeSearch cfSearch = searchCurseforge(query, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader), limit, offset);
+    public static List<ModData> searchCombinedMods(String query, List<String> gameVersions, List<String> modLoaders, int limit, int offset) throws FileDownloadException {
+        ModrinthSearch mrSearch = searchModrinth(query, gameVersions, modLoaders, limit, offset);
+        CurseforgeSearch cfSearch = searchCurseforge(query, gameVersions, modLoaders.stream().map(FormatUtils::modLoaderToCurseforgeModLoader).toList(), limit, offset);
         List<ModData> combinedMods = new ArrayList<>();
         Set<ModData> toRemove = new HashSet<>();
         List<ModrinthSearchHit> mh = mrSearch.getHits();
@@ -132,14 +132,26 @@ public class MinecraftMods {
             params.add(Map.entry(Sources.getModrinthSearchOffsetParam(), String.valueOf(offset)));
         }
         if(versions != null && !versions.isEmpty() || loaders != null && !loaders.isEmpty()) {
-            StringBuilder facets = new StringBuilder().append("[");
+            StringBuilder facets = new StringBuilder().append("[[");
             if(versions != null && !versions.isEmpty()) {
-                versions.forEach(v -> facets.append(Sources.getModrinthVersionsFacet(v)).append(","));
+                for(int i = 0; i < versions.size(); i++) {
+                    facets.append(Sources.getModrinthVersionsFacet(versions.get(i)));
+                    if(i < versions.size() - 1) {
+                        facets.append(",");
+                    }
+                }
             }
+            facets.append("],[");
             if(loaders != null && !loaders.isEmpty()) {
-                loaders.forEach(l -> facets.append(Sources.getModrinthCategoryFacet(l)).append(","));
+                for(int i = 0; i < loaders.size(); i++) {
+                    facets.append(Sources.getModrinthCategoryFacet(loaders.get(i)));
+                    if(i < loaders.size() - 1) {
+                        facets.append(",");
+                    }
+                }
             }
-            params.add(Map.entry(Sources.getModrinthSearchFacetsParam(), facets.substring(0, facets.length() - 1) + "]"));
+            facets.append("]]");
+            params.add(Map.entry(Sources.getModrinthSearchFacetsParam(), facets.toString()));
         }
         try {
             return ModrinthSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthSearchUrl(), Sources.getModrinthHeaders(modrinthUserAgent), params));
@@ -200,14 +212,14 @@ public class MinecraftMods {
     /**
      * Searches Curseforge for a search query
      * @param query the search query
-     * @param gameVersion the game version to search for
-     * @param modLoader the mod loader id to search for
+     * @param gameVersions the game version to search for
+     * @param modLoaders the mod loader id to search for
      * @param limit the maximum number of results to return
      * @param offset the offset to start the search at
      * @return a list of mods that match the search query sorted by download count
      * @throws FileDownloadException if there is an error during the search
      */
-    public static CurseforgeSearch searchCurseforge(String query, String gameVersion, int modLoader, int limit, int offset) throws FileDownloadException {
+    public static CurseforgeSearch searchCurseforge(String query, List<String> gameVersions, List<Integer> modLoaders, int limit, int offset) throws FileDownloadException {
         if(curseforgeApiKey == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
@@ -215,11 +227,23 @@ public class MinecraftMods {
         if(query != null && !query.isBlank()) {
             params.add(Map.entry(Sources.getCurseforgeSearchQueryParam(), query));
         }
-        if(gameVersion != null && !gameVersion.isBlank()) {
-            params.add(Map.entry(Sources.getCurseforgeSearchGameversionParam(), gameVersion));
+        if(!gameVersions.isEmpty()) {
+            StringBuilder versions = new StringBuilder("[");
+            versions.append(gameVersions.get(0));
+            for(int i = 1; i < gameVersions.size(); i++) {
+                versions.append(",").append(gameVersions.get(i));
+            }
+            versions.append("]");
+            params.add(Map.entry(Sources.getCurseforgeSearchGameversionsParam(), versions.toString()));
         }
-        if(modLoader >= 0) {
-            params.add(Map.entry(Sources.getCurseforgeSearchLoaderParam(), String.valueOf(modLoader)));
+        if(!modLoaders.isEmpty()) {
+            StringBuilder loaders = new StringBuilder("[");
+            loaders.append(modLoaders.get(0));
+            for(int i = 1; i < modLoaders.size(); i++) {
+                loaders.append(",").append(modLoaders.get(i));
+            }
+            loaders.append("]");
+            params.add(Map.entry(Sources.getCurseforgeSearchLoadersParam(), loaders.toString()));
         }
         if(limit > 0) {
             params.add(Map.entry(Sources.getCurseforgeSearchLimitParam(), String.valueOf(limit)));
@@ -249,10 +273,10 @@ public class MinecraftMods {
         }
         List<Map.Entry<String, String>> params = new ArrayList<>();
         if(gameVersion != null && !gameVersion.isBlank()) {
-            params.add(Map.entry(Sources.getCurseforgeSearchGameversionParam(), gameVersion));
+            params.add(Map.entry(Sources.getCurseforgeSearchGameversionsParam(), gameVersion));
         }
         if(modLoader >= 0) {
-            params.add(Map.entry(Sources.getCurseforgeSearchLoaderParam(), String.valueOf(modLoader)));
+            params.add(Map.entry(Sources.getCurseforgeSearchLoadersParam(), String.valueOf(modLoader)));
         }
         try {
             return CurseforgeFiles.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectVersionsUrl(modId), Sources.getCurseforgeHeaders(curseforgeApiKey), params), parent);

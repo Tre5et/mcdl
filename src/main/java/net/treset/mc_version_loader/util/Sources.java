@@ -16,8 +16,8 @@ public class Sources {
     private static final String MODRINTH_SEARCH_LIMIT_PARAM = "limit";
     private static final String MODRINTH_SEARCH_OFFSET_PARAM = "offset";
     private static final String MODRINTH_SEARCH_FACETS_PARAM = "facets";
-    private static final String MODRINTH_CATEGORY_FACET = "[\"categories:%s\"]";
-    private static final String MODRINTH_VERSIONS_FACET = "[\"versions:%s\"]";
+    private static final String MODRINTH_CATEGORY_FACET = "\"categories:%s\"";
+    private static final String MODRINTH_VERSIONS_FACET = "\"versions:%s\"";
     private static final String MODRINTH_PROJECT_URL = "https://api.modrinth.com/v2/project/%s"; // Project-ID
     private static final String MODRINTH_VERSIONS_URL = "https://api.modrinth.com/v2/project/%s/version"; // %s := project id
     private static final String MODRINTH_VERSIONS_GAMEVERSIONS_PARAM = "game_versions"; // list of quoted game versions
@@ -26,14 +26,14 @@ public class Sources {
     private static final String CURSEFORGE_SEARCH_URL = "https://api.curseforge.com/v1/mods/search";
     private static final List<Map.Entry<String, String>> CURSEFORGE_SEARCH_DEFAULT_PARAMS = List.of(Map.entry("gameId", "432"), Map.entry("sortField", "4"));
     private static final String CURSEFORGE_SEARCH_QUERY_PARAM = "searchFilter"; // search query
-    private static final String CURSEFORGE_SEARCH_GAMEVERSION_PARAM = "gameVersion"; // game version
-    private static final String CURSEFORGE_SEARCH_LOADER_PARAM = "modLoaderType"; // mod loader index (1=forge, 4=fabric)
+    private static final String CURSEFORGE_SEARCH_GAMEVERSIONS_PARAM = "gameVersions"; // game version
+    private static final String CURSEFORGE_SEARCH_LOADERS_PARAM = "modLoaderTypes"; // mod loader index (1=forge, 4=fabric)
     private static final String CURSEFORGE_SEARCH_LIMIT_PARAM = "pageSize";
     private static final String CURSEFORGE_SEARCH_OFFSET_PARAM = "index";
     private static final String CURSEFORGE_PROJECT_URL = "https://api.curseforge.com/v1/mods/%d"; // Mod-ID
     private static final String CURSEFORGE_VERSIONS_URL = "https://api.curseforge.com/v1/mods/%d/files"; // Mod-ID
-    private static final String CURSEFORGE_VERSIONS_GAMEVERSION_PARAM = CURSEFORGE_SEARCH_GAMEVERSION_PARAM;
-    private static final String CURSEFORGE_VERSIONS_LOADER_PARAM = CURSEFORGE_SEARCH_LOADER_PARAM;
+    private static final String CURSEFORGE_VERSIONS_GAMEVERSION_PARAM = CURSEFORGE_SEARCH_GAMEVERSIONS_PARAM;
+    private static final String CURSEFORGE_VERSIONS_LOADER_PARAM = CURSEFORGE_SEARCH_LOADERS_PARAM;
     private static final String CURSEFORGE_VERSION_URL = "https://api.curseforge.com/v1/mods/%d/files/%d";
     private static final String MOJANG_USER_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s"; // Playername
     private static final String MOJANG_SESSION_PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s"; // UUID
@@ -158,12 +158,12 @@ public class Sources {
         return CURSEFORGE_SEARCH_QUERY_PARAM;
     }
 
-    public static String getCurseforgeSearchGameversionParam() {
-        return CURSEFORGE_SEARCH_GAMEVERSION_PARAM;
+    public static String getCurseforgeSearchGameversionsParam() {
+        return CURSEFORGE_SEARCH_GAMEVERSIONS_PARAM;
     }
 
-    public static String getCurseforgeSearchLoaderParam() {
-        return CURSEFORGE_SEARCH_LOADER_PARAM;
+    public static String getCurseforgeSearchLoadersParam() {
+        return CURSEFORGE_SEARCH_LOADERS_PARAM;
     }
 
     public static String getCurseforgeSearchLimitParam() {
