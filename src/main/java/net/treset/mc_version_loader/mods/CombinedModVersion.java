@@ -78,11 +78,11 @@ public class CombinedModVersion extends GenericModVersion {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
+    public List<ModVersionData> getRequiredDependencies(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
         if(requiredDependencies == null) {
             requiredDependencies = new ArrayList<>();
-            List<ModVersionData> rdo1 = parent1.getRequiredDependencies(gameVersion, modLoader);
-            List<ModVersionData> rdo2 = parent2.getRequiredDependencies(gameVersion, modLoader);
+            List<ModVersionData> rdo1 = parent1.getRequiredDependencies(gameVersions, modLoaders);
+            List<ModVersionData> rdo2 = parent2.getRequiredDependencies(gameVersions, modLoaders);
             List<ModVersionData> rd1 = rdo1 == null ? new ArrayList<>() : new ArrayList<>(rdo1);
             List<ModVersionData> rd2 = rdo2 == null ? new ArrayList<>() : new ArrayList<>(rdo2);
             Set<ModVersionData> toRemove = new HashSet<>();

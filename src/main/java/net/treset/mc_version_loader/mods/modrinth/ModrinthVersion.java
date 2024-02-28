@@ -122,7 +122,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
+    public List<ModVersionData> getRequiredDependencies(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
         if(MinecraftMods.getModrinthUserAgent() == null) {
             throw new FileDownloadException("Modrinth user agent is null");
         }
@@ -144,7 +144,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                             } else {
                                 ModrinthMod mod = MinecraftMods.getModrinthMod(d.getProjectId());
                                 if(mod != null) {
-                                    List<ModVersionData> versions = mod.getVersions(gameVersion, modLoader);
+                                    List<ModVersionData> versions = mod.getVersions(gameVersions, modLoaders);
                                     if (versions != null && !versions.isEmpty()) {
                                         version = (ModrinthVersion)versions.get(0);
                                     } else {
@@ -167,8 +167,8 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                                 continue;
                             }
                         }
-                        if (version == null || !version.getGameVersions().contains(gameVersion)) {
-                            List<ModVersionData> versions = parent.getVersions(gameVersion, modLoader);
+                        if (version == null || version.getGameVersions().stream().noneMatch(gameVersions::contains)) {
+                            List<ModVersionData> versions = parent.getVersions(gameVersions, modLoaders);
                             if (versions != null && !versions.isEmpty()) {
                                 requiredDependencies.add(versions.get(0));
                             } else {

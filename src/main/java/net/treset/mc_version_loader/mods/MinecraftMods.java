@@ -84,7 +84,7 @@ public class MinecraftMods {
      */
     public static List<ModData> searchCombinedMods(String query, List<String> gameVersions, List<String> modLoaders, int limit, int offset) throws FileDownloadException {
         ModrinthSearch mrSearch = searchModrinth(query, gameVersions, modLoaders, limit, offset);
-        CurseforgeSearch cfSearch = searchCurseforge(query, gameVersions, modLoaders.stream().map(FormatUtils::modLoaderToCurseforgeModLoader).toList(), limit, offset);
+        CurseforgeSearch cfSearch = searchCurseforge(query, gameVersions, FormatUtils.modLoadersToCurseforgeModLoaders(modLoaders), limit, offset);
         List<ModData> combinedMods = new ArrayList<>();
         Set<ModData> toRemove = new HashSet<>();
         List<ModrinthSearchHit> mh = mrSearch.getHits();
@@ -219,7 +219,7 @@ public class MinecraftMods {
      * @return a list of mods that match the search query sorted by download count
      * @throws FileDownloadException if there is an error during the search
      */
-    public static CurseforgeSearch searchCurseforge(String query, List<String> gameVersions, List<Integer> modLoaders, int limit, int offset) throws FileDownloadException {
+    public static CurseforgeSearch searchCurseforge(String query, List<String> gameVersions, Set<Integer> modLoaders, int limit, int offset) throws FileDownloadException {
         if(curseforgeApiKey == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
@@ -227,23 +227,17 @@ public class MinecraftMods {
         if(query != null && !query.isBlank()) {
             params.add(Map.entry(Sources.getCurseforgeSearchQueryParam(), query));
         }
-        if(!gameVersions.isEmpty()) {
-            StringBuilder versions = new StringBuilder("[");
-            versions.append(gameVersions.get(0));
-            for(int i = 1; i < gameVersions.size(); i++) {
-                versions.append(",").append(gameVersions.get(i));
-            }
-            versions.append("]");
-            params.add(Map.entry(Sources.getCurseforgeSearchGameversionsParam(), versions.toString()));
+        if(gameVersions != null && !gameVersions.isEmpty()) {
+            params.add(Map.entry(
+                    Sources.getCurseforgeSearchGameversionsParam(),
+                    FormatUtils.formatAsArrayParam(gameVersions)
+            ));
         }
-        if(!modLoaders.isEmpty()) {
-            StringBuilder loaders = new StringBuilder("[");
-            loaders.append(modLoaders.get(0));
-            for(int i = 1; i < modLoaders.size(); i++) {
-                loaders.append(",").append(modLoaders.get(i));
-            }
-            loaders.append("]");
-            params.add(Map.entry(Sources.getCurseforgeSearchLoadersParam(), loaders.toString()));
+        if(modLoaders != null && !modLoaders.isEmpty()) {
+            params.add(Map.entry(
+                    Sources.getCurseforgeVersionsGameversionsParam(),
+                    FormatUtils.formatAsArrayParam(modLoaders)
+            ));
         }
         if(limit > 0) {
             params.add(Map.entry(Sources.getCurseforgeSearchLimitParam(), String.valueOf(limit)));
@@ -262,21 +256,27 @@ public class MinecraftMods {
      * Gets the versions for a specific Curseforge project
      * @param modId the project id
      * @param parent parent mod data for the versions to reference
-     * @param gameVersion the game version to get project versions for
-     * @param modLoader the mod loader id to get project versions for
+     * @param gameVersions a list of game versions to get project versions for
+     * @param modLoaders a list of mod loader ids to get project versions for
      * @return a list of versions for the project sorted descending by date
      * @throws FileDownloadException if there is an error downloading the project versions
      */
-    public static CurseforgeFiles getCurseforgeVersions(int modId, ModData parent, String gameVersion, int modLoader) throws FileDownloadException {
+    public static CurseforgeFiles getCurseforgeVersions(int modId, ModData parent, List<String> gameVersions, Set<Integer> modLoaders) throws FileDownloadException {
         if(curseforgeApiKey == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
         List<Map.Entry<String, String>> params = new ArrayList<>();
-        if(gameVersion != null && !gameVersion.isBlank()) {
-            params.add(Map.entry(Sources.getCurseforgeSearchGameversionsParam(), gameVersion));
+        if(gameVersions != null && !gameVersions.isEmpty()) {
+            params.add(Map.entry(
+                    Sources.getCurseforgeVersionsGameversionsParam(),
+                    FormatUtils.formatAsArrayParam(gameVersions)
+            ));
         }
-        if(modLoader >= 0) {
-            params.add(Map.entry(Sources.getCurseforgeSearchLoadersParam(), String.valueOf(modLoader)));
+        if(modLoaders != null && !modLoaders.isEmpty()) {
+            params.add(Map.entry(
+                    Sources.getCurseforgeVersionsLoadersParam(),
+                    FormatUtils.formatAsArrayParam(modLoaders)
+            ));
         }
         try {
             return CurseforgeFiles.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectVersionsUrl(modId), Sources.getCurseforgeHeaders(curseforgeApiKey), params), parent);

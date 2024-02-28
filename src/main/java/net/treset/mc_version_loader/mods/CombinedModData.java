@@ -113,18 +113,42 @@ public class CombinedModData extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> getVersions(String gameVersion, String modLoader) throws FileDownloadException {
+    public List<ModVersionData> getVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
         if(versions == null) {
             updateVersions();
         }
-        if(gameVersion == null && modLoader == null) {
+        if(gameVersions == null && modLoaders == null) {
             return versions;
         }
         List<ModVersionData> out = new ArrayList<>();
         for (ModVersionData v : versions) {
-            if ((gameVersion == null || v.getGameVersions().contains(gameVersion)) && (modLoader == null || v.getModLoaders().contains(modLoader))) {
-                out.add(v);
+            if(gameVersions != null) {
+                boolean correctVersion = false;
+                for (String gv : v.getGameVersions()) {
+                    if (gameVersions.contains(gv)) {
+                        correctVersion = true;
+                        break;
+                    }
+                }
+                if (!correctVersion) {
+                    continue;
+                }
             }
+
+            if(modLoaders != null) {
+                boolean correctLoader = false;
+                for(String ml : v.getModLoaders()) {
+                    if(modLoaders.contains(ml)) {
+                        correctLoader = true;
+                        break;
+                    }
+                }
+                if(!correctLoader) {
+                    continue;
+                }
+            }
+
+            out.add(v);
         }
         return out;
     }
@@ -134,10 +158,10 @@ public class CombinedModData extends GenericModData {
         return updateVersions(null, null);
     }
 
-    public List<ModVersionData> updateVersions(String gameVersion, String modLoader) throws FileDownloadException {
+    public List<ModVersionData> updateVersions(List<String> gameVersions, List<String> modLoader) throws FileDownloadException {
         versions = new ArrayList<>();
-        List<ModVersionData> vo1 = parent1.getVersions(gameVersion, modLoader);
-        List<ModVersionData> vo2 = parent2.getVersions(gameVersion, modLoader);
+        List<ModVersionData> vo1 = parent1.getVersions(gameVersions, modLoader);
+        List<ModVersionData> vo2 = parent2.getVersions(gameVersions, modLoader);
         List<ModVersionData> v1 = vo1 == null ? new ArrayList<>() : new ArrayList<>(vo1);
         List<ModVersionData> v2 = vo2 == null ? new ArrayList<>() : new ArrayList<>(vo2);
         Set<ModVersionData> toRemove = new HashSet<>();

@@ -4,9 +4,12 @@ import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class FormatUtils {
     /**
@@ -136,7 +139,7 @@ public class FormatUtils {
     }
 
     /**
-     * Converts a (modrith) mod loader string to a curseforge mod loader id.
+     * Converts a (modrinth) mod loader string to a curseforge mod loader id.
      * @param modLoader mod loader string
      * @return curseforge mod loader id
      * @throws IllegalArgumentException if the mod loader string is invalid
@@ -163,5 +166,35 @@ public class FormatUtils {
             }
         }
         throw new IllegalArgumentException("Invalid mod loader: " + modLoader);
+    }
+
+    /**
+     * Converts a list of (modrinth) mod loader strings to a set of curseforge mod loader ids.
+     * @param modLoaders list of mod loader strings
+     * @return set of curseforge mod loader ids
+     * @throws IllegalArgumentException if any of the mod loader strings are invalid
+     */
+    public static Set<Integer> modLoadersToCurseforgeModLoaders(List<String> modLoaders) throws IllegalArgumentException {
+        if(modLoaders == null) {
+            return null;
+        }
+        return modLoaders.stream().map(FormatUtils::modLoaderToCurseforgeModLoader).collect(Collectors.toSet());
+    }
+
+    /**
+     * Converts a set of curseforge mod loader ids to a list of (modrinth) mod loader strings.
+     * @param cfModLoaders set of curseforge mod loader ids
+     * @return list of mod loader strings
+     * @throws IllegalArgumentException if any of the curseforge mod loader ids are invalid
+     */
+    public static List<String> curseforgeModLoadersToModLoaders(Set<Integer> cfModLoaders) throws IllegalArgumentException {
+        if(cfModLoaders == null) {
+            return null;
+        }
+        return cfModLoaders.stream().map(FormatUtils::curseforgeModLoaderToModLoader).collect(Collectors.toList());
+    }
+
+    public static <T> String formatAsArrayParam(Collection<T> collection) {
+        return "[" + collection.stream().map(Object::toString).collect(Collectors.joining(",")) + "]";
     }
 }

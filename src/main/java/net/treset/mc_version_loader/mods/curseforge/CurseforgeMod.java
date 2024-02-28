@@ -5,10 +5,14 @@ import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.json.SerializationException;
-import net.treset.mc_version_loader.mods.*;
+import net.treset.mc_version_loader.mods.GenericModData;
+import net.treset.mc_version_loader.mods.MinecraftMods;
+import net.treset.mc_version_loader.mods.ModProvider;
+import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public class CurseforgeMod extends GenericModData {
     private boolean allowModDistribution;
@@ -157,27 +161,27 @@ public class CurseforgeMod extends GenericModData {
 
     @Override
     public List<ModVersionData> getVersions() throws FileDownloadException {
-        return getVersions(null, -1);
+        return getVersions(null, (Set<Integer>) null);
     }
 
     @Override
-    public List<ModVersionData> getVersions(String gameVersion, String modLoader) throws FileDownloadException {
-        return getVersions(gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
+    public List<ModVersionData> getVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
+        return getVersions(gameVersions, FormatUtils.modLoadersToCurseforgeModLoaders(modLoaders));
     }
 
     @Override
     public List<ModVersionData> updateVersions() throws FileDownloadException {
-        return updateVersions(null, -1);
+        return updateVersions(null, null);
     }
 
-    public List<ModVersionData> updateVersions(String gameVersion, int modLoader) throws FileDownloadException {
-        versions = List.copyOf(MinecraftMods.getCurseforgeVersions(id, this, gameVersion, modLoader).getData());
+    public List<ModVersionData> updateVersions(List<String> gameVersions, Set<Integer> modLoaders) throws FileDownloadException {
+        versions = List.copyOf(MinecraftMods.getCurseforgeVersions(id, this, gameVersions, modLoaders).getData());
         return versions;
     }
 
-    public List<ModVersionData> getVersions(String gameVersion, int modLoader) throws FileDownloadException {
+    public List<ModVersionData> getVersions(List<String> gameVersions, Set<Integer> modLoaders) throws FileDownloadException {
         if(versions == null) {
-            updateVersions(gameVersion, modLoader);
+            updateVersions(gameVersions, modLoaders);
         }
         return versions;
     }

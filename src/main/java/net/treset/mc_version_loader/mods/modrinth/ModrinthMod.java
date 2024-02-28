@@ -156,9 +156,9 @@ public class ModrinthMod extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> getVersions(String gameVersion, String modLoader) throws FileDownloadException {
+    public List<ModVersionData> getVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
         if(versionData == null) {
-            updateVersions(gameVersion, modLoader);
+            updateVersions(gameVersions, modLoaders);
         }
         return versionData;
     }
@@ -168,8 +168,8 @@ public class ModrinthMod extends GenericModData {
         return updateVersions(null, null);
     }
 
-    public List<ModVersionData> updateVersions(String gameVersion, String modLoader) throws FileDownloadException {
-        versionData = List.copyOf(MinecraftMods.getModrinthVersion(id, this, gameVersion == null ? null : List.of(gameVersion), modLoader == null ? null : List.of(modLoader)));
+    public List<ModVersionData> updateVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
+        versionData = List.copyOf(MinecraftMods.getModrinthVersion(id, this, gameVersions, modLoaders));
         return versionData;
     }
 

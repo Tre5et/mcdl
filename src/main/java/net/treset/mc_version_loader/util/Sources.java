@@ -32,8 +32,8 @@ public class Sources {
     private static final String CURSEFORGE_SEARCH_OFFSET_PARAM = "index";
     private static final String CURSEFORGE_PROJECT_URL = "https://api.curseforge.com/v1/mods/%d"; // Mod-ID
     private static final String CURSEFORGE_VERSIONS_URL = "https://api.curseforge.com/v1/mods/%d/files"; // Mod-ID
-    private static final String CURSEFORGE_VERSIONS_GAMEVERSION_PARAM = CURSEFORGE_SEARCH_GAMEVERSIONS_PARAM;
-    private static final String CURSEFORGE_VERSIONS_LOADER_PARAM = CURSEFORGE_SEARCH_LOADERS_PARAM;
+    private static final String CURSEFORGE_VERSIONS_GAMEVERSIONS_PARAM = CURSEFORGE_SEARCH_GAMEVERSIONS_PARAM;
+    private static final String CURSEFORGE_VERSIONS_LOADERS_PARAM = CURSEFORGE_SEARCH_LOADERS_PARAM;
     private static final String CURSEFORGE_VERSION_URL = "https://api.curseforge.com/v1/mods/%d/files/%d";
     private static final String MOJANG_USER_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s"; // Playername
     private static final String MOJANG_SESSION_PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s"; // UUID
@@ -182,12 +182,12 @@ public class Sources {
         return String.format(CURSEFORGE_VERSIONS_URL, projectId);
     }
 
-    public static String getCurseforgeVersionsGameversionParam() {
-        return CURSEFORGE_VERSIONS_GAMEVERSION_PARAM;
+    public static String getCurseforgeVersionsGameversionsParam() {
+        return CURSEFORGE_VERSIONS_GAMEVERSIONS_PARAM;
     }
 
-    public static String getCurseforgeVersionsLoaderParam() {
-        return CURSEFORGE_VERSIONS_LOADER_PARAM;
+    public static String getCurseforgeVersionsLoadersParam() {
+        return CURSEFORGE_VERSIONS_LOADERS_PARAM;
     }
 
     public static String getCurseforgeVersionUrl(long projectId, long versionId) {

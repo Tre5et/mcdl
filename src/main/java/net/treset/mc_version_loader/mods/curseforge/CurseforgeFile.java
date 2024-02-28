@@ -144,7 +144,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(String gameVersion, String modLoader) throws FileDownloadException {
+    public List<ModVersionData> getRequiredDependencies(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
         if(MinecraftMods.getCurseforgeApiKey() == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
@@ -169,7 +169,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                             return null;
                         }
                         try {
-                            return MinecraftMods.getCurseforgeVersions(p.getId(), p, gameVersion, FormatUtils.modLoaderToCurseforgeModLoader(modLoader));
+                            return MinecraftMods.getCurseforgeVersions(p.getId(), p, gameVersions, FormatUtils.modLoadersToCurseforgeModLoaders(modLoaders));
                         } catch (FileDownloadException e) {
                             exceptionQueue.add(e);
                         }
