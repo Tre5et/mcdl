@@ -195,6 +195,8 @@ public class FormatUtils {
     }
 
     public static <T> String formatAsArrayParam(Collection<T> collection) {
-        return "[" + collection.stream().map(Object::toString).collect(Collectors.joining(",")) + "]";
+        boolean isString = collection.stream().anyMatch(e -> e instanceof String);
+
+        return "[" + (isString ? "'" : "") + collection.stream().map(Object::toString).collect(Collectors.joining(",")) + (isString ? "'" : "") + "]";
     }
 }

@@ -235,7 +235,7 @@ public class MinecraftMods {
         }
         if(modLoaders != null && !modLoaders.isEmpty()) {
             params.add(Map.entry(
-                    Sources.getCurseforgeVersionsGameversionsParam(),
+                    Sources.getCurseforgeSearchLoadersParam(),
                     FormatUtils.formatAsArrayParam(modLoaders)
             ));
         }
