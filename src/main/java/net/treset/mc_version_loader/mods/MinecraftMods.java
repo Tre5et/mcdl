@@ -169,7 +169,7 @@ public class MinecraftMods {
      * @return a list of versions for the project sorted descending by date
      * @throws FileDownloadException if there is an error downloading the project versions
      */
-    public static List<ModrinthVersion> getModrinthVersion(String modId, ModData parent, List<String> versions, List<String> modLoaders) throws FileDownloadException {
+    public static List<ModrinthVersion> getModrinthVersions(String modId, ModData parent, List<String> versions, List<String> modLoaders) throws FileDownloadException {
         if(modrinthUserAgent == null) {
             throw new FileDownloadException("Modrinth user agent not set");
         }
@@ -243,7 +243,7 @@ public class MinecraftMods {
             params.add(Map.entry(Sources.getCurseforgeSearchLimitParam(), String.valueOf(limit)));
         }
         if(offset > 0) {
-            params.add(Map.entry(Sources.getCurseforgeSearchOffsetParam(), String.valueOf(offset)));
+            params.add(Map.entry(Sources.getCurseforgeSearchIndexParam(), String.valueOf(offset)));
         }
         try {
             return CurseforgeSearch.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeSearchUrl(), Sources.getCurseforgeHeaders(curseforgeApiKey), params));
@@ -253,36 +253,39 @@ public class MinecraftMods {
     }
 
     /**
-     * Gets the versions for a specific Curseforge project
+     * Gets all versions for a specific Curseforge project
      * @param modId the project id
      * @param parent parent mod data for the versions to reference
-     * @param gameVersions a list of game versions to get project versions for
-     * @param modLoaders a list of mod loader ids to get project versions for
      * @return a list of versions for the project sorted descending by date
      * @throws FileDownloadException if there is an error downloading the project versions
      */
-    public static CurseforgeFiles getCurseforgeVersions(int modId, ModData parent, List<String> gameVersions, Set<Integer> modLoaders) throws FileDownloadException {
+    public static List<CurseforgeFile> getCurseforgeVersions(int modId, ModData parent, List<String> gameVersions, List<String> modLoaders, int index) throws FileDownloadException {
         if(curseforgeApiKey == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
         List<Map.Entry<String, String>> params = new ArrayList<>();
-        if(gameVersions != null && !gameVersions.isEmpty()) {
-            params.add(Map.entry(
-                    Sources.getCurseforgeVersionsGameversionsParam(),
-                    FormatUtils.formatAsArrayParam(gameVersions)
-            ));
-        }
-        if(modLoaders != null && !modLoaders.isEmpty()) {
-            params.add(Map.entry(
-                    Sources.getCurseforgeVersionsLoadersParam(),
-                    FormatUtils.formatAsArrayParam(modLoaders)
-            ));
-        }
+        params.add(Map.entry(Sources.getCurseforgeSearchIndexParam(), String.valueOf(index)));
+
         try {
-            return CurseforgeFiles.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectVersionsUrl(modId), Sources.getCurseforgeHeaders(curseforgeApiKey), params), parent);
+            CurseforgeFiles files = CurseforgeFiles.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectVersionsUrl(modId), Sources.getCurseforgeHeaders(curseforgeApiKey), params), parent);
+            ArrayList<CurseforgeFile> versions = new ArrayList<>();
+            if(files.getData() != null) {
+                versions.addAll(files.getData());
+            }
+            if(files.getPagination().getTotalCount() > files.getPagination().getIndex() + files.getPagination().getPageSize()) {
+                versions.addAll(getCurseforgeVersions(modId, parent, gameVersions, modLoaders, files.getPagination().getIndex() + files.getPagination().getPageSize()));
+            }
+            return versions.stream().filter(v ->
+                    (gameVersions == null || gameVersions.isEmpty() || v.getGameVersions().stream().anyMatch(gameVersions::contains))
+                    && (modLoaders == null || modLoaders.isEmpty() || v.getModLoaders().stream().anyMatch(modLoaders::contains))
+            ).toList();
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse curseforge project versions", e);
         }
+    }
+
+    public static List<CurseforgeFile> getCurseforgeVersions(int modId, ModData parent, List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
+        return getCurseforgeVersions(modId, parent, gameVersions, modLoaders, 0);
     }
 
     /**
@@ -348,7 +351,7 @@ public class MinecraftMods {
             throw new FileDownloadException("Modrinth user agent not set");
         }
         String result = FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(modId), Sources.getModrinthHeaders(modrinthUserAgent), List.of());
-        return result != null && !result.isBlank();
+        return !result.isBlank();
     }
 
     /**
@@ -362,7 +365,7 @@ public class MinecraftMods {
             throw new FileDownloadException("Curseforge api key not set");
         }
         String result = FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(projectId), Sources.getCurseforgeHeaders(curseforgeApiKey), List.of());
-        return result != null && !result.isBlank();
+        return !result.isBlank();
     }
 
     public static String getModrinthUserAgent() {

@@ -12,7 +12,6 @@ import net.treset.mc_version_loader.mods.ModVersionData;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 public class CurseforgeMod extends GenericModData {
     private boolean allowModDistribution;
@@ -161,12 +160,7 @@ public class CurseforgeMod extends GenericModData {
 
     @Override
     public List<ModVersionData> getVersions() throws FileDownloadException {
-        return getVersions(null, (Set<Integer>) null);
-    }
-
-    @Override
-    public List<ModVersionData> getVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
-        return getVersions(gameVersions, FormatUtils.modLoadersToCurseforgeModLoaders(modLoaders));
+        return getVersions(null, null);
     }
 
     @Override
@@ -174,15 +168,16 @@ public class CurseforgeMod extends GenericModData {
         return updateVersions(null, null);
     }
 
-    public List<ModVersionData> updateVersions(List<String> gameVersions, Set<Integer> modLoaders) throws FileDownloadException {
-        versions = List.copyOf(MinecraftMods.getCurseforgeVersions(id, this, gameVersions, modLoaders).getData());
-        return versions;
-    }
-
-    public List<ModVersionData> getVersions(List<String> gameVersions, Set<Integer> modLoaders) throws FileDownloadException {
+    @Override
+    public List<ModVersionData> getVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
         if(versions == null) {
             updateVersions(gameVersions, modLoaders);
         }
+        return versions;
+    }
+
+    public List<ModVersionData> updateVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
+        versions = MinecraftMods.getCurseforgeVersions(id, this, gameVersions, modLoaders).stream().map(v -> (ModVersionData)v).toList();
         return versions;
     }
 

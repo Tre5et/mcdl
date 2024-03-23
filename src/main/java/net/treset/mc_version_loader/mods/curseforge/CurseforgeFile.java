@@ -169,14 +169,14 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                             return null;
                         }
                         try {
-                            return MinecraftMods.getCurseforgeVersions(p.getId(), p, gameVersions, FormatUtils.modLoadersToCurseforgeModLoaders(modLoaders));
+                            return MinecraftMods.getCurseforgeVersions(p.getId(), p, gameVersions, modLoaders);
                         } catch (FileDownloadException e) {
                             exceptionQueue.add(e);
                         }
                         return null;
                     })
-                    .filter(f -> f != null && f.getData() != null && !f.getData().isEmpty())
-                    .map(f -> (ModVersionData)f.getData().get(0))
+                    .filter(f -> f != null && !f.isEmpty())
+                    .map(f -> (ModVersionData)f.get(0))
                     .toList();
             if(!exceptionQueue.isEmpty()) {
                 throw new FileDownloadException("Error getting required dependencies: mod=" + getName(), exceptionQueue.get(0));
