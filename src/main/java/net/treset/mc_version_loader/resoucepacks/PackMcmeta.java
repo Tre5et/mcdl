@@ -1,5 +1,6 @@
 package net.treset.mc_version_loader.resoucepacks;
 
+import com.google.gson.annotations.SerializedName;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.SerializationException;
 
@@ -23,20 +24,21 @@ public class PackMcmeta extends GenericJsonParsable {
     }
 
     public static class Pack {
-        private int pack_format;
+        @SerializedName("pack_format")
+        private int packFormat;
         private String description;
 
-        public Pack(int pack_format, String description) {
-            this.pack_format = pack_format;
+        public Pack(int packFormat, String description) {
+            this.packFormat = packFormat;
             this.description = description;
         }
 
         public int getPackFormat() {
-            return pack_format;
+            return packFormat;
         }
 
         public void setPackFormat(int pack_format) {
-            this.pack_format = pack_format;
+            this.packFormat = pack_format;
         }
 
         public String getDescription() {

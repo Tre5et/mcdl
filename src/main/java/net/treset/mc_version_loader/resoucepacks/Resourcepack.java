@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -94,10 +95,11 @@ public class Resourcepack {
                 ZipEntry entry = entries.nextElement();
                 if (!entry.isDirectory() && entry.getName().equals("pack.mcmeta")) {
                     InputStream stream = zipFile.getInputStream(entry);
+                    String content = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
                     try {
-                        mcmeta = PackMcmeta.fromJson(new String(stream.readAllBytes()));
+                        mcmeta = PackMcmeta.fromJson(content);
                     } catch (SerializationException e) {
-                        throw new IOException("pack.mcmeta is not valid json", e);
+                        throw new IOException("pack.mcmeta is not valid json: " + content, e);
                     }
                 } else if (!entry.isDirectory() && entry.getName().equals("pack.png")) {
                     InputStream stream = zipFile.getInputStream(entry);

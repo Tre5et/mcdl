@@ -11,7 +11,7 @@ public abstract class GenericJsonParsable implements JsonParsable {
         try {
             return gson.fromJson(json, type);
         } catch (Exception e) {
-            throw new SerializationException("Failed to deserialize JSON", e);
+            throw new SerializationException("Failed to deserialize JSON: json=" + json + "; type=" + type.getName(), e);
         }
     }
     public static <T> T fromJson(String json, Class<? extends T> type) throws SerializationException {
