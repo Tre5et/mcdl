@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class MinecraftForge {
 
         ForgeVersion version;
         try {
-            version = ForgeVersion.fromJson(new String(FileUtil.getZipEntry(jarFile, "version.json")));
+            version = ForgeVersion.fromJson(new String(FileUtil.getZipEntry(jarFile, "version.json"), StandardCharsets.UTF_8));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse forge version", e);
         } catch (IOException e) {
@@ -86,7 +87,7 @@ public class MinecraftForge {
 
         ForgeInstallProfile profile;
         try {
-            profile = ForgeInstallProfile.fromJson(new String(FileUtil.getZipEntry(jarFile, "install_profile.json")));
+            profile = ForgeInstallProfile.fromJson(new String(FileUtil.getZipEntry(jarFile, "install_profile.json"), StandardCharsets.UTF_8));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse forge install profile", e);
         } catch (IOException e) {
@@ -358,7 +359,7 @@ public class MinecraftForge {
             String mainClass = null;
             if(found) {
                 try {
-                    String mainManifestContent = new String(FileUtil.getZipEntry(outFile, "META-INF/MANIFEST.MF"));
+                    String mainManifestContent = new String(FileUtil.getZipEntry(outFile, "META-INF/MANIFEST.MF"), StandardCharsets.UTF_8);
                     String[] lines = mainManifestContent.split("\n");
                     for (String line : lines) {
                         if (line.startsWith("Main-Class:")) {

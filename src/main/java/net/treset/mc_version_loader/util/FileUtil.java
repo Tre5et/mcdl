@@ -80,7 +80,7 @@ public class FileUtil {
      * @throws FileDownloadException if the file can not be downloaded
      */
     public static String getStringFromHttpGet(String getUrl, List<Map.Entry<String, String>> headers, List<Map.Entry<String, String>> params) throws FileDownloadException {
-        return new String(getFromHttpGet(getUrl, headers, params));
+        return new String(getFromHttpGet(getUrl, headers, params), StandardCharsets.UTF_8);
     }
 
     /**
@@ -180,7 +180,7 @@ public class FileUtil {
      * @throws IOException If the file can not be read
      */
     public static String readFileAsString(File file) throws IOException {
-        return new String(Files.readAllBytes(file.toPath()));
+        return Files.readString(file.toPath());
     }
 
     /**

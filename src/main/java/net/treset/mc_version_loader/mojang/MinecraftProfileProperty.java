@@ -2,6 +2,7 @@ package net.treset.mc_version_loader.mojang;
 
 import net.treset.mc_version_loader.json.SerializationException;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class MinecraftProfileProperty {
@@ -20,7 +21,7 @@ public class MinecraftProfileProperty {
             return null;
         }
         byte[] decodedBytes = Base64.getDecoder().decode(value);
-        return MinecraftProfileTextures.fromJson(new String(decodedBytes));
+        return MinecraftProfileTextures.fromJson(new String(decodedBytes, StandardCharsets.UTF_8));
     }
 
     public String getName() {
