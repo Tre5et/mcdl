@@ -39,7 +39,6 @@ public class CurseforgeMod extends GenericModData {
     private int status;
     private String summary;
     private int thumbsUpCount;
-    private List<ModVersionData> versions;
 
     public CurseforgeMod(boolean allowModDistribution, List<CurseforgeAuthor> authors, List<CurseforgeCategory> categories, int classId, String dateCreated, String dateModified, String dateReleased, int downloadCount, int gameId, int gamePopularityRank, int id, boolean isAvailable, boolean isFeatured, List<CurseforgeFileIndex> latestEarlyAccessFilesIndex, List<CurseforgeFile> latestFiles, List<CurseforgeFileIndex> latestFilesIndex, CurseforgeModLinks links, CurseforgeImage logo, int mainFileId, String name, List<CurseforgeImage> screenshots, String slug, int status, String summary, int thumbsUpCount) {
         this.allowModDistribution = allowModDistribution;
@@ -159,26 +158,12 @@ public class CurseforgeMod extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> getVersions() throws FileDownloadException {
-        return getVersions(null, null);
-    }
-
-    @Override
     public List<ModVersionData> updateVersions() throws FileDownloadException {
-        return updateVersions(null, null);
-    }
-
-    @Override
-    public List<ModVersionData> getVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
-        if(versions == null) {
-            updateVersions(gameVersions, modLoaders);
+        if(versionProviders != null && !versionProviders.contains(ModProvider.CURSEFORGE)) {
+            return List.of();
         }
-        return versions;
-    }
-
-    public List<ModVersionData> updateVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
-        versions = MinecraftMods.getCurseforgeVersions(id, this, gameVersions, modLoaders).stream().map(v -> (ModVersionData)v).toList();
-        return versions;
+        currentVersions = List.copyOf(MinecraftMods.getCurseforgeVersions(id, this, versionGameVersions, versionModLoaders));
+        return currentVersions;
     }
 
     public boolean isAllowModDistribution() {

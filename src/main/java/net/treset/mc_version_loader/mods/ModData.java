@@ -21,8 +21,14 @@ public interface ModData extends Comparable<ModData> {
     String getName();
     String getUrl();
     List<ModVersionData> getVersions() throws FileDownloadException;
-    List<ModVersionData> getVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException;
     List<ModVersionData> updateVersions() throws FileDownloadException;
+    List<String> getVersionGameVersions();
+    void setVersionGameVersions(List<String> gameVersions);
+    List<String> getVersionModLoaders();
+    void setVersionModLoaders(List<String> modLoaders);
+    List<ModProvider> getVersionProviders();
+    void setVersionProviders(List<ModProvider> providers);
+    void setVersionConstraints(List<String> gameVersions, List<String> modLoaders, List<ModProvider> providers);
     List<ModProvider> getModProviders();
     List<String> getProjectIds();
 

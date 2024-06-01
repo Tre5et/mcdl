@@ -3,8 +3,6 @@ package net.treset.mc_version_loader.mods.modrinth;
 import com.google.gson.reflect.TypeToken;
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.json.SerializationException;
-import net.treset.mc_version_loader.util.FileUtil;
-import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonParsable;
@@ -36,7 +34,6 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     private String versionNumber;
     private String versionType;
     private transient ModData parent;
-    private transient List<ModVersionData> requiredDependencies;
 
     public ModrinthVersion(String authorId, String changelog, String changelogUrl, String datePublished, List<ModrinthVersionDependency> dependencies, int downloads, boolean featured, List<ModrinthVersionFile> files, List<String> gameVersions, String id, List<String> loaders, String name, String projectId, String requestedStatus, String status, String versionNumber, String versionType, ModData parent) {
         this.authorId = authorId;
@@ -122,66 +119,64 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
+    public List<ModVersionData> updateRequiredDependencies() throws FileDownloadException {
         if(MinecraftMods.getModrinthUserAgent() == null) {
             throw new FileDownloadException("Modrinth user agent is null");
         }
-        if(requiredDependencies == null) {
-            requiredDependencies = new ArrayList<>();
-            if(dependencies != null) {
-                for(ModrinthVersionDependency d : dependencies) {
-                    ModrinthVersion version;
-                    ModrinthMod parent;
-                    if (d.isRequired()) {
-                        if (d.getProjectId() != null) {
-                            try {
-                                parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(d.getProjectId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()));
-                            } catch (SerializationException e) {
-                                throw new FileDownloadException("Failed to parse modrinth project json", e);
-                            }
-                            if(d.getVersionId() != null) {
-                                version = MinecraftMods.getModrinthVersion(d.getVersionId(), parent);
-                            } else {
-                                ModrinthMod mod = MinecraftMods.getModrinthMod(d.getProjectId());
-                                if(mod != null) {
-                                    List<ModVersionData> versions = mod.getVersions(gameVersions, modLoaders);
-                                    if (versions != null && !versions.isEmpty()) {
-                                        version = (ModrinthVersion)versions.get(0);
-                                    } else {
-                                        continue;
-                                    }
+        ArrayList<ModVersionData> requiredDependencies = new ArrayList<>();
+        if(dependencies != null) {
+            for(ModrinthVersionDependency d : dependencies) {
+                ModrinthVersion version;
+                ModrinthMod parent;
+                if (d.isRequired()) {
+                    if (d.getProjectId() != null) {
+                        try {
+                            parent =  MinecraftMods.getModrinthMod(d.getProjectId());
+                        } catch (FileDownloadException e) {
+                            throw new FileDownloadException("Failed to download parent mod", e);
+                        }
+                        if(d.getVersionId() != null) {
+                            version = MinecraftMods.getModrinthVersion(d.getVersionId(), parent);
+                        } else {
+                            if(parent != null) {
+                                parent.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
+                                List<ModVersionData> versions = parent.getVersions();
+                                if (versions != null && !versions.isEmpty()) {
+                                    version = (ModrinthVersion)versions.get(0);
                                 } else {
                                     continue;
                                 }
-                            }
-                        } else {
-                            if(d.getVersionId() != null) {
-                                try {
-                                    version = ModrinthVersion.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthVersionUrl(d.getVersionId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()), null);
-                                    parent = ModrinthMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getModrinthProjectUrl(version.getProjectId()), Sources.getModrinthHeaders(MinecraftMods.getModrinthUserAgent()), List.of()));
-                                } catch (SerializationException e) {
-                                    throw new FileDownloadException("Failed to parse modrinth version json", e);
-                                }
-                                version.setParentMod(parent);
                             } else {
                                 continue;
                             }
                         }
-                        if (version == null || version.getGameVersions().stream().noneMatch(gameVersions::contains)) {
-                            List<ModVersionData> versions = parent.getVersions(gameVersions, modLoaders);
-                            if (versions != null && !versions.isEmpty()) {
-                                requiredDependencies.add(versions.get(0));
-                            } else {
-                                requiredDependencies.add(version);
+                    } else {
+                        if(d.getVersionId() != null) {
+                            try {
+                                version = MinecraftMods.getModrinthVersion(d.getVersionId(), null);
+                                parent = MinecraftMods.getModrinthMod(version.getProjectId());
+                            } catch (FileDownloadException e) {
+                                throw new FileDownloadException("Failed to parse modrinth version json", e);
                             }
+                            version.setParentMod(parent);
                         } else {
-                            requiredDependencies.add(version);
+                            continue;
                         }
+                    }
+                    if (version == null || version.getGameVersions().stream().noneMatch(gameVersions::contains)) {
+                        parent.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
+                        List<ModVersionData> versions = parent.getVersions();
+                        if (versions != null && !versions.isEmpty()) {
+                            requiredDependencies.add(versions.get(0));
+                        }
+                    } else {
+                        requiredDependencies.add(version);
                     }
                 }
             }
         }
-        return requiredDependencies;
+        currentDependencies = requiredDependencies;
+        return currentDependencies;
     }
 
     @Override
@@ -316,14 +311,6 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
 
     public void setParent(ModData parent) {
         this.parent = parent;
-    }
-
-    public List<ModVersionData> getRequiredDependencies() {
-        return requiredDependencies;
-    }
-
-    public void setRequiredDependencies(List<ModVersionData> requiredDependencies) {
-        this.requiredDependencies = requiredDependencies;
     }
 
     @Override

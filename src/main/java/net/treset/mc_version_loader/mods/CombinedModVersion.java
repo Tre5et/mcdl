@@ -17,7 +17,6 @@ public class CombinedModVersion extends GenericModVersion {
     private String downloadUrl2;
     private Set<String> modLoaders;
     private Set<String> gameVersions;
-    private List<ModVersionData> requiredDependencies;
     private ModData parentMod;
     private final ModVersionData parent1;
     private final ModVersionData parent2;
@@ -78,27 +77,33 @@ public class CombinedModVersion extends GenericModVersion {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
-        if(requiredDependencies == null) {
-            requiredDependencies = new ArrayList<>();
-            List<ModVersionData> rdo1 = parent1.getRequiredDependencies(gameVersions, modLoaders);
-            List<ModVersionData> rdo2 = parent2.getRequiredDependencies(gameVersions, modLoaders);
-            List<ModVersionData> rd1 = rdo1 == null ? new ArrayList<>() : new ArrayList<>(rdo1);
-            List<ModVersionData> rd2 = rdo2 == null ? new ArrayList<>() : new ArrayList<>(rdo2);
-            Set<ModVersionData> toRemove = new HashSet<>();
-            for (ModVersionData m1 : rd1) {
-                for (ModVersionData m2 : rd2) {
-                    if (m1 != null && m1.isSame(m2)) {
-                        requiredDependencies.add(new CombinedModVersion(m1, m2, new CombinedModData(m1.getParentMod(), m2.getParentMod())));
-                        toRemove.add(m1);
-                        break;
-                    }
+    public List<ModVersionData> updateRequiredDependencies() throws FileDownloadException {
+        ArrayList<ModVersionData> requiredDependencies = new ArrayList<>();
+        parent1.setDependencyConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
+        parent2.setDependencyConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
+        List<ModVersionData> rdo1 = parent1.getRequiredDependencies();
+        List<ModVersionData> rdo2 = parent2.getRequiredDependencies();
+        List<ModVersionData> rd1 = rdo1 == null ? new ArrayList<>() : new ArrayList<>(rdo1);
+        List<ModVersionData> rd2 = rdo2 == null ? new ArrayList<>() : new ArrayList<>(rdo2);
+        Set<ModVersionData> toRemove1 = new HashSet<>();
+        Set<ModVersionData> toRemove2 = new HashSet<>();
+        for (ModVersionData m1 : rd1) {
+            for (ModVersionData m2 : rd2) {
+                if (m1 != null && m1.isSame(m2)) {
+                    requiredDependencies.add(new CombinedModVersion(m1, m2, new CombinedModData(m1.getParentMod(), m2.getParentMod())));
+                    toRemove1.add(m1);
+                    toRemove2.add(m2);
+                    break;
                 }
             }
-            rd1.removeAll(toRemove);
-            requiredDependencies.addAll(rd1);
         }
-        return requiredDependencies;
+        rd1.removeAll(toRemove1);
+        rd2.removeAll(toRemove2);
+        requiredDependencies.addAll(rd1);
+        requiredDependencies.addAll(rd2);
+
+        currentDependencies = requiredDependencies;
+        return currentDependencies;
     }
 
     @Override
@@ -149,10 +154,6 @@ public class CombinedModVersion extends GenericModVersion {
 
     public void setGameVersions(Set<String> gameVersions) {
         this.gameVersions = gameVersions;
-    }
-
-    public void setRequiredDependencies(List<ModVersionData> requiredDependencies) {
-        this.requiredDependencies = requiredDependencies;
     }
 
     public ModVersionType getType() {

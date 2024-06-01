@@ -2,8 +2,6 @@ package net.treset.mc_version_loader.mods.curseforge;
 
 import net.treset.mc_version_loader.exception.FileDownloadException;
 import net.treset.mc_version_loader.json.SerializationException;
-import net.treset.mc_version_loader.util.FileUtil;
-import net.treset.mc_version_loader.util.Sources;
 import net.treset.mc_version_loader.format.FormatUtils;
 import net.treset.mc_version_loader.json.GenericJsonParsable;
 import net.treset.mc_version_loader.json.JsonParsable;
@@ -38,7 +36,6 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
     private int releaseType;
     private List<CurseforgeSortableGameVersion> sortableGameVersions;
     private ModData parentMod;
-    private transient List<ModVersionData> requiredDependencies;
 
     public CurseforgeFile(int alternateFileId, List<CurseforgeDependency> dependencies, String displayName, int downloadCount, String downloadUrl, String fileDate, long fileFingerprint, int fileLength, String fileName, int fileStatus, int gameId, List<String> gameVersions, List<CurseforgeHash> hashes, int id, boolean isAvailable, boolean isServerPack, int modId, List<CurseforgeModule> modules, int releaseType, List<CurseforgeSortableGameVersion> sortableGameVersions, ModData parentMod) {
         this.alternateFileId = alternateFileId;
@@ -144,21 +141,18 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
     }
 
     @Override
-    public List<ModVersionData> getRequiredDependencies(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
+    public List<ModVersionData> updateRequiredDependencies() throws FileDownloadException {
         if(MinecraftMods.getCurseforgeApiKey() == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
-        if(requiredDependencies != null) {
-            return requiredDependencies;
-        }
         List<Exception> exceptionQueue = new ArrayList<>();
         if(dependencies != null) {
-            requiredDependencies = dependencies.stream()
+            List<ModVersionData> requiredDependencies = dependencies.stream()
                     .filter(d -> d != null && d.getRelationType() == 3)
                     .map(d -> {
                         try {
-                            return CurseforgeMod.fromJson(FileUtil.getStringFromHttpGet(Sources.getCurseforgeProjectUrl(d.getModId()), Sources.getCurseforgeHeaders(MinecraftMods.getCurseforgeApiKey()), List.of()));
-                        } catch (FileDownloadException | SerializationException e) {
+                            return MinecraftMods.getCurseforgeMod(d.getModId());
+                        } catch (FileDownloadException e) {
                             exceptionQueue.add(e);
                         }
                         return null;
@@ -169,21 +163,24 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                             return null;
                         }
                         try {
-                            return MinecraftMods.getCurseforgeVersions(p.getId(), p, gameVersions, modLoaders);
+                            p.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
+                            return p.getVersions();
                         } catch (FileDownloadException e) {
                             exceptionQueue.add(e);
                         }
                         return null;
                     })
                     .filter(f -> f != null && !f.isEmpty())
-                    .map(f -> (ModVersionData)f.get(0))
+                    .map(f -> f.get(0))
                     .toList();
             if(!exceptionQueue.isEmpty()) {
                 throw new FileDownloadException("Error getting required dependencies: mod=" + getName(), exceptionQueue.get(0));
             }
-            return requiredDependencies;
+            currentDependencies = requiredDependencies;
+        } else {
+            currentDependencies = List.of();
         }
-        return new ArrayList<>();
+        return currentDependencies;
     }
 
     @Override

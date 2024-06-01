@@ -44,7 +44,4 @@ bin/
 .DS_Store
 
 ### Project ###
-TestMain.java
-Main.java
 download/
-src/test/

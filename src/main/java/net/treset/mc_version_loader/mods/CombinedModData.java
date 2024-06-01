@@ -18,7 +18,6 @@ public class CombinedModData extends GenericModData {
     private String slug;
     private String name;
     private String url;
-    private List<ModVersionData> versions;
     private ModData parent1;
     private ModData parent2;
 
@@ -108,62 +107,14 @@ public class CombinedModData extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> getVersions() throws FileDownloadException {
-        return getVersions(null, null);
-    }
-
-    @Override
-    public List<ModVersionData> getVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
-        if(versions == null) {
-            updateVersions();
-        }
-        if(gameVersions == null && modLoaders == null) {
-            return versions;
-        }
-        List<ModVersionData> out = new ArrayList<>();
-        for (ModVersionData v : versions) {
-            if(gameVersions != null) {
-                boolean correctVersion = false;
-                for (String gv : v.getGameVersions()) {
-                    if (gameVersions.contains(gv)) {
-                        correctVersion = true;
-                        break;
-                    }
-                }
-                if (!correctVersion) {
-                    continue;
-                }
-            }
-
-            if(modLoaders != null) {
-                boolean correctLoader = false;
-                for(String ml : v.getModLoaders()) {
-                    if(modLoaders.contains(ml)) {
-                        correctLoader = true;
-                        break;
-                    }
-                }
-                if(!correctLoader) {
-                    continue;
-                }
-            }
-
-            out.add(v);
-        }
-        return out;
-    }
-
-    @Override
     public List<ModVersionData> updateVersions() throws FileDownloadException {
-        return updateVersions(null, null);
-    }
-
-    public List<ModVersionData> updateVersions(List<String> gameVersions, List<String> modLoader) throws FileDownloadException {
-        versions = new ArrayList<>();
-        List<ModVersionData> vo1 = parent1.getVersions(gameVersions, modLoader);
-        List<ModVersionData> vo2 = parent2.getVersions(gameVersions, modLoader);
-        List<ModVersionData> v1 = vo1 == null ? new ArrayList<>() : new ArrayList<>(vo1);
-        List<ModVersionData> v2 = vo2 == null ? new ArrayList<>() : new ArrayList<>(vo2);
+        ArrayList<ModVersionData> versions = new ArrayList<>();
+        parent1.setVersionConstraints(versionGameVersions, versionModLoaders, versionProviders);
+        parent2.setVersionConstraints(versionGameVersions, versionModLoaders, versionProviders);
+        List<ModVersionData> vo1 = parent1.getVersions();
+        List<ModVersionData> vo2 = parent2.getVersions();
+        ArrayList<ModVersionData> v1 = vo1 == null ? new ArrayList<>() : new ArrayList<>(vo1);
+        ArrayList<ModVersionData> v2 = vo2 == null ? new ArrayList<>() : new ArrayList<>(vo2);
         Set<ModVersionData> toRemove = new HashSet<>();
         for(ModVersionData vd1 : v1) {
             for(ModVersionData vd2 : v2) {
@@ -185,7 +136,8 @@ public class CombinedModData extends GenericModData {
             v.setParentMod(this);
             versions.add(v);
         }
-        return versions;
+        currentVersions = versions;
+        return currentVersions;
     }
 
     public void setAuthors(Set<String> authors) {
@@ -238,10 +190,6 @@ public class CombinedModData extends GenericModData {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public void setVersions(List<ModVersionData> versions) {
-        this.versions = versions;
     }
 
     public ModData getParent1() {

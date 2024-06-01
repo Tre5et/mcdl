@@ -45,7 +45,6 @@ public class ModrinthMod extends GenericModData {
     private String dateUpdated;
     private List<String> versions;
     private String wikiUrl;
-    private transient List<ModVersionData> versionData;
 
     public ModrinthMod(List<String> additionalCategories, String approved, String body, String bodyUrl, List<String> categories, String clientSide, int color, String description, String discordUrl, List<ModrinthDonationUrl> donationUrls, int downloads, String flameAnvilProject, String flameAnvilUser, int followers, List<ModrinthGalleryImage> gallery, List<String> gameVersion, String iconUrl, String id, String issuesUrl, ModrinthLicense license, List<String> loaders, ModrinthModeratorMessage moderatorMessage, String projectType, String datePublished, String queued, String requestedStatus, String serverSide, String slug, String sourceUrl, String status, String team, String title, String updated, List<String> versions, String wikiUrl) {
         this.additionalCategories = additionalCategories;
@@ -150,27 +149,14 @@ public class ModrinthMod extends GenericModData {
         return "https://modrinth.com/project/" + id;
     }
 
-    @Override
-    public List<ModVersionData> getVersions() throws FileDownloadException {
-        return getVersions(null, null);
-    }
-
-    @Override
-    public List<ModVersionData> getVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
-        if(versionData == null) {
-            updateVersions(gameVersions, modLoaders);
-        }
-        return versionData;
-    }
 
     @Override
     public List<ModVersionData> updateVersions() throws FileDownloadException {
-        return updateVersions(null, null);
-    }
-
-    public List<ModVersionData> updateVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
-        versionData = List.copyOf(MinecraftMods.getModrinthVersions(id, this, gameVersions, modLoaders));
-        return versionData;
+        if(versionProviders != null && !versionProviders.contains(ModProvider.MODRINTH)) {
+            return List.of();
+        }
+        currentVersions = List.copyOf(MinecraftMods.getModrinthVersions(id, this, versionGameVersions, versionModLoaders));
+        return currentVersions;
     }
 
     public List<String> getAdditionalCategories() {

@@ -30,7 +30,6 @@ public class ModrinthSearchHit extends GenericModData {
     private String slug;
     private String title;
     private List<String> versions;
-    private transient List<ModVersionData> versionData;
 
     public ModrinthSearchHit(String author, List<String> categories, String clientSide, int color, String dateCreated, String dateModified, String description, List<String> displayCategories, int downloads, String featuredGallery, int follows, List<String> gallery, String iconUrl, String latestVersion, String license, String projectId, String projectType, String serverSide, String slug, String title, List<String> versions) {
         this.author = author;
@@ -129,26 +128,12 @@ public class ModrinthSearchHit extends GenericModData {
     }
 
     @Override
-    public List<ModVersionData> getVersions() throws FileDownloadException {
-        return getVersions(null, null);
-    }
-
-    @Override
-    public List<ModVersionData> getVersions(List<String> gameVersion, List<String> modLoader) throws FileDownloadException {
-        if(versionData == null) {
-            updateVersions(gameVersion, modLoader);
-        }
-        return versionData;
-    }
-
-    @Override
     public List<ModVersionData> updateVersions() throws FileDownloadException {
-        return updateVersions(null, null);
-    }
-
-    public List<ModVersionData> updateVersions(List<String> gameVersions, List<String> modLoaders) throws FileDownloadException {
-        versionData = List.copyOf(MinecraftMods.getModrinthVersions(projectId, this, gameVersions, modLoaders));
-        return versionData;
+        if(versionProviders != null && !versionProviders.contains(ModProvider.MODRINTH)) {
+            return List.of();
+        }
+        currentVersions = List.copyOf(MinecraftMods.getModrinthVersions(projectId, this, versionGameVersions, versionModLoaders));
+        return currentVersions;
     }
 
     public String getAuthor() {
