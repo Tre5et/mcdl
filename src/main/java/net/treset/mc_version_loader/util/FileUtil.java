@@ -9,23 +9,22 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class FileUtil {
     private static boolean cacheWebRequests = false;
-    private static final Map<String, byte[]> webRequestCache = new HashMap<>();
+    private static final Map<String, ResponseCache> webRequestCache = new HashMap<>();
 
+    private record ResponseCache(Long validUntil, byte[] data) {}
 
     /**
      * Downloads a file from url to a file
@@ -94,7 +93,10 @@ public class FileUtil {
     public static byte[] getFromHttpGet(String getUrl, List<Map.Entry<String, String>> headers, List<Map.Entry<String, String>> params) throws FileDownloadException {
         String cacheKey = getUrl + headers.toString() + params.toString();
         if(cacheWebRequests && webRequestCache.containsKey(cacheKey)) {
-            return webRequestCache.get(cacheKey);
+            ResponseCache cache = webRequestCache.get(cacheKey);
+            if(cache.validUntil() == null || System.currentTimeMillis() <= cache.validUntil()) {
+                return cache.data();
+            }
         }
 
         HttpClient httpClient = HttpClient.newHttpClient();
@@ -103,8 +105,8 @@ public class FileUtil {
         StringBuilder url = new StringBuilder();
         url.append(getUrl).append("?");
         for(Map.Entry<String, String> p : params) {
-            url.append(URLEncoder.encode(p.getKey(), StandardCharsets.UTF_8))
-                    .append("=").append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8))
+            url.append(URLEncoder.encode(p.getKey(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
+                    .append("=").append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
                     .append("&");
         }
         try {
@@ -116,14 +118,31 @@ public class FileUtil {
         }
 
         try {
-            byte[] res = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray()).body();
+            HttpResponse<byte[]> res = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
+            byte[] body = res.body();
             if(cacheWebRequests) {
-                webRequestCache.put(cacheKey, res);
+                webRequestCache.put(cacheKey, new ResponseCache(getCacheTime(res.headers()), body));
             }
-            return res;
+            return body;
         } catch (IOException | InterruptedException e) {
             throw new FileDownloadException("Unable to download file: url=" + getUrl, e);
         }
+    }
+
+    private static Long getCacheTime(HttpHeaders headers) {
+        long currentTime = System.currentTimeMillis();
+
+        Optional<String> cacheControlHeader = headers.firstValue("Cache-Control");
+        if(cacheControlHeader.isPresent()) {
+            String cacheControl = cacheControlHeader.get();
+            if(cacheControl.contains("max-age=")) {
+                String maxAge = FormatUtils.firstGroup(cacheControl, "max-age=(\\d+)");
+                if(maxAge != null) {
+                    return currentTime + Long.parseLong(maxAge) * 1000;
+                }
+            }
+        }
+        return currentTime + 600000; //cache 10 minutes by default
     }
 
     /**
