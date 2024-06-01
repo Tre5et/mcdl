@@ -139,7 +139,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                             version = MinecraftMods.getModrinthVersion(d.getVersionId(), parent);
                         } else {
                             if(parent != null) {
-                                parent.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
+                                parent.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, downloadProviders);
                                 List<ModVersionData> versions = parent.getVersions();
                                 if (versions != null && !versions.isEmpty()) {
                                     version = (ModrinthVersion)versions.get(0);
@@ -164,7 +164,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                         }
                     }
                     if (version == null || version.getGameVersions().stream().noneMatch(gameVersions::contains)) {
-                        parent.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
+                        parent.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, downloadProviders);
                         List<ModVersionData> versions = parent.getVersions();
                         if (versions != null && !versions.isEmpty()) {
                             requiredDependencies.add(versions.get(0));

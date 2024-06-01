@@ -163,7 +163,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                             return null;
                         }
                         try {
-                            p.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
+                            p.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, downloadProviders);
                             return p.getVersions();
                         } catch (FileDownloadException e) {
                             exceptionQueue.add(e);

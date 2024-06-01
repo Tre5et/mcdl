@@ -3,10 +3,7 @@ package net.treset.mc_version_loader.mods;
 import net.treset.mc_version_loader.exception.FileDownloadException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CombinedModVersion extends GenericModVersion {
     private LocalDateTime datePublished;
@@ -63,7 +60,20 @@ public class CombinedModVersion extends GenericModVersion {
 
     @Override
     public String getDownloadUrl() {
-        return downloadUrl1 == null ? downloadUrl2 : downloadUrl1;
+        List<String> urls;
+        if(downloadProviders == null) {
+            urls = List.of(downloadUrl1, downloadUrl2);
+        } else {
+            int index1 = downloadProviders.indexOf(parent1.getModProviders().get(0));
+            int index2 = downloadProviders.indexOf(parent2.getModProviders().get(0));
+            if(index1 < 0 && index2 >= 0 || index2 >= 0 && index2 < index1) {
+                urls = List.of(downloadUrl2, downloadUrl1);
+            } else {
+                urls = List.of(downloadUrl1, downloadUrl2);
+            }
+        }
+
+        return urls.stream().filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     @Override
@@ -79,8 +89,8 @@ public class CombinedModVersion extends GenericModVersion {
     @Override
     public List<ModVersionData> updateRequiredDependencies() throws FileDownloadException {
         ArrayList<ModVersionData> requiredDependencies = new ArrayList<>();
-        parent1.setDependencyConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
-        parent2.setDependencyConstraints(dependencyGameVersions, dependencyModLoaders, dependencyProviders);
+        parent1.setDependencyConstraints(dependencyGameVersions, dependencyModLoaders, downloadProviders);
+        parent2.setDependencyConstraints(dependencyGameVersions, dependencyModLoaders, downloadProviders);
         List<ModVersionData> rdo1 = parent1.getRequiredDependencies();
         List<ModVersionData> rdo2 = parent2.getRequiredDependencies();
         List<ModVersionData> rd1 = rdo1 == null ? new ArrayList<>() : new ArrayList<>(rdo1);

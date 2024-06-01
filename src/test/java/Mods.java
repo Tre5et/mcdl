@@ -15,6 +15,7 @@ public class Mods {
         testModrinthVersions(mod);
         testCurseforgeVersions(mod);
         testDependencies();
+        testPreference(mod);
     }
 
     public static ModData testSearch() {
@@ -175,7 +176,7 @@ public class Mods {
                 return;
             }
 
-            version.setDependencyProviders(List.of(ModProvider.MODRINTH));
+            version.setDownloadProviders(List.of(ModProvider.MODRINTH));
             List<ModVersionData> deps2 = version.getRequiredDependencies();
             if(deps2.isEmpty()) {
                 System.err.println("Mods:testDependencies FAILED: no modrinth dependencies" );
@@ -191,7 +192,7 @@ public class Mods {
                 return;
             }
 
-            version.setDependencyProviders(List.of(ModProvider.CURSEFORGE));
+            version.setDownloadProviders(List.of(ModProvider.CURSEFORGE));
             List<ModVersionData> deps3 = version.getRequiredDependencies();
             if(deps3.isEmpty()) {
                 System.err.println("Mods:testDependencies FAILED: no curseforge dependencies" );
@@ -210,6 +211,55 @@ public class Mods {
             System.out.println("Mods:testDependencies PASSED");
         } catch (FileDownloadException e) {
             System.err.println("Mods:testDependencies FAILED: search error" + e);
+        }
+    }
+
+    public static void testPreference(ModData mod) {
+        if(mod == null) {
+            System.err.println("Mods:testPreference FAILED: no mod");
+            return;
+        }
+
+        mod.setVersionConstraints(List.of("1.20.4"), List.of("fabric", "quilt"), List.of(ModProvider.CURSEFORGE, ModProvider.MODRINTH));
+        try {
+            List<ModVersionData> versions = mod.getVersions();
+            if(versions.isEmpty()) {
+                System.err.println("Mods:testPreference FAILED: no versions");
+                return;
+            }
+            ModVersionData version = versions.get(0);
+            if(!(version instanceof CombinedModVersion)) {
+                System.err.println("Mods:testPreference FAILED: not CombinedModVersion");
+                return;
+            }
+
+            version.setDownloadProviders(List.of(ModProvider.CURSEFORGE, ModProvider.MODRINTH));
+            if(!version.getDownloadUrl().contains("forgecdn")) {
+                System.err.println("Mods:testPreference FAILED: wrong download url 1: " + version.getDownloadUrl());
+                return;
+            }
+
+            version.setDownloadProviders(List.of(ModProvider.MODRINTH, ModProvider.CURSEFORGE));
+            if(!version.getDownloadUrl().contains("modrinth")) {
+                System.err.println("Mods:testPreference FAILED: wrong download url 2: " + version.getDownloadUrl());
+                return;
+            }
+
+            version.setDownloadProviders(List.of(ModProvider.CURSEFORGE));
+            if(!version.getDownloadUrl().contains("forgecdn")) {
+                System.err.println("Mods:testPreference FAILED: wrong download url 3: " + version.getDownloadUrl());
+                return;
+            }
+
+            version.setDownloadProviders(List.of(ModProvider.MODRINTH));
+            if(!version.getDownloadUrl().contains("modrinth")) {
+                System.err.println("Mods:testPreference FAILED: wrong download url 4: " + version.getDownloadUrl());
+                return;
+            }
+
+            System.out.println("Mods:testPreference PASSED");
+        } catch (Exception e) {
+            System.err.println("Mods:testPreference FAILED: error getting versions " + e.getMessage());
         }
     }
 }

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "net.treset"
-version = "5.0.1"
+version = "6.0.0-beta1"
 
 repositories {
     mavenCentral()

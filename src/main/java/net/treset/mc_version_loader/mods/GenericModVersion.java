@@ -8,13 +8,13 @@ import java.util.List;
 public abstract class GenericModVersion implements ModVersionData {
     protected List<String> dependencyGameVersions = null;
     protected List<String> dependencyModLoaders = null;
-    protected List<ModProvider> dependencyProviders = null;
+    protected List<ModProvider> downloadProviders = null;
 
     protected List<ModVersionData> currentDependencies = null;
 
     private List<String> currentDependencyGameVersions = null;
     private List<String> currentDependencyModLoaders = null;
-    private List<ModProvider> currentDependencyProviders = null;
+    private List<ModProvider> currentDownloadProviders = null;
 
     @Override
     public boolean isSame(ModVersionData otherVersion) {
@@ -44,13 +44,13 @@ public abstract class GenericModVersion implements ModVersionData {
     }
 
     @Override
-    public List<ModProvider> getDependencyProviders() {
-        return dependencyProviders;
+    public List<ModProvider> getDownloadProviders() {
+        return downloadProviders;
     }
 
     @Override
-    public void setDependencyProviders(List<ModProvider> dependencyProviders) {
-        this.dependencyProviders = dependencyProviders;
+    public void setDownloadProviders(List<ModProvider> downloadProviders) {
+        this.downloadProviders = downloadProviders;
     }
 
     @Override
@@ -67,7 +67,7 @@ public abstract class GenericModVersion implements ModVersionData {
     public void setDependencyConstraints(List<String> gameVersions, List<String> modLoaders, List<ModProvider> providers) {
         setDependencyGameVersions(gameVersions);
         setDependencyModLoaders(modLoaders);
-        setDependencyProviders(providers);
+        setDownloadProviders(providers);
     }
 
     @Override
@@ -76,11 +76,11 @@ public abstract class GenericModVersion implements ModVersionData {
             currentDependencies == null ||
             currentDependencyGameVersions != dependencyGameVersions ||
             currentDependencyModLoaders != dependencyModLoaders ||
-            currentDependencyProviders != dependencyProviders
+            currentDownloadProviders != downloadProviders
         ) {
             currentDependencyGameVersions = dependencyGameVersions;
             currentDependencyModLoaders = dependencyModLoaders;
-            currentDependencyProviders = dependencyProviders;
+            currentDownloadProviders = downloadProviders;
             return updateRequiredDependencies();
         }
         return currentDependencies;

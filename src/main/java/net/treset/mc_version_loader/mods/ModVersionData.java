@@ -19,8 +19,8 @@ public interface ModVersionData extends Comparable<ModVersionData> {
     void setDependencyGameVersions(List<String> gameVersions);
     List<String> getDependencyModLoaders();
     void setDependencyModLoaders(List<String> modLoaders);
-    List<ModProvider> getDependencyProviders();
-    void setDependencyProviders(List<ModProvider> providers);
+    List<ModProvider> getDownloadProviders();
+    void setDownloadProviders(List<ModProvider> providers);
     void setDependencyConstraints(List<String> gameVersions, List<String> modLoaders, List<ModProvider> providers);
     List<ModVersionData> getRequiredDependencies() throws FileDownloadException;
     List<ModVersionData> updateRequiredDependencies() throws FileDownloadException;
