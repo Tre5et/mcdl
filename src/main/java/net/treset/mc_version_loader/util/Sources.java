@@ -24,7 +24,7 @@ public class Sources {
     private static final String MODRINTH_VERSIONS_LOADERS_PARAM = "loaders"; // list of quoted mod loaders
     private static final String MODRINTH_VERSION_URL = "https://api.modrinth.com/v2/version/%s";
     private static final String CURSEFORGE_SEARCH_URL = "https://api.curseforge.com/v1/mods/search";
-    private static final List<Map.Entry<String, String>> CURSEFORGE_SEARCH_DEFAULT_PARAMS = List.of(Map.entry("gameId", "432"), Map.entry("sortField", "2"));
+    private static final List<Map.Entry<String, String>> CURSEFORGE_SEARCH_DEFAULT_PARAMS = List.of(Map.entry("gameId", "432"), Map.entry("sortField", "2"), Map.entry("sortOrder", "desc"));
     private static final String CURSEFORGE_SEARCH_QUERY_PARAM = "searchFilter"; // search query
     private static final String CURSEFORGE_SEARCH_GAMEVERSIONS_PARAM = "gameVersions"; // game version
     private static final String CURSEFORGE_SEARCH_LOADERS_PARAM = "modLoaderTypes"; // mod loader index (1=forge, 4=fabric)
