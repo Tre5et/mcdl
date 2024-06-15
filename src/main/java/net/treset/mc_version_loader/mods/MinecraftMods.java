@@ -60,7 +60,7 @@ public class MinecraftMods {
         }
 
         return new LauncherMod(
-                data.getModProviders().get(0).toString().toLowerCase(),
+                (downloadUrl.toString().contains("modrinth") ? ModProvider.MODRINTH : ModProvider.CURSEFORGE).toString().toLowerCase(),
                 data.getParentMod().getDescription(),
                 true,
                 data.getParentMod().getUrl(),

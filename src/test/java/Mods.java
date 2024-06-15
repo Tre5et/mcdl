@@ -15,7 +15,8 @@ public class Mods {
         testModrinthVersions(mod);
         testCurseforgeVersions(mod);
         testDependencies();
-        testPreference(mod);
+        textModPreference(mod);
+        testVersionPreference(mod);
     }
 
     public static ModData testSearch() {
@@ -214,9 +215,47 @@ public class Mods {
         }
     }
 
-    public static void testPreference(ModData mod) {
+    public static void textModPreference(ModData mod) {
         if(mod == null) {
-            System.err.println("Mods:testPreference FAILED: no mod");
+            System.err.println("Mods:testModPreference FAILED: no mod");
+            return;
+        }
+
+        if(!(mod instanceof CombinedModData)) {
+            System.err.println("Mods:testModPreference FAILED: not CombinedModData");
+            return;
+        }
+
+        mod.setVersionProviders(List.of(ModProvider.CURSEFORGE, ModProvider.MODRINTH));
+        if(!mod.getUrl().contains("curseforge")) {
+            System.err.println("Mods:testModPreference FAILED: wrong url 1: " + mod.getUrl());
+            return;
+        }
+
+        mod.setVersionProviders(List.of(ModProvider.MODRINTH, ModProvider.CURSEFORGE));
+        if(!mod.getUrl().contains("modrinth")) {
+            System.err.println("Mods:testModPreference FAILED: wrong url 2: " + mod.getUrl());
+            return;
+        }
+
+        mod.setVersionProviders(List.of(ModProvider.CURSEFORGE));
+        if(!mod.getUrl().contains("curseforge")) {
+            System.err.println("Mods:testModPreference FAILED: wrong url 3: " + mod.getUrl());
+            return;
+        }
+
+        mod.setVersionProviders(List.of(ModProvider.MODRINTH));
+        if(!mod.getUrl().contains("modrinth")) {
+            System.err.println("Mods:testModPreference FAILED: wrong url 4: " + mod.getUrl());
+            return;
+        }
+
+        System.out.println("Mods:testModPreference PASSED");
+    }
+
+    public static void testVersionPreference(ModData mod) {
+        if(mod == null) {
+            System.err.println("Mods:testVersionPreference FAILED: no mod");
             return;
         }
 
@@ -224,42 +263,42 @@ public class Mods {
         try {
             List<ModVersionData> versions = mod.getVersions();
             if(versions.isEmpty()) {
-                System.err.println("Mods:testPreference FAILED: no versions");
+                System.err.println("Mods:testVersionPreference FAILED: no versions");
                 return;
             }
             ModVersionData version = versions.get(0);
             if(!(version instanceof CombinedModVersion)) {
-                System.err.println("Mods:testPreference FAILED: not CombinedModVersion");
+                System.err.println("Mods:testVersionPreference FAILED: not CombinedModVersion");
                 return;
             }
 
             version.setDownloadProviders(List.of(ModProvider.CURSEFORGE, ModProvider.MODRINTH));
             if(!version.getDownloadUrl().contains("forgecdn")) {
-                System.err.println("Mods:testPreference FAILED: wrong download url 1: " + version.getDownloadUrl());
+                System.err.println("Mods:testVersionPreference FAILED: wrong download url 1: " + version.getDownloadUrl());
                 return;
             }
 
             version.setDownloadProviders(List.of(ModProvider.MODRINTH, ModProvider.CURSEFORGE));
             if(!version.getDownloadUrl().contains("modrinth")) {
-                System.err.println("Mods:testPreference FAILED: wrong download url 2: " + version.getDownloadUrl());
+                System.err.println("Mods:testVersionPreference FAILED: wrong download url 2: " + version.getDownloadUrl());
                 return;
             }
 
             version.setDownloadProviders(List.of(ModProvider.CURSEFORGE));
             if(!version.getDownloadUrl().contains("forgecdn")) {
-                System.err.println("Mods:testPreference FAILED: wrong download url 3: " + version.getDownloadUrl());
+                System.err.println("Mods:testVersionPreference FAILED: wrong download url 3: " + version.getDownloadUrl());
                 return;
             }
 
             version.setDownloadProviders(List.of(ModProvider.MODRINTH));
             if(!version.getDownloadUrl().contains("modrinth")) {
-                System.err.println("Mods:testPreference FAILED: wrong download url 4: " + version.getDownloadUrl());
+                System.err.println("Mods:testVersionPreference FAILED: wrong download url 4: " + version.getDownloadUrl());
                 return;
             }
 
-            System.out.println("Mods:testPreference PASSED");
+            System.out.println("Mods:testVersionPreference PASSED");
         } catch (Exception e) {
-            System.err.println("Mods:testPreference FAILED: error getting versions " + e.getMessage());
+            System.err.println("Mods:testVersionPreference FAILED: error getting versions " + e.getMessage());
         }
     }
 }
