@@ -93,66 +93,131 @@ public class MinecraftGame {
             return;
         }
 
-        if(library.getDownloads().getArtifacts().getPath() == null || library.getDownloads().getArtifacts().getPath().isBlank() || librariesDir == null || !librariesDir.isDirectory()) {
+        if(library.getDownloads() == null || librariesDir == null || !librariesDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for library download: library=" + library.getName());
         }
 
-        File outDir = new File(librariesDir, library.getDownloads().getArtifacts().getPath().substring(0, library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
-        if (!outDir.isDirectory() && !outDir.mkdirs()) {
-            throw new FileDownloadException("Unable to make required dirs: library=" + library.getName());
-        }
-
-        if (library.getNatives() != null) {
-            List<String> applicableNatives = new ArrayList<>();
+        if (library.getNatives() != null && library.getDownloads().getClassifiers() != null && library.getDownloads().getClassifiers().getNatives() != null) {
+            String applicableNative = null;
             if (OsUtil.isOsName("windows") && library.getNatives().getWindows() != null) {
-                applicableNatives.add(library.getNatives().getWindows());
+                applicableNative = library.getNatives().getWindows();
             } else if (OsUtil.isOsName("linux") && library.getNatives().getLinux() != null) {
-                applicableNatives.add(library.getNatives().getLinux());
+                applicableNative = library.getNatives().getLinux();
             } else if (OsUtil.isOsName("osx") && library.getNatives().getOsx() != null) {
-                applicableNatives.add(library.getNatives().getOsx());
+                applicableNative = library.getNatives().getOsx();
             }
 
-            for (String n : applicableNatives) {
-                for (MinecraftLibrary.Downloads.Classifiers.Native na : library.getDownloads().getClassifiers().getNatives()) {
-                    if (n.equals(na.getName())) {
-                        URL nativeUrl;
-                        try {
-                            nativeUrl = new URL(na.getArtifact().getUrl());
-                        } catch (MalformedURLException e) {
-                            throw new FileDownloadException("Unable to convert native download url: library=" + library.getName() + ", native=" + na.getName(), e);
-                        }
-
-                        File nativeOutDir = new File(librariesDir, na.getArtifact().getPath().substring(0, na.getArtifact().getPath().lastIndexOf('/')));
-                        if (!nativeOutDir.isDirectory() && !nativeOutDir.mkdirs()) {
-                            throw new FileDownloadException("Unable to make required native dirs: library=" + library.getName() + ", native=" + na.getName());
-                        }
-                        File outFile = new File(outDir, na.getArtifact().getPath().substring(na.getArtifact().getPath().lastIndexOf('/')));
-                        FileUtil.downloadFile(nativeUrl, outFile);
-                        result.add(na.getArtifact().getPath());
-                    }
+            for (MinecraftLibrary.Downloads.Classifiers.Native na : library.getDownloads().getClassifiers().getNatives()) {
+                if (na.getName().equals(applicableNative)) {
+                    result.add(downloadArtifact(na.getArtifact(), librariesDir, localLibraryDir, library.getExtract()));
                 }
             }
         }
 
-        URL downloadUrl;
-        File outFile = new File(outDir, library.getDownloads().getArtifacts().getPath().substring(library.getDownloads().getArtifacts().getPath().lastIndexOf('/')));
-        try {
-            downloadUrl = new URL(library.getDownloads().getArtifacts().getUrl());
+        if(library.getDownloads().getArtifacts() != null && !library.getDownloads().getArtifacts().getUrl().isBlank()) {
+            result.add(downloadArtifact(library.getDownloads().getArtifacts(), librariesDir, localLibraryDir, library.getExtract()));
+        }
+    }
+
+    public static String downloadArtifact(MinecraftLibrary.Downloads.Artifact artifact, File baseDir) throws FileDownloadException {
+        return downloadArtifact(artifact, baseDir, null, null);
+    }
+
+    public static String downloadArtifact(MinecraftLibrary.Downloads.Artifact artifact, File baseDir, File localDir) throws FileDownloadException {
+        return downloadArtifact(artifact, baseDir, localDir, null);
+    }
+
+    public static String downloadArtifact(MinecraftLibrary.Downloads.Artifact artifact, File baseDir, File localDir, MinecraftLibrary.Extract extract) throws FileDownloadException {
+        if(artifact == null || baseDir == null || !baseDir.isDirectory() || artifact.getPath() == null || artifact.getPath().isBlank()) {
+            throw new FileDownloadException("Unmet requirements for artifact download: artifact=" + artifact);
+        }
+
+        if(artifact.getUrl() == null) {
+            return copyLocalArtifact(artifact.getPath(), baseDir, localDir);
+        } else {
+            URL downloadUrl;
+            try {
+                downloadUrl = new URL(artifact.getUrl());
+            } catch (MalformedURLException e) {
+                throw new FileDownloadException("Unable to convert artifact download url: artifact=" + artifact.getUrl(), e);
+            }
+
+            File outDir = new File(baseDir, artifact.getPath().substring(0, artifact.getPath().lastIndexOf('/')));
+            if (!outDir.isDirectory() && !outDir.mkdirs()) {
+                throw new FileDownloadException("Unable to make required dirs: artifact=" + artifact.getPath());
+            }
+            File outFile = new File(outDir, artifact.getPath().substring(artifact.getPath().lastIndexOf('/')));
+
             FileUtil.downloadFile(downloadUrl, outFile);
-        } catch (MalformedURLException | FileDownloadException e) {
-            if(localLibraryDir != null) {
-                File localFile = new File(localLibraryDir, library.getDownloads().getArtifacts().getPath());
-                if (localFile.isFile()) {
+
+            if(extract != null) {
+                applyExtract(outFile, extract);
+            }
+
+            return artifact.getPath();
+        }
+    }
+
+    public static String copyLocalArtifact(String path, File baseDir, File localDir) throws FileDownloadException {
+        if(path == null || path.isBlank() || baseDir == null || !baseDir.isDirectory() || localDir == null || !localDir.isDirectory()) {
+            return null;
+        }
+
+        File outDir = new File(baseDir, path.substring(0, path.lastIndexOf('/')));
+        if (!outDir.isDirectory() && !outDir.mkdirs()) {
+            return null;
+        }
+        File outFile = new File(outDir, path.substring(path.lastIndexOf('/')));
+
+        File localFile = new File(localDir, path);
+        if (localFile.isFile()) {
+            try {
+                Files.copy(localFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                return path;
+            } catch (IOException e) {
+                throw new FileDownloadException("Unable to copy local artifact: artifact=" + path, e);
+            }
+        }
+        throw new FileDownloadException("Local artifact not found: artifact=" + path);
+    }
+
+    public static void applyExtract(File file, MinecraftLibrary.Extract extract) throws FileDownloadException {
+        if(file == null || !file.isFile() || extract == null) {
+            throw new FileDownloadException("Unmet requirements for extract: file=" + file + ", extract=" + extract);
+        }
+
+        File tempDir = new File(FileUtil.getTempDir(), file.getName());
+        try {
+            Files.createDirectories(tempDir.toPath());
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to create extract directory: file=" + file, e);
+        }
+
+        try {
+            FileUtil.exctractFile(file, tempDir);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to extract file: file=" + file, e);
+        }
+
+        if(extract.getExclude() != null) {
+            for(String exclude : extract.getExclude()) {
+                File toRemove = new File(tempDir, exclude);
+
+                if(toRemove.exists()) {
                     try {
-                        Files.copy(localFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException ex) {
-                        throw new FileDownloadException("Unable to copy local library: library=" + library.getName(), ex);
+                        FileUtil.delete(toRemove);
+                    } catch (IOException e) {
+                        throw new FileDownloadException("Unable to delete extracted file: file=" + toRemove, e);
                     }
                 }
             }
         }
 
-        result.add(library.getDownloads().getArtifact().getPath());
+        try {
+            FileUtil.compressContents(tempDir, file);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to rezip file: file=" + file, e);
+        }
     }
 
     /**

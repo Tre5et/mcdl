@@ -19,6 +19,8 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 public class FileUtil {
     private static boolean cacheWebRequests = false;
@@ -229,6 +231,100 @@ public class FileUtil {
         if(!file.delete()) {
             throw new IOException("Failed to delete file: " + file.getAbsolutePath());
         }
+    }
+
+
+    /**
+     * Extracts a zip file to a directory
+     * @param srcFile The file to extract
+     * @param dstDir The directory to extract the contents of the zip file into
+     * @throws IOException If there is an error extracting the file
+     */
+    public static void exctractFile(File srcFile, File dstDir) throws IOException {
+        byte[] buffer = new byte[1024];
+        ZipInputStream zis = new ZipInputStream(new FileInputStream(srcFile));
+        ZipEntry zipEntry = zis.getNextEntry();
+        while (zipEntry != null) {
+            File newFile = newFile(dstDir, zipEntry);
+            if (zipEntry.isDirectory()) {
+                if (!newFile.isDirectory() && !newFile.mkdirs()) {
+                    throw new IOException("Failed to create directory " + newFile);
+                }
+            } else {
+                File parent = newFile.getParentFile();
+                if (!parent.isDirectory() && !parent.mkdirs()) {
+                    throw new IOException("Failed to create directory " + parent);
+                }
+
+                FileOutputStream fos = new FileOutputStream(newFile);
+                int len;
+                while ((len = zis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, len);
+                }
+                fos.close();
+            }
+            zipEntry = zis.getNextEntry();
+        }
+
+        zis.closeEntry();
+        zis.close();
+    }
+
+    private static File newFile(File destinationDir, ZipEntry zipEntry) throws IOException {
+        File destFile = new File(destinationDir, zipEntry.getName());
+
+        String destDirPath = destinationDir.getCanonicalPath();
+        String destFilePath = destFile.getCanonicalPath();
+
+        if (!destFilePath.startsWith(destDirPath + File.separator)) {
+            throw new IOException("Entry is outside of the target dir: " + zipEntry.getName());
+        }
+
+        return destFile;
+    }
+
+    /**
+     * Compresses a file or the contents of a directory to a zip file
+     * @param src The file or directory to compress
+     * @param dstFile The output zip file
+     * @throws IOException If there is an error compressing the file
+     */
+    public static void compressContents(File src, File dstFile) throws IOException {
+        FileOutputStream fos = new FileOutputStream(dstFile);
+        ZipOutputStream zipOut = new ZipOutputStream(fos);
+
+        zipFile(src, src.getName(), zipOut, true);
+        zipOut.close();
+        fos.close();
+    }
+
+    private static void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut, boolean isStart) throws IOException {
+        if (fileToZip.isHidden()) {
+            return;
+        }
+        if (fileToZip.isDirectory()) {
+            if(!isStart) {
+                zipOut.putNextEntry(new ZipEntry(fileName + (fileName.endsWith("/") ? "" : "/")));
+                zipOut.closeEntry();
+            }
+            File[] children = fileToZip.listFiles();
+            if(children == null) {
+                return;
+            }
+            for (File childFile : children) {
+                zipFile(childFile, (isStart ? "" : (fileName + "/")) + childFile.getName(), zipOut, false);
+            }
+            return;
+        }
+        FileInputStream fis = new FileInputStream(fileToZip);
+        ZipEntry zipEntry = new ZipEntry(fileName);
+        zipOut.putNextEntry(zipEntry);
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0) {
+            zipOut.write(bytes, 0, length);
+        }
+        fis.close();
     }
 
     private static boolean temDirRegistered = false;

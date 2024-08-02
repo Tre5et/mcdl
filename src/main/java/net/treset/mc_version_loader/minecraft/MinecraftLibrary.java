@@ -14,6 +14,7 @@ import java.util.Set;
 public class MinecraftLibrary {
     private String name;
     private Downloads downloads;
+    private Extract extract;
     private List<MinecraftRule> rules;
     private Natives natives;
 
@@ -196,6 +197,22 @@ public class MinecraftLibrary {
         }
     }
 
+    public static class Extract {
+        private List<String> exclude;
+
+        public Extract(List<String> exclude) {
+            this.exclude = exclude;
+        }
+
+        public List<String> getExclude() {
+            return exclude;
+        }
+
+        public void setExclude(List<String> exclude) {
+            this.exclude = exclude;
+        }
+    }
+
     public boolean isApplicable(List<String> activeFeatures) {
         for(MinecraftRule r : getRules()) {
             if(!r.isApplicable(activeFeatures)) {
@@ -219,6 +236,14 @@ public class MinecraftLibrary {
 
     public void setDownloads(Downloads downloads) {
         this.downloads = downloads;
+    }
+
+    public Extract getExtract() {
+        return extract;
+    }
+
+    public void setExtract(Extract extract) {
+        this.extract = extract;
     }
 
     public List<MinecraftRule> getRules() {
