@@ -8,6 +8,7 @@ import net.treset.mc_version_loader.json.JsonUtils;
 import net.treset.mc_version_loader.json.SerializationException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,8 +27,9 @@ public class MinecraftVersionDetails {
     private MinecraftFileDownloads downloads;
     private List<MinecraftLibrary> libraries;
     private MinecraftLogging logging;
+    private String minecraftArguments;
 
-    public MinecraftVersionDetails(String id, String assets, int complianceLevel, String mainClass, int minimumLauncherVersion, String releaseTime, String time, String type, MinecraftLaunchArguments command, MinecraftJavaVersion javaVersion, MinecraftAssetIndex assetIndex, MinecraftFileDownloads downloads, List<MinecraftLibrary> libraries, MinecraftLogging logging) {
+    public MinecraftVersionDetails(String id, String assets, int complianceLevel, String mainClass, int minimumLauncherVersion, String releaseTime, String time, String type, MinecraftLaunchArguments command, MinecraftJavaVersion javaVersion, MinecraftAssetIndex assetIndex, MinecraftFileDownloads downloads, List<MinecraftLibrary> libraries, MinecraftLogging logging, String minecraftArguments) {
         this.id = id;
         this.assets = assets;
         this.complianceLevel = complianceLevel;
@@ -42,6 +44,7 @@ public class MinecraftVersionDetails {
         this.downloads = downloads;
         this.libraries = libraries;
         this.logging = logging;
+        this.minecraftArguments = minecraftArguments;
     }
 
     public static MinecraftVersionDetails fromJson(String jsonData) throws SerializationException {
@@ -148,6 +151,18 @@ public class MinecraftVersionDetails {
     }
 
     public MinecraftLaunchArguments getLaunchArguments() {
+        return getLaunchArguments(true);
+    }
+
+    public MinecraftLaunchArguments getLaunchArguments(boolean mergeLegacyMinecraftArguments) {
+        if(mergeLegacyMinecraftArguments && minecraftArguments != null) {
+            String[] legacyArgs = minecraftArguments.split(" ");
+            List<MinecraftLaunchArgument> gameArgs = new ArrayList<>(launchArguments.getGame());
+            gameArgs.addAll(
+                Arrays.stream(legacyArgs).map(a -> new MinecraftLaunchArgument(a, null)).toList()
+            );
+            return new MinecraftLaunchArguments(gameArgs, launchArguments.getJvm());
+        }
         return launchArguments;
     }
 
@@ -193,6 +208,14 @@ public class MinecraftVersionDetails {
 
     public void setLogging(MinecraftLogging logging) {
         this.logging = logging;
+    }
+
+    public String getMinecraftArguments() {
+        return minecraftArguments;
+    }
+
+    public void setMinecraftArguments(String minecraftArguments) {
+        this.minecraftArguments = minecraftArguments;
     }
 
     @Override
