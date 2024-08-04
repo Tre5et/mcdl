@@ -7,6 +7,10 @@ import java.nio.file.Files;
 import java.util.List;
 
 public class Version {
+    public static void main(String[] args) {
+        testVersions();
+    }
+
     public static void testVersions() {
         testVersion("1.0");
         testVersion("1.2.1");
@@ -24,7 +28,7 @@ public class Version {
             MinecraftVersionDetails details = MinecraftGame.getVersionDetails(version.getUrl());
             MinecraftGame.downloadVersionDownload(details.getDownloads().getClient(), new File("download/client-"+name+".jar"));
             Files.createDirectories(new File("download/libraries-"+name).toPath());
-            MinecraftGame.downloadVersionLibraries(details.getLibraries(), new File("download/libraries-"+name), List.of(), (v) -> {});
+            MinecraftGame.downloadVersionLibraries(details.getLibraries(), new File("download/libraries-"+name), List.of(), new File("download/natives-"+name), (v) -> {});
             System.out.println("Version:testVersion/" + name + " PASSED");
         } catch (Exception e) {
             System.out.println("Version:testVersion/" + name + " FAILED: ");

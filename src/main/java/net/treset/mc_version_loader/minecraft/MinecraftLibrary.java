@@ -172,14 +172,6 @@ public class MinecraftLibrary {
             this.artifact = artifact;
         }
 
-        public Artifact getArtifacts() {
-            return artifact;
-        }
-
-        public void setArtifacts(Artifact artifact) {
-            this.artifact = artifact;
-        }
-
         public Artifact getArtifact() {
             return artifact;
         }

@@ -146,25 +146,27 @@ public class MinecraftForge {
      * Downloads a list of forge libraries to a specified directory and returns a list of library paths.
      * @param targetDir The directory to download the libraries to
      * @param libraries The libraries to download
+     * @param nativesDir The directory to download natives to
      * @return A list of library paths
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
-    public static List<String> downloadForgeLibraries(File targetDir, String version, List<MinecraftLibrary> libraries) throws FileDownloadException {
-        return downloadForgeLibraries(targetDir, version, libraries, status -> {});
+    public static List<String> downloadForgeLibraries(File targetDir, String version, List<MinecraftLibrary> libraries, File nativesDir) throws FileDownloadException {
+        return downloadForgeLibraries(targetDir, version, libraries, nativesDir, status -> {});
     }
 
     /**
      * Downloads a list of forge libraries to a specified directory and returns a list of library paths.
      * @param targetDir The directory to download the libraries to
      * @param libraries The libraries to download
+     * @param nativesDir The directory to download natives to
      * @param statusCallback A callback to be called when a library is downloaded
      * @return A list of library paths
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
-    public static List<String> downloadForgeLibraries(File targetDir, String version, List<MinecraftLibrary> libraries, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+    public static List<String> downloadForgeLibraries(File targetDir, String version, List<MinecraftLibrary> libraries, File nativesDir, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         extractMaven(version, targetDir);
         File localLibsDir = new File(targetDir, "maven");
-        return MinecraftGame.downloadVersionLibraries(libraries, targetDir, localLibsDir, List.of(), statusCallback);
+        return MinecraftGame.downloadVersionLibraries(libraries, targetDir, localLibsDir, List.of(), nativesDir, statusCallback);
     }
 
     /**
@@ -333,18 +335,18 @@ public class MinecraftForge {
 
         ArrayList<LibraryData> libraryData = new ArrayList<>();
         for (MinecraftLibrary lib : profile.getLibraries()) {
-            File outFile = new File(libsDir, lib.getDownloads().getArtifacts().getPath());
+            File outFile = new File(libsDir, lib.getDownloads().getArtifact().getPath());
             if(!outFile.getParentFile().isDirectory() && !outFile.getParentFile().mkdirs()) {
                 throw new FileDownloadException("Failed to create directory for forge library: " + lib.getName());
             }
 
             boolean found = false;
             try {
-                FileUtil.downloadFile(new URL(lib.getDownloads().getArtifacts().getUrl()), outFile);
+                FileUtil.downloadFile(new URL(lib.getDownloads().getArtifact().getUrl()), outFile);
                 found = true;
             } catch (MalformedURLException e) {
                 if(localLibsDir != null) {
-                    File localFile = new File(localLibsDir, lib.getDownloads().getArtifacts().getPath());
+                    File localFile = new File(localLibsDir, lib.getDownloads().getArtifact().getPath());
                     if (localFile.isFile()) {
                         try {
                             Files.copy(localFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);

@@ -58,8 +58,8 @@ public class MinecraftLaunchArguments {
         StringBuilder out = new StringBuilder();
         out.append("\"").append(gameLaunchFile);
         for(MinecraftLibrary l : libraries) {
-            if(l.getDownloads().getArtifacts().getPath() != null && !l.getDownloads().getArtifacts().getPath().isBlank()) {
-                out.append(";").append(libsDir).append("/").append(l.getDownloads().getArtifacts().getPath());
+            if(l.getDownloads().getArtifact().getPath() != null && !l.getDownloads().getArtifact().getPath().isBlank()) {
+                out.append(";").append(libsDir).append("/").append(l.getDownloads().getArtifact().getPath());
             }
         }
         out.append("\" ").append(mainClass).append(" ");

@@ -15,6 +15,7 @@ import java.net.http.HttpResponse;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -216,13 +217,36 @@ public class FileUtil {
 
     /**
      * Copies the content of a file to another file while creating that file.
-     * @param source The file to copy
+     * @param src The file to copy
      * @param dst The file to copy to
      * @throws IOException If the file can not be copied
      */
-    public static void copyFileContent(File source, File dst) throws IOException {
+    public static void copyFileContent(File src, File dst, CopyOption... options) throws IOException {
         Files.createDirectories(dst.getParentFile().toPath());
-        Files.copy(source.toPath(), dst.toPath());
+        Files.copy(src.toPath(), dst.toPath(), options);
+    }
+
+    /**
+     * Copies the content of a directory to another directory while creating that directory.
+     * @param src The directory to copy
+     * @param dst The directory to copy to
+     * @throws IOException If the directory can not be copied
+     */
+    public static void copyDirectory(File src, File dst, CopyOption... options) throws IOException {
+        if(src.isDirectory()) {
+            if(!dst.exists()) {
+                Files.createDirectories(dst.toPath());
+            }
+            String[] files = src.list();
+            if(files == null) {
+                return;
+            }
+            for(String file : files) {
+                copyDirectory(new File(src, file), new File(dst, file), options);
+            }
+        } else {
+            Files.copy(src.toPath(), dst.toPath(), options);
+        }
     }
 
     /**

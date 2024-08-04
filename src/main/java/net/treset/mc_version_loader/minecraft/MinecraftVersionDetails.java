@@ -151,10 +151,10 @@ public class MinecraftVersionDetails {
     }
 
     public MinecraftLaunchArguments getLaunchArguments() {
-        return getLaunchArguments(true, true);
+        return getLaunchArguments(true);
     }
 
-    public MinecraftLaunchArguments getLaunchArguments(boolean mergeLegacyMinecraftArguments, boolean includeDefaultLegacyArguments) {
+    public MinecraftLaunchArguments getLaunchArguments(boolean mergeLegacyMinecraftArguments) {
         if(mergeLegacyMinecraftArguments && minecraftArguments != null) {
             String[] legacyArgs = minecraftArguments.split(" ");
             List<MinecraftLaunchArgument> gameArgs = new ArrayList<>(launchArguments.getGame());
