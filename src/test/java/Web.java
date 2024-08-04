@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Web {
-    public static void testWebRequests() {
+    public static void main(String... args) {
         try {
             FileUtil.useWebRequestCache(true);
             byte[] res = FileUtil.getFromHttpGet("https://httpbin.org/anything", List.of(Map.entry("header1", "val1"), Map.entry("header2", "val2")), List.of(Map.entry("arg1", "val1"), Map.entry("arg2", "val2")));

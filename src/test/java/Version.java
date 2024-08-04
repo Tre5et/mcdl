@@ -7,11 +7,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 public class Version {
-    public static void main(String[] args) {
-        testVersions();
-    }
-
-    public static void testVersions() {
+    public static void main(String... args) {
         testVersion("1.0");
         testVersion("1.2.1");
         testVersion("1.5.1");

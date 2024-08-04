@@ -1,7 +1,8 @@
 public class TestMain {
     public static void main(String[] args) {
-        Web.testWebRequests();
-        Mods.testMods();
-        Version.testVersions();
+        Web.main();
+        Mods.main();
+        Version.main();
+        Assets.main();
     }
 }

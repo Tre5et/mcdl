@@ -6,7 +6,7 @@ import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
 import java.util.List;
 
 public class Mods {
-    public static void testMods() {
+    public static void main(String... args) {
         MinecraftMods.setModrinthUserAgent("test");
         MinecraftMods.setCurseforgeApiKey("$2a$10$3rdQBL3FRS2RSSS4MF5F5uuOQpFr5flAzUCAdBvZDEfu1fIXFq.DW");
 
