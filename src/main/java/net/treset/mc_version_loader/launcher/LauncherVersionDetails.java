@@ -9,6 +9,7 @@ public class LauncherVersionDetails extends GenericJsonParsable {
     private String versionType;
     private String loaderVersion;
     private String assets;
+    private String virtualAssets;
     private String depends;
     private List<LauncherLaunchArgument> gameArguments;
     private List<LauncherLaunchArgument> jvmArguments;
@@ -63,6 +64,14 @@ public class LauncherVersionDetails extends GenericJsonParsable {
 
     public void setAssets(String assets) {
         this.assets = assets;
+    }
+
+    public String getVirtualAssets() {
+        return virtualAssets;
+    }
+
+    public void setVirtualAssets(String virtualAssets) {
+        this.virtualAssets = virtualAssets;
     }
 
     public String getDepends() {

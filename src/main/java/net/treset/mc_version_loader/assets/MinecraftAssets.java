@@ -8,10 +8,12 @@ import net.treset.mc_version_loader.util.FileUtil;
 import net.treset.mc_version_loader.util.Sources;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class MinecraftAssets {
@@ -115,5 +117,46 @@ public class MinecraftAssets {
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse asset index", e);
         }
+    }
+
+    /**
+     * Gets the file location of a specific asset hash
+     * @param assetsDir The assets directory
+     * @param hash The hash of the asset
+     * @return The file location of the asset
+     */
+    public static File getAssetFile(File assetsDir, String hash) {
+        return new File(assetsDir, "objects/" + hash.substring(0, 2) + "/" + hash);
+    }
+
+    /**
+     * Extracts the assets from an asset index
+     * @param version The version of the asset index
+     * @param assetsDir The assets directory
+     * @return The directory where the assets were extracted to
+     * @throws IOException If there is an error extracting the assets
+     */
+    public static File extractVirtualAssets(String version, File assetsDir) throws IOException {
+        String indexContent = FileUtil.readFileAsString(new File(assetsDir, "indexes/" + version + ".json"));
+        AssetIndex index;
+        try {
+            index = AssetIndex.fromJson(indexContent);
+        } catch (SerializationException e) {
+            throw new IOException("Unable to parse asset index", e);
+        }
+        File outDir = new File(assetsDir, "objects/virtual/" + version);
+        if(!outDir.isDirectory() && !outDir.mkdirs()) {
+            throw new IOException("Unable to create virtual assets directory");
+        }
+        for(Map.Entry<String, AssetObject> o : index.getObjects().entrySet()) {
+            File srcFile = getAssetFile(assetsDir, o.getValue().getHash());
+            File outFile = new File(outDir, o.getKey());
+            try {
+                FileUtil.copyFileContent(srcFile, outFile);
+            } catch (IOException e) {
+                throw new IOException("Unable to copy virtual asset, id=" + o.getKey(), e);
+            }
+        }
+        return outDir;
     }
 }

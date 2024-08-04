@@ -6,6 +6,7 @@ import net.treset.mc_version_loader.json.SerializationException;
 import java.util.Map;
 
 public class AssetIndex extends GenericJsonParsable {
+    private boolean mapToResources;
     private Map<String, AssetObject> objects;
 
     public AssetIndex(Map<String, AssetObject> objects) {
@@ -30,5 +31,13 @@ public class AssetIndex extends GenericJsonParsable {
 
     public void setObjects(Map<String, AssetObject> objects) {
         this.objects = objects;
+    }
+
+    public boolean isMapToResources() {
+        return mapToResources;
+    }
+
+    public void setMapToResources(boolean mapToResources) {
+        this.mapToResources = mapToResources;
     }
 }

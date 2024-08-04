@@ -215,6 +215,17 @@ public class FileUtil {
     }
 
     /**
+     * Copies the content of a file to another file while creating that file.
+     * @param source The file to copy
+     * @param dst The file to copy to
+     * @throws IOException If the file can not be copied
+     */
+    public static void copyFileContent(File source, File dst) throws IOException {
+        Files.createDirectories(dst.getParentFile().toPath());
+        Files.copy(source.toPath(), dst.toPath());
+    }
+
+    /**
      * Deletes a file or directory.
      * @param file The file or directory to delete
      * @throws IOException If the file or directory can not be deleted
