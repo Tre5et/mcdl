@@ -10,6 +10,7 @@ public class LauncherVersionDetails extends GenericJsonParsable {
     private String loaderVersion;
     private String assets;
     private String virtualAssets;
+    private String natives;
     private String depends;
     private List<LauncherLaunchArgument> gameArguments;
     private List<LauncherLaunchArgument> jvmArguments;
@@ -19,11 +20,13 @@ public class LauncherVersionDetails extends GenericJsonParsable {
     private String mainFile;
     private String versionId;
 
-    public LauncherVersionDetails(String versionNumber, String versionType, String loaderVersion, String assets, String depends, List<LauncherLaunchArgument> gameArguments, List<LauncherLaunchArgument> jvmArguments, String java, List<String> libraries, String mainClass, String mainFile, String versionId) {
+    public LauncherVersionDetails(String versionNumber, String versionType, String loaderVersion, String assets, String virtualAssets, String natives, String depends, List<LauncherLaunchArgument> gameArguments, List<LauncherLaunchArgument> jvmArguments, String java, List<String> libraries, String mainClass, String mainFile, String versionId) {
         this.versionNumber = versionNumber;
         this.versionType = versionType;
         this.loaderVersion = loaderVersion;
         this.assets = assets;
+        this.virtualAssets = virtualAssets;
+        this.natives = natives;
         this.depends = depends;
         this.gameArguments = gameArguments;
         this.jvmArguments = jvmArguments;
@@ -72,6 +75,14 @@ public class LauncherVersionDetails extends GenericJsonParsable {
 
     public void setVirtualAssets(String virtualAssets) {
         this.virtualAssets = virtualAssets;
+    }
+
+    public String getNatives() {
+        return natives;
+    }
+
+    public void setNatives(String natives) {
+        this.natives = natives;
     }
 
     public String getDepends() {
