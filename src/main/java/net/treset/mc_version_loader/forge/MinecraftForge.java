@@ -104,8 +104,8 @@ public class MinecraftForge {
      * @param minecraftJar A vanilla minecraft client jar of the correct version
      * @throws FileDownloadException If there is an error processing the client jar
      */
-    public static void createForgeClient(String version, File librariesDir, ForgeInstallProfile profile, File minecraftJar) throws FileDownloadException {
-        createForgeClient(version, librariesDir, profile, minecraftJar, status -> {});
+    public static void createForgeClient(String version, File librariesDir, ForgeInstallProfile profile, File minecraftJar, File javaFile) throws FileDownloadException {
+        createForgeClient(version, librariesDir, profile, minecraftJar, javaFile, status -> {});
     }
 
     /**
@@ -116,7 +116,7 @@ public class MinecraftForge {
      * @param statusCallback A callback to be called when a step in the process is started
      * @throws FileDownloadException If there is an error processing the client jar
      */
-    public static void createForgeClient(String version, File librariesDir, ForgeInstallProfile profile, File minecraftJar, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+    public static void createForgeClient(String version, File librariesDir, ForgeInstallProfile profile, File minecraftJar, File javaFile, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         File tempDir = new File(FileUtil.getTempDir(), "forge-" + version + "-installer");
         if(!tempDir.isDirectory() && !tempDir.mkdirs()) {
             throw new FileDownloadException("Failed to create directory for forge installer");
@@ -136,7 +136,7 @@ public class MinecraftForge {
 
         for (int i = 0; i < processors.size(); i++) {
             statusCallback.accept(new DownloadStatus(i + 3, processors.size() + 3, "Run Processor: " + processors.get(i).getJar(), false));
-            startProcessor(processors.get(i), libraries, profile, minecraftJar, tempDir, librariesDir);
+            startProcessor(processors.get(i), libraries, profile, minecraftJar, tempDir, librariesDir, javaFile);
         }
 
         statusCallback.accept(new DownloadStatus(processors.size() + 2, processors.size() + 3, "Copy Processed Libraries", false));
@@ -228,7 +228,7 @@ public class MinecraftForge {
         return copied;
     }
 
-    private static void startProcessor(ForgeInstallProcessor processor, List<LibraryData> libraries, ForgeInstallProfile profile, File minecraftJar, File tempDir, File libsDir) throws FileDownloadException {
+    private static void startProcessor(ForgeInstallProcessor processor, List<LibraryData> libraries, ForgeInstallProfile profile, File minecraftJar, File tempDir, File libsDir, File javaFile) throws FileDownloadException {
         LibraryData mainLib;
         try {
             mainLib = libraries.stream().filter(l -> l.getId().equals(processor.getJar())).findFirst().orElseThrow();
@@ -242,7 +242,7 @@ public class MinecraftForge {
         classpathString.append(mainLib.getPath());
         classpath.forEach(c -> classpathString.append(';').append(c));
 
-        ProcessBuilder builder = new ProcessBuilder(System.getProperty("java.home") + "\\bin\\java", "-cp");
+        ProcessBuilder builder = new ProcessBuilder(javaFile.getAbsolutePath(), "-cp");
         builder.command().add(classpathString.toString());
         builder.command().add(mainLib.getMainClass());
         for(String arg : processor.getArgs()) {

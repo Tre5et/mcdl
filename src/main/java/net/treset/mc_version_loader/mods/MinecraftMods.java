@@ -12,8 +12,6 @@ import net.treset.mc_version_loader.mods.modrinth.ModrinthSearch;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthSearchHit;
 import net.treset.mc_version_loader.mods.modrinth.ModrinthVersion;
 import net.treset.mc_version_loader.util.FileUtil;
-import net.treset.mc_version_loader.launcher.LauncherMod;
-import net.treset.mc_version_loader.launcher.LauncherModDownload;
 import net.treset.mc_version_loader.util.Sources;
 
 import java.io.File;
@@ -32,7 +30,7 @@ public class MinecraftMods {
      * @return The downloaded launcher mod data
      * @throws FileDownloadException If there is an error downloading or writing the mod
      */
-    public static LauncherMod downloadModFile(ModVersionData data, File parentDir) throws FileDownloadException {
+    public static LocalModVersion downloadModFile(ModVersionData data, File parentDir) throws FileDownloadException {
         if(data == null || data.getParentMod() == null) {
             throw new FileDownloadException("Unable to download mod: unmet requirements: mod=" + data);
         }
@@ -54,20 +52,15 @@ public class MinecraftMods {
         }
         FileUtil.downloadFile(downloadUrl, modFile);
 
-        ArrayList<LauncherModDownload> downloads = new ArrayList<>();
+        ArrayList<LocalModVersion.LocalModDownload> downloads = new ArrayList<>();
         for(int i = 0; i < providers.size(); i++) {
-            downloads.add(new LauncherModDownload(providers.get(i).toString().toLowerCase(), projectIds.get(i)));
+            downloads.add(new LocalModVersion.LocalModDownload(providers.get(i), projectIds.get(i)));
         }
 
-        return new LauncherMod(
-                (downloadUrl.toString().contains("modrinth") ? ModProvider.MODRINTH : ModProvider.CURSEFORGE).toString().toLowerCase(),
-                data.getParentMod().getDescription(),
-                true,
-                data.getParentMod().getUrl(),
-                data.getParentMod().getIconUrl(),
-                data.getParentMod().getName(),
+        return new LocalModVersion(
+                data,
+                downloadUrl.toString().contains("modrinth") ? ModProvider.MODRINTH : ModProvider.CURSEFORGE,
                 fileName,
-                data.getVersionNumber(),
                 downloads
         );
     }
