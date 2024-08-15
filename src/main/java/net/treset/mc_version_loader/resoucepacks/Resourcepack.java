@@ -58,7 +58,7 @@ public class Resourcepack {
      */
     public static Resourcepack from(File file) throws IOException {
         if(!file.exists()) {
-            throw new IOException("File does not exist");
+            throw new IOException("File does not exist: " + file.getAbsolutePath());
         }
         if(file.isDirectory()) {
             File packMcmetaFile = new File(file, "pack.mcmeta");
