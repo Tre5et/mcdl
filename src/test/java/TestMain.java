@@ -4,5 +4,6 @@ public class TestMain {
         Mods.main();
         Version.main();
         Assets.main();
+        Resourcepacks.main();
     }
 }
