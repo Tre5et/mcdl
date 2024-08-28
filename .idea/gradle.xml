@@ -9,6 +9,18 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/assets" />
+            <option value="$PROJECT_DIR$/auth" />
+            <option value="$PROJECT_DIR$/base" />
+            <option value="$PROJECT_DIR$/fabric" />
+            <option value="$PROJECT_DIR$/forge" />
+            <option value="$PROJECT_DIR$/java" />
+            <option value="$PROJECT_DIR$/minecraft" />
+            <option value="$PROJECT_DIR$/mods" />
+            <option value="$PROJECT_DIR$/mojang" />
+            <option value="$PROJECT_DIR$/quiltmc" />
+            <option value="$PROJECT_DIR$/resourcepacks" />
+            <option value="$PROJECT_DIR$/saves" />
           </set>
         </option>
       </GradleProjectSettings>

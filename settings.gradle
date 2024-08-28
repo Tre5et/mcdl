@@ -1,2 +1,14 @@
-rootProject.name = "mc-version-loader"
-
+rootProject.name = "mcdl"
+include 'base'
+include 'auth'
+include 'auth'
+include 'assets'
+include 'fabric'
+include 'minecraft'
+include 'forge'
+include 'java'
+include 'mods'
+include 'quiltmc'
+include 'mojang'
+include 'saves'
+include 'resourcepacks'

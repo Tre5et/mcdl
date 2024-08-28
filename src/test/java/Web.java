@@ -1,5 +1,5 @@
-import net.treset.mc_version_loader.exception.FileDownloadException;
-import net.treset.mc_version_loader.util.FileUtil;
+import net.treset.mcdl.exception.FileDownloadException;
+import net.treset.mcdl.util.FileUtil;
 
 import java.util.List;
 import java.util.Map;
