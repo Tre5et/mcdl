@@ -1,10 +1,9 @@
 plugins {
-    id("java")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    java
 }
 
 allprojects {
-    apply(plugin = "com.github.johnrengelman.shadow")
+    apply(plugin = "java")
 
     repositories {
         mavenCentral()
@@ -12,35 +11,9 @@ allprojects {
     }
 }
 
-group = "net.treset.mcdl"
-
-val gson: String by project
-
-dependencies {
-    implementation("com.google.code.gson:gson:$gson")
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
-    testImplementation("org.junit.jupiter:junit-jupiter")
-}
-
-fun registerTask(
-    name: String,
-    dependencies: List<String> = listOf(),
-    onRegister: Task.() -> Unit = {},
-    onExecute: Task.() -> Unit = {}
-) {
-    tasks.register(name) {
-        group = "mcdl"
-        dependencies.forEach { dependsOn(it) }
-
-        onRegister()
-
-        doLast {
-            onExecute()
-        }
-    }
-}
-
 subprojects {
+    group = "${rootProject.group}.${project.name}"
+
     afterEvaluate {
         fun addDependency(dep: ResolvedDependency, from: (FileTree) -> Unit) {
             System.out.println("Adding dependency to jar: ${dep.name}")
@@ -56,9 +29,9 @@ subprojects {
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
             val includedDependencies: List<String>? by project
-            includedDependencies?.let { includedDependencies ->
-                System.out.println("Included dependencies for ${project.name}: $includedDependencies")
-                val regex = "(${includedDependencies.joinToString("|").lowercase()})".toRegex()
+            includedDependencies?.let { addDeps ->
+                System.out.println("Included dependencies for ${project.name}: $addDeps")
+                val regex = "(${addDeps.joinToString("|").lowercase()})".toRegex()
                 project.configurations["compileClasspath"].resolvedConfiguration.firstLevelModuleDependencies.forEach { dep: ResolvedDependency ->
                     if (dep.name.lowercase().contains(regex)) {
                         addDependency(dep, ::from)
@@ -68,7 +41,42 @@ subprojects {
                 }
             } ?: System.out.println("No included dependencies for ${project.name}")
         }
+
+        tasks.build {
+            doLast {
+                val dir = File(rootProject.buildDir, "dist/${rootProject.version}/${rootProject.name}/${rootProject.name}-${project.name}/${project.version}").absoluteFile
+                dir.mkdirs()
+                val jar = File(project.buildDir, "libs/${project.name}-${project.version}.jar")
+                val dest = File(dir, "${rootProject.name}-${project.name}-${project.version}.jar")
+                System.out.println("Copying jar from ${project.name} jar to $dest")
+                jar.copyTo(dest, true)
+
+                System.out.println("Creating maven pom file")
+                val xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                        "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                        "  <modelVersion>4.0.0</modelVersion>\n" +
+                        "  <groupId>net.treset.${rootProject.name}</groupId>\n" +
+                        "  <artifactId>${rootProject.name}-${project.name}</artifactId>\n" +
+                        "  <version>${project.version}</version>\n" +
+                        "</project>"
+                val pom = File(dir, "${rootProject.name}-${project.name}-${project.version}.pom")
+                pom.writeText(xml)
+            }
+        }
+
+        tasks.test {
+            useJUnitPlatform()
+        }
     }
+}
+
+group = "net.treset.mcdl"
+
+val gson: String by project
+dependencies {
+    implementation("com.google.code.gson:gson:$gson")
+    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 tasks.jar {
@@ -79,6 +87,24 @@ tasks.jar {
     }
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks.build {
+    doLast {
+        val dir = File(rootProject.buildDir, "dist/${rootProject.version}/${rootProject.name}/${project.name}/${project.version}").absoluteFile
+        dir.mkdirs()
+        val jar = File(project.buildDir, "libs/${project.name}-${project.version}.jar")
+        val dest = File(dir, "${project.name}-${project.version}.jar")
+        System.out.println("Copying jar from root project jar to $dest")
+        jar.copyTo(dest, true)
+
+        System.out.println("Creating maven pom file")
+        val xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "  <modelVersion>4.0.0</modelVersion>\n" +
+                "  <groupId>net.treset.${rootProject.name}</groupId>\n" +
+                "  <artifactId>${project.name}</artifactId>\n" +
+                "  <version>${project.version}</version>\n" +
+                "</project>"
+        val pom = File(dir, "${project.name}-${project.version}.pom")
+        pom.writeText(xml)
+    }
 }

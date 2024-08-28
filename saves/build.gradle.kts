@@ -1,7 +1,3 @@
-plugins {
-    id("java")
-}
-
 group = "net.treset.mcdl.saves"
 
 val nbt: String by project
@@ -14,7 +10,3 @@ dependencies {
 }
 
 ext["includedDependencies"] = listOf("nbt")
-
-tasks.test {
-    useJUnitPlatform()
-}

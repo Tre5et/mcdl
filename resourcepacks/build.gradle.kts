@@ -1,12 +1,4 @@
-plugins {
-    id("java")
-}
-
 group = "net.treset.mcdl.resourcepacks"
-
-repositories {
-    mavenCentral()
-}
 
 val gson: String by project
 val nbt: String by project
@@ -20,7 +12,3 @@ dependencies {
 }
 
 ext["includedDependencies"] = listOf("nbt")
-
-tasks.test {
-    useJUnitPlatform()
-}

@@ -1,12 +1,4 @@
-plugins {
-    id("java")
-}
-
 group = "net.treset.mcdl.auth"
-
-repositories {
-    mavenCentral()
-}
 
 val gson: String by project
 val msal: String by project
@@ -19,8 +11,4 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
-ext["includedDependencies"] = listOf("msal4j", "oauth2", "json-smart", "slf4j-api", )
-
-tasks.test {
-    useJUnitPlatform()
-}
+ext["includedDependencies"] = listOf("msal4j")
