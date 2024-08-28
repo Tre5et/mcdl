@@ -1,5 +1,4 @@
 rootProject.name = "mcdl"
-include 'base'
 include 'auth'
 include 'auth'
 include 'assets'
