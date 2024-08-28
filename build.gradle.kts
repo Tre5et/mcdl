@@ -15,6 +15,17 @@ subprojects {
     group = "${rootProject.group}.${project.name}"
 
     afterEvaluate {
+        val addDeps: List<String>? by project
+
+        val gson: String by project
+        dependencies {
+            implementation(project(":"))
+            implementation("com.google.code.gson:gson:$gson")
+            addDeps?.forEach(::implementation)
+            testImplementation(platform("org.junit:junit-bom:5.10.0"))
+            testImplementation("org.junit.jupiter:junit-jupiter")
+        }
+
         fun addDependency(dep: ResolvedDependency, from: (FileTree) -> Unit) {
             System.out.println("Adding dependency to jar: ${dep.name}")
             dep.moduleArtifacts.forEach {
@@ -28,8 +39,7 @@ subprojects {
         tasks.jar {
             duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
-            val includedDependencies: List<String>? by project
-            includedDependencies?.let { addDeps ->
+            addDeps?.let { addDeps ->
                 System.out.println("Included dependencies for ${project.name}: $addDeps")
                 val regex = "(${addDeps.joinToString("|").lowercase()})".toRegex()
                 project.configurations["compileClasspath"].resolvedConfiguration.firstLevelModuleDependencies.forEach { dep: ResolvedDependency ->
