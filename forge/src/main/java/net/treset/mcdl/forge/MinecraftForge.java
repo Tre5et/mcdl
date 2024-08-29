@@ -24,6 +24,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class MinecraftForge {
+    // TODO: Support old pre-2020 insall process
+    // TODO: Support old-old pre-1.5.2 installer-less process
+
     private static final String mavenMetaUrl = "https://files.minecraftforge.net/net/minecraftforge/forge/maven-metadata.json";
 
     private static final String installerUrl = "https://maven.minecraftforge.net/net/minecraftforge/forge/%s/forge-%s-installer.jar"; // versionNumber
