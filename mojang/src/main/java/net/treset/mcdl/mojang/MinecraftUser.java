@@ -4,13 +4,13 @@ import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.SerializationException;
 
 public class MinecraftUser extends GenericJsonParsable {
-    private String uuid;
+    private String id;
     private String name;
     private boolean legacy;
     private boolean demo;
 
-    public MinecraftUser(String uuid, String name, boolean legacy, boolean demo) {
-        this.uuid = uuid;
+    public MinecraftUser(String id, String name, boolean legacy, boolean demo) {
+        this.id = id;
         this.name = name;
         this.legacy = legacy;
         this.demo = demo;
@@ -20,12 +20,12 @@ public class MinecraftUser extends GenericJsonParsable {
         return fromJson(json, MinecraftUser.class);
     }
 
-    public String getUuid() {
-        return uuid;
+    public String getId() {
+        return id;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
