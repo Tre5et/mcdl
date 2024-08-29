@@ -4,13 +4,11 @@ public class DownloadStatus {
     private int currentAmount;
     private int totalAmount;
     private String currentFile;
-    private boolean failure;
 
-    public DownloadStatus(int currentAmount, int totalAmount, String currentFile, boolean failure) {
+    public DownloadStatus(int currentAmount, int totalAmount, String currentFile) {
         this.currentAmount = currentAmount;
         this.totalAmount = totalAmount;
         this.currentFile = currentFile;
-        this.failure = failure;
     }
 
     public int getCurrentAmount() {
@@ -35,13 +33,5 @@ public class DownloadStatus {
 
     public void setCurrentFile(String currentFile) {
         this.currentFile = currentFile;
-    }
-
-    public boolean isFailure() {
-        return failure;
-    }
-
-    public void setFailure(boolean failure) {
-        this.failure = failure;
     }
 }

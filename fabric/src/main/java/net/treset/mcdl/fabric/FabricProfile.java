@@ -1,10 +1,12 @@
 package net.treset.mcdl.fabric;
 
 import com.google.gson.JsonObject;
+import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.minecraft.MinecraftLaunchArguments;
+import net.treset.mcdl.util.FileUtil;
 
 import java.util.List;
 
@@ -34,6 +36,23 @@ public class FabricProfile extends GenericJsonParsable {
         JsonObject argumentsObj = JsonUtils.getAsJsonObject(JsonUtils.getAsJsonObject(JsonUtils.parseJson(json)), "arguments");
         result.setLaunchArguments(MinecraftLaunchArguments.fromJson(argumentsObj));
         return result;
+    }
+
+    /**
+     * Gets the fabric profile for a specified minecraft version and fabric version.
+     * @param mcVersion The minecraft version to get the fabric profile for
+     * @param fabricVersion The fabric version to get the profile for
+     * @return The fabric profile
+     * @throws FileDownloadException If there is an error loading or parsing the profile
+     */
+    public static FabricProfile get(String mcVersion, String fabricVersion) throws FileDownloadException {
+        try {
+            String url = FabricMC.getFabricProfileUrl(mcVersion, fabricVersion);
+            String content = FileUtil.getStringFromUrl(url);
+            return fromJson(content);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse fabric profile", e);
+        }
     }
 
     public MinecraftLaunchArguments getLaunchArguments() {

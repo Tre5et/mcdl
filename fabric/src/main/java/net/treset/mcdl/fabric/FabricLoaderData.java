@@ -1,5 +1,13 @@
 package net.treset.mcdl.fabric;
 
+import net.treset.mcdl.exception.FileDownloadException;
+import net.treset.mcdl.util.FileUtil;
+import net.treset.mcdl.util.MavenPom;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class FabricLoaderData {
     private int build;
     private String maven;
@@ -13,6 +21,38 @@ public class FabricLoaderData {
         this.separator = separator;
         this.stable = stable;
         this.version = version;
+    }
+
+    /**
+     * Downloads the fabric client jar to a specified directory.
+     * @param outFile The file to download the fabric client as
+     * @throws FileDownloadException If there is an error downloading or writing the loader
+     */
+    public void downloadClient(File outFile) throws FileDownloadException {
+        if(getMaven() == null || getMaven().isBlank() || outFile == null || !outFile.getParentFile().isDirectory()) {
+            throw new FileDownloadException("Unmet requirements for fabric download, version=" + getVersion());
+        }
+
+        MavenPom mavenPom;
+        try {
+            mavenPom = FileUtil.parseMavenUrl(FabricMC.getFabricMavenUrl(), getMaven());
+        } catch (MalformedURLException | FileDownloadException e) {
+            throw new FileDownloadException("Unable to parse fabric version maven file Url", e);
+        }
+
+        String mavenUrl = mavenPom.getMavenUrl();
+        if(mavenUrl == null || mavenUrl.isBlank()) {
+            throw new FileDownloadException("Unable to parse fabric version maven file");
+        }
+
+        URL downloadUrl;
+        try {
+            downloadUrl = new URL(FabricMC.getFabricMavenUrl() + mavenUrl);
+        } catch (MalformedURLException e) {
+            throw new FileDownloadException("Unable to parse fabric download Url", e);
+        }
+
+        FileUtil.downloadFile(downloadUrl, outFile);
     }
 
     public int getBuild() {

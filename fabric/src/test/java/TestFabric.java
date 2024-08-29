@@ -1,5 +1,5 @@
-import net.treset.mcdl.fabric.FabricLoader;
-import net.treset.mcdl.fabric.FabricVersionDetails;
+import net.treset.mcdl.fabric.FabricMC;
+import net.treset.mcdl.fabric.FabricVersion;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,14 +23,14 @@ public class TestFabric {
     @ParameterizedTest
     @MethodSource("testFabric")
     public void testFabric(String mcVersion, String fabricVersion) {
-        List<FabricVersionDetails> versions = assertDoesNotThrow(() -> FabricLoader.getFabricVersions(mcVersion));
-        FabricVersionDetails version = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getLoader().getVersion().equals(fabricVersion)).findFirst().get());
+        List<FabricVersion> versions = assertDoesNotThrow(() -> FabricMC.getFabricVersions(mcVersion));
+        FabricVersion version = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getLoader().getVersion().equals(fabricVersion)).findFirst().get());
 
         File client = new File("download/client-" + mcVersion + "-" + fabricVersion + ".jar");
         if(client.isFile()) {
             assertDoesNotThrow(client::delete);
         }
-        assertDoesNotThrow(() -> FabricLoader.downloadFabricClient(client, version.getLoader()));
+        assertDoesNotThrow(() -> FabricMC.downloadFabricClient(client, version.getLoader()));
         assertTrue(client.isFile(), "Client jar does not exist");
 
         File libraries = new File("download/libraries-" + mcVersion + "-" + fabricVersion);
@@ -38,8 +38,8 @@ public class TestFabric {
             assertDoesNotThrow(libraries::delete);
         }
         assertDoesNotThrow(libraries::mkdirs);
-        assertDoesNotThrow(() -> FabricLoader.downloadFabricLibraries(libraries, version.getLauncherMeta().getLibraries().getCommon()));
-        assertDoesNotThrow(() -> FabricLoader.downloadFabricLibraries(libraries, version.getLauncherMeta().getLibraries().getClient()));
+        assertDoesNotThrow(() -> FabricMC.downloadFabricLibraries(libraries, version.getLauncherMeta().getLibraries().getCommon()));
+        assertDoesNotThrow(() -> FabricMC.downloadFabricLibraries(libraries, version.getLauncherMeta().getLibraries().getClient()));
         assertTrue(libraries.isDirectory(), "Libraries directory does not exist");
         assertTrue(libraries.listFiles().length > 0, "Libraries directory is empty");
     }
