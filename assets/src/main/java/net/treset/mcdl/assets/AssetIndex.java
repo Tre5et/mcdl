@@ -5,6 +5,7 @@ import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.util.DownloadStatus;
 import net.treset.mcdl.util.FileUtil;
+import net.treset.mcdl.util.HttpUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,10 +40,12 @@ public class AssetIndex extends GenericJsonParsable {
             String[] indexFileUrlSplit = url.split("/");
             String fileName = indexFileUrlSplit[indexFileUrlSplit.length - 1];
             String version = fileName.substring(0, fileName.length() - 5);
-            String content = FileUtil.getStringFromUrl(url);
+            String content = HttpUtil.getString(url);
             return AssetIndex.fromJson(content, version);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse asset index", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download asset index", e);
         }
     }
 

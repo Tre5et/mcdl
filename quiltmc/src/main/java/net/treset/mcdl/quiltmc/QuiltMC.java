@@ -4,9 +4,11 @@ import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.util.DownloadStatus;
 import net.treset.mcdl.util.FileUtil;
+import net.treset.mcdl.util.HttpUtil;
 import net.treset.mcdl.util.MavenPom;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -35,13 +37,15 @@ public class QuiltMC {
             return versionCache.get(mcVersion);
         }
         try {
-            List<QuiltVersion> v = QuiltVersion.fromJsonArray(FileUtil.getStringFromUrl(quiltMetaUrl + "loader/" + mcVersion));
+            List<QuiltVersion> v = QuiltVersion.fromJsonArray(HttpUtil.getString(quiltMetaUrl + "loader/" + mcVersion));
             if(cacheVersions) {
                 versionCache.put(mcVersion, v);
             }
             return v;
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse QuiltMC version JSON", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to download QuiltMC version JSON", e);
         }
     }
 
@@ -68,9 +72,11 @@ public class QuiltMC {
      */
     public static QuiltProfile getQuiltProfile(String mcVersion, String quiltVersion) throws FileDownloadException {
         try {
-            return QuiltProfile.fromJson(FileUtil.getStringFromUrl(quiltMetaUrl + "loader/" + mcVersion + "/" + quiltVersion + "/profile/json"));
+            return QuiltProfile.fromJson(HttpUtil.getString(quiltMetaUrl + "loader/" + mcVersion + "/" + quiltVersion + "/profile/json"));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse QuiltMC profile JSON", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to download QuiltMC profile JSON", e);
         }
     }
 
@@ -83,12 +89,12 @@ public class QuiltMC {
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
     public static List<String> downloadQuiltLibraries(File baseDir, List<QuiltLibrary> libraries, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
-        statusCallback.accept(new DownloadStatus(0, libraries.size(), "", false));
+        statusCallback.accept(new DownloadStatus(0, libraries.size(), ""));
         ArrayList<String> result = new ArrayList<>();
         int size = libraries.size();
         int current = 0;
         for(QuiltLibrary lib : libraries) {
-            statusCallback.accept(new DownloadStatus(++current, size, lib.getName(), false));
+            statusCallback.accept(new DownloadStatus(++current, size, lib.getName()));
             addQuiltLibrary(baseDir, lib, result);
         }
         return result;

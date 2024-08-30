@@ -6,9 +6,10 @@ import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.util.DownloadStatus;
-import net.treset.mcdl.util.FileUtil;
+import net.treset.mcdl.util.HttpUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,7 @@ public class FabricVersion extends GenericJsonParsable {
         }
         try {
             String url = FabricMC.getFabricIndexUrl(mcVersion);
-            String content = FileUtil.getStringFromUrl(url);
+            String content = HttpUtil.getString(url);
             List<FabricVersion> v = fromJsonArray(content);
             if(properties.isUseVersionCache()) {
                 versionCache.put(mcVersion, v);
@@ -65,6 +66,8 @@ public class FabricVersion extends GenericJsonParsable {
             return v;
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse fabric version details", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download fabric version details", e);
         }
     }
 
@@ -88,10 +91,12 @@ public class FabricVersion extends GenericJsonParsable {
     public static FabricVersion get(String mcVersion, String fabricVersion) throws FileDownloadException {
         try {
             String url = FabricMC.getFabricVersionUrl(mcVersion, fabricVersion);
-            String content = FileUtil.getStringFromUrl(url);
+            String content = HttpUtil.getString(url);
             return fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse fabric version details, version: " + mcVersion + "-" + fabricVersion, e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download fabric version details, version: " + mcVersion + "-" + fabricVersion, e);
         }
     }
 

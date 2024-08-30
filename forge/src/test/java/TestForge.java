@@ -4,7 +4,7 @@ import net.treset.mcdl.forge.MinecraftForge;
 import net.treset.mcdl.java.JavaFile;
 import net.treset.mcdl.java.JavaRuntimeRelease;
 import net.treset.mcdl.java.MinecraftJava;
-import net.treset.mcdl.minecraft.MinecraftGame;
+import net.treset.mcdl.minecraft.MinecraftDL;
 import net.treset.mcdl.minecraft.MinecraftVersion;
 import net.treset.mcdl.minecraft.MinecraftVersionDetails;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,11 +35,11 @@ public class TestForge {
         ForgeInstallProfile profile = assertDoesNotThrow(() -> MinecraftForge.getForgeInstallProfile(forgeVersion));
 
         File mcClient = new File("download/mc-" + mcVersion + ".jar");
-        List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftGame::getVersions);
+        List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftDL::getVersions);
         MinecraftVersion version = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getId().equals(mcVersion)).findFirst().get());
-        MinecraftVersionDetails details = assertDoesNotThrow(() -> MinecraftGame.getVersionDetails(version.getUrl()));
+        MinecraftVersionDetails details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(version.getUrl()));
         if(!mcClient.isFile()) {
-            assertDoesNotThrow(() -> MinecraftGame.downloadVersionDownload(details.getDownloads().getClient(), mcClient));
+            assertDoesNotThrow(() -> MinecraftDL.downloadVersionDownload(details.getDownloads().getClient(), mcClient));
         }
 
         File java = new File("download/java-" + mcVersion);

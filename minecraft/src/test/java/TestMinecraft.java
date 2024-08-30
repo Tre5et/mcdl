@@ -1,4 +1,4 @@
-import net.treset.mcdl.minecraft.MinecraftGame;
+import net.treset.mcdl.minecraft.MinecraftDL;
 import net.treset.mcdl.minecraft.MinecraftVersion;
 import net.treset.mcdl.minecraft.MinecraftVersionDetails;
 import net.treset.mcdl.util.FileUtil;
@@ -27,13 +27,13 @@ public class TestMinecraft {
             assertDoesNotThrow(() -> FileUtil.delete(new File("download/natives-" + name)));
         }
 
-        List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftGame::getVersions);
+        List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftDL::getVersions);
         MinecraftVersion version = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getId().equals(name)).findFirst().get());
-        MinecraftVersionDetails details = assertDoesNotThrow(() -> MinecraftGame.getVersionDetails(version.getUrl()));
-        assertDoesNotThrow(() -> MinecraftGame.downloadVersionDownload(details.getDownloads().getClient(), new File("download/client-" + name + ".jar")));
+        MinecraftVersionDetails details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(version.getUrl()));
+        assertDoesNotThrow(() -> MinecraftDL.downloadVersionDownload(details.getDownloads().getClient(), new File("download/client-" + name + ".jar")));
         assertTrue(new File("download/client-" + name + ".jar").isFile(), "Client jar does not exist");
         assertDoesNotThrow(() -> Files.createDirectories(new File("download/libraries-" + name).toPath()));
-        assertDoesNotThrow(() -> MinecraftGame.downloadVersionLibraries(details.getLibraries(), new File("download/libraries-" + name), List.of(), new File("download/natives-" + name), (v) -> {}));
+        assertDoesNotThrow(() -> MinecraftDL.downloadVersionLibraries(details.getLibraries(), new File("download/libraries-" + name), List.of(), new File("download/natives-" + name), (v) -> {}));
         assertTrue(new File("download/libraries-" + name).isDirectory(), "Libraries directory does not exist");
         assertTrue(Objects.requireNonNull(new File("download/libraries-" + name).listFiles()).length > 0, "Libraries directory is empty");
     }

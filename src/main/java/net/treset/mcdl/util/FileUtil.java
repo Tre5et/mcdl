@@ -2,18 +2,14 @@ package net.treset.mcdl.util;
 
 import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.format.FormatUtils;
+import net.treset.mcdl.util.cache.Caching;
+import net.treset.mcdl.util.cache.NoCaching;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.*;
-import java.net.http.HttpClient;
-import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.*;
@@ -23,25 +19,42 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class FileUtil {
-    private static boolean cacheWebRequests = false;
-    private static final Map<String, ResponseCache> webRequestCache = new HashMap<>();
-
-    private record ResponseCache(Long validUntil, byte[] data) {}
+    private static Caching<HttpResponse<byte[]>> defaultCaching = new NoCaching<>();
 
     /**
-     * Downloads a file from url to a file
-     * @param downloadUrl url to download from
-     * @param outFile file to download to
-     * @throws FileDownloadException if the file can not be downloaded
+     * Downloads a file from a URL to a specified file using the default caching strategy
+     * @param downloadUrl The URL to download the file from
+     * @param outFile The file to download the file to
+     * @throws FileDownloadException If there is an error downloading the file
      */
     public static void downloadFile(URL downloadUrl, File outFile) throws FileDownloadException {
-        try(FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
-            ReadableByteChannel readableByteChannel = Channels.newChannel(downloadUrl.openStream());
-            fileOutputStream.getChannel().transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
-        } catch(IOException e) {
-            throw new FileDownloadException("Unable to download file: url=" + downloadUrl + ", outPath=" + outFile.getAbsolutePath(), e);
+        downloadFile(downloadUrl, outFile, defaultCaching);
+    }
+
+    /**
+     * Downloads a file from a URL to a specified file
+     * @param downloadUrl The URL to download the file from
+     * @param outFile The file to download the file to
+     * @param caching The caching strategy to use
+     * @throws FileDownloadException If there is an error downloading the file
+     */
+    public static void downloadFile(URL downloadUrl, File outFile, Caching<HttpResponse<byte[]>> caching) throws FileDownloadException {
+        try {
+            HttpResponse<byte[]> response = HttpUtil.get(downloadUrl, Map.of(), Map.of(), caching);
+            Files.write(outFile.toPath(), response.body());
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download file: url=" + downloadUrl, e);
         }
     }
+
+    /**
+     * Gets maven data from a maven path
+     * @param baseUrl The maven url
+     * @param mavenFileName The maven library name
+     * @return The maven data
+     * @throws MalformedURLException if the url is invalid
+     * @throws FileDownloadException if the file can not be downloaded
+     */
     public static MavenPom parseMavenUrl(String baseUrl, String mavenFileName) throws MalformedURLException, FileDownloadException {
         String[] parts = mavenFileName.split(":");
         if(parts.length < 2) {
@@ -57,7 +70,12 @@ public class FileUtil {
         mavenFile.deleteCharAt(mavenFile.lastIndexOf("-"));
         mavenFile.append(".pom");
 
-        String pomFile = getStringFromUrl(baseUrl + mavenPath + mavenFile);
+        String pomFile;
+        try {
+            pomFile = HttpUtil.getString(baseUrl + mavenPath + mavenFile);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download pom file: url=" + baseUrl + mavenPath + mavenFile, e);
+        }
 
         return new MavenPom(
                 parseMavenProperty(pomFile, "modelVersion"),
@@ -70,91 +88,6 @@ public class FileUtil {
 
     private static String parseMavenProperty(String pomFile, String property) {
         return FormatUtils.matches(pomFile, "<"+property+">(.*)</"+property+">") ? FormatUtils.firstGroup(pomFile, "<"+property+">(.*)</"+property+">") : null;
-    }
-
-    /**
-     * Gets a string from a http get request.
-     * @param getUrl url to get the string from
-     * @param headers headers to send with the request
-     * @param params parameters to send with the request
-     * @return http get body as string
-     * @throws FileDownloadException if the file can not be downloaded
-     */
-    public static String getStringFromHttpGet(String getUrl, List<Map.Entry<String, String>> headers, List<Map.Entry<String, String>> params) throws FileDownloadException {
-        return new String(getFromHttpGet(getUrl, headers, params), StandardCharsets.UTF_8);
-    }
-
-    /**
-     * Gets a data from a http get request.
-     * @param getUrl url to get the data from
-     * @param headers headers to send with the request
-     * @param params parameters to send with the request
-     * @return http get body as byte array
-     * @throws FileDownloadException if the file can not be downloaded
-     */
-    public static byte[] getFromHttpGet(String getUrl, List<Map.Entry<String, String>> headers, List<Map.Entry<String, String>> params) throws FileDownloadException {
-        String cacheKey = getUrl + headers.toString() + params.toString();
-        if(cacheWebRequests && webRequestCache.containsKey(cacheKey)) {
-            ResponseCache cache = webRequestCache.get(cacheKey);
-            if(cache.validUntil() == null || System.currentTimeMillis() <= cache.validUntil()) {
-                return cache.data();
-            }
-        }
-
-        HttpClient httpClient = HttpClient.newHttpClient();
-
-        HttpRequest request;
-        StringBuilder url = new StringBuilder();
-        url.append(getUrl).append("?");
-        for(Map.Entry<String, String> p : params) {
-            url.append(URLEncoder.encode(p.getKey(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
-                    .append("=").append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
-                    .append("&");
-        }
-        try {
-            HttpRequest.Builder requestBuilder = HttpRequest.newBuilder().uri(new URI(url.substring(0, url.length() - 1)));
-            headers.forEach(h -> requestBuilder.header(h.getKey(), h.getValue()));
-            request = requestBuilder.build();
-        } catch (URISyntaxException e) {
-            throw new FileDownloadException("Unable to build download URI: url=" + getUrl, e);
-        }
-
-        try {
-            HttpResponse<byte[]> res = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
-            byte[] body = res.body();
-            if(cacheWebRequests) {
-                webRequestCache.put(cacheKey, new ResponseCache(getCacheTime(res.headers()), body));
-            }
-            return body;
-        } catch (IOException | InterruptedException e) {
-            throw new FileDownloadException("Unable to download file: url=" + getUrl, e);
-        }
-    }
-
-    private static Long getCacheTime(HttpHeaders headers) {
-        long currentTime = System.currentTimeMillis();
-
-        Optional<String> cacheControlHeader = headers.firstValue("Cache-Control");
-        if(cacheControlHeader.isPresent()) {
-            String cacheControl = cacheControlHeader.get();
-            if(cacheControl.contains("max-age=")) {
-                String maxAge = FormatUtils.firstGroup(cacheControl, "max-age=(\\d+)");
-                if(maxAge != null) {
-                    return currentTime + Long.parseLong(maxAge) * 1000;
-                }
-            }
-        }
-        return currentTime + 600000; //cache 10 minutes by default
-    }
-
-    /**
-     * Converts the contents of a file from the specified url to string
-     * @param url url to get the file from
-     * @return the contents of the file as string
-     * @throws FileDownloadException if the file can not be downloaded
-     */
-    public static String getStringFromUrl(String url) throws FileDownloadException {
-        return getStringFromHttpGet(url, List.of(), List.of());
     }
 
     /**
@@ -380,10 +313,10 @@ public class FileUtil {
     }
 
     /**
-     * If set to true results from web requests will be cached. If the same request is preformed again, the cached result will be returned again. Default is false.
-     * @param useCache if true the results will be cached
+     * Sets the default caching strategy for file downloads. Default: {@link NoCaching}
+     * @param defaultCaching The caching strategy to use
      */
-    public static void useWebRequestCache(boolean useCache) {
-        cacheWebRequests = useCache;
+    public static void setDefaultCaching(Caching<HttpResponse<byte[]>> defaultCaching) {
+        FileUtil.defaultCaching = defaultCaching;
     }
 }

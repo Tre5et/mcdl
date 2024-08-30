@@ -1,6 +1,6 @@
 import net.treset.mcdl.assets.AssetsDL;
 import net.treset.mcdl.assets.AssetIndex;
-import net.treset.mcdl.minecraft.MinecraftGame;
+import net.treset.mcdl.minecraft.MinecraftDL;
 import net.treset.mcdl.minecraft.MinecraftVersion;
 import net.treset.mcdl.minecraft.MinecraftVersionDetails;
 import net.treset.mcdl.util.FileUtil;
@@ -17,9 +17,9 @@ public class TestAssets {
     @ParameterizedTest
     @ValueSource(strings = {"1.21", "1.16.5", "1.0"})
     public void testDownload(String version) {
-        List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftGame::getVersions);
+        List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftDL::getVersions);
         MinecraftVersion mcVersion = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getId().equals(version)).findFirst().get());
-        MinecraftVersionDetails details = assertDoesNotThrow(() -> MinecraftGame.getVersionDetails(mcVersion.getUrl()));
+        MinecraftVersionDetails details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(mcVersion.getUrl()));
         File dir = new File("assets");
 
         AssetIndex index = assertDoesNotThrow(() -> AssetsDL.getAssetIndex(details.getAssetIndex().getUrl()));

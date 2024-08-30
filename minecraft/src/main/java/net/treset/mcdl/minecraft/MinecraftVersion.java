@@ -2,14 +2,21 @@ package net.treset.mcdl.minecraft;
 
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
+import net.treset.mcdl.util.HttpUtil;
+import net.treset.mcdl.util.cache.Caching;
+import net.treset.mcdl.util.cache.RuntimeCaching;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 public class MinecraftVersion extends GenericJsonParsable {
+    private static Caching<List<MinecraftVersion>> caching = new RuntimeCaching<>();
+
     private int complianceLevel;
     private String id;
     private String releaseTime;
@@ -36,6 +43,27 @@ public class MinecraftVersion extends GenericJsonParsable {
         return fromJson(json, MinecraftVersion.class, JsonUtils.getGsonCamelCase());
     }
 
+    /**
+     * Gets a list of all minecraft versions
+     * @return a list of all minecraft versions
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
+    public static List<MinecraftVersion> getVersions() throws FileDownloadException {
+        List<MinecraftVersion> versions = caching.get("versions");
+        if(versions != null) {
+            return versions;
+        }
+        try {
+            List<MinecraftVersion> v = MinecraftVersion.fromVersionManifest(HttpUtil.getString(MinecraftDL.getVersionManifestUrl()));
+            caching.put("versions", v);
+            return v;
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse version manifest", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download version manifest", e);
+        }
+    }
+
     public static List<MinecraftVersion> fromVersionManifest(String versionManifest) throws SerializationException {
         JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(versionManifest));
         try {
@@ -43,6 +71,14 @@ public class MinecraftVersion extends GenericJsonParsable {
         } catch(Exception e) {
             throw new SerializationException("Could not parse version manifest: " + versionManifest, e);
         }
+    }
+
+    /**
+     * Sets a caching strategy for versions (default: {@link RuntimeCaching})
+     * @param caching The caching strategy to use
+     */
+    public static void setCaching(Caching<List<MinecraftVersion>> caching) {
+        MinecraftVersion.caching = caching;
     }
 
     public boolean isRelease() {

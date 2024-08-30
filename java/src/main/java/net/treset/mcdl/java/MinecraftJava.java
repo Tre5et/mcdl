@@ -4,8 +4,10 @@ import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.util.DownloadStatus;
 import net.treset.mcdl.util.FileUtil;
+import net.treset.mcdl.util.HttpUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class MinecraftJava {
         int current = 0;
         boolean failed = false;
         for(JavaFile file : files) {
-            statusCallback.accept(new DownloadStatus(++current, size, file.getName(), failed));
+            statusCallback.accept(new DownloadStatus(++current, size, file.getName()));
             try {
                 downloadJavaFile(baseDir, file);
             } catch (FileDownloadException e) {
@@ -103,9 +105,11 @@ public class MinecraftJava {
      */
     public static JavaRuntimes getJavaRuntimes() throws FileDownloadException {
         try {
-            return JavaRuntimes.fromJson(FileUtil.getStringFromUrl(getJavaRuntimeUrl()));
+            return JavaRuntimes.fromJson(HttpUtil.getString(getJavaRuntimeUrl()));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse runtimes file", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to download runtimes file", e);
         }
     }
 
@@ -117,9 +121,11 @@ public class MinecraftJava {
      */
     public static List<JavaFile> getJavaFiles(String url) throws FileDownloadException {
         try {
-            return JavaFile.fromJson(FileUtil.getStringFromUrl(url));
+            return JavaFile.fromJson(HttpUtil.getString(url));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse java file", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to download java file", e);
         }
     }
 

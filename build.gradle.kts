@@ -9,6 +9,10 @@ allprojects {
         mavenCentral()
         maven("https://jitpack.io")
     }
+
+    tasks.test {
+        useJUnitPlatform()
+    }
 }
 
 subprojects {
@@ -72,10 +76,6 @@ subprojects {
                 val pom = File(dir, "${rootProject.name}-${project.name}-${project.version}.pom")
                 pom.writeText(xml)
             }
-        }
-
-        tasks.test {
-            useJUnitPlatform()
         }
     }
 }

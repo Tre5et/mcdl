@@ -2,7 +2,9 @@ package net.treset.mcdl.mojang;
 
 import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.SerializationException;
-import net.treset.mcdl.util.FileUtil;
+import net.treset.mcdl.util.HttpUtil;
+
+import java.io.IOException;
 
 public class MojangData {
     private static final String MOJANG_USER_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s"; // Playername
@@ -16,9 +18,11 @@ public class MojangData {
      */
     public static MinecraftProfile getMinecraftProfile(String uuid) throws FileDownloadException {
         try {
-            return MinecraftProfile.fromJson(FileUtil.getStringFromUrl(getMojangSessionProfileUrl(uuid)));
+            return MinecraftProfile.fromJson(HttpUtil.getString(getMojangSessionProfileUrl(uuid)));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse mojang profile", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to get mojang profile", e);
         }
     }
 
@@ -30,9 +34,11 @@ public class MojangData {
      */
     public static MinecraftUser getMinecraftUser(String userName) throws FileDownloadException {
         try {
-            return MinecraftUser.fromJson(FileUtil.getStringFromUrl(getMojangUserProfileUrl(userName)));
+            return MinecraftUser.fromJson(HttpUtil.getString(getMojangUserProfileUrl(userName)));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse mojang user", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to get mojang user", e);
         }
     }
 

@@ -4,7 +4,10 @@ import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.util.DownloadStatus;
 import net.treset.mcdl.util.FileUtil;
+import net.treset.mcdl.util.HttpUtil;
 import net.treset.mcdl.util.OsUtil;
+import net.treset.mcdl.util.cache.Caching;
+import net.treset.mcdl.util.cache.RuntimeCaching;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class MinecraftGame {
+public class MinecraftDL {
     private static final String VERSION_MANIFEST_URL = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
 
     private static boolean cacheVersions = false;
@@ -74,14 +77,12 @@ public class MinecraftGame {
         List<Exception> exceptionQueue = new ArrayList<>();
         int size = libraries.size();
         int current = 0;
-        boolean failed = false;
         for(MinecraftLibrary l : libraries) {
-            statusCallback.accept(new DownloadStatus(++current, size, l.getName(), failed));
+            statusCallback.accept(new DownloadStatus(++current, size, l.getName()));
             try {
                 addVersionLibrary(l, librariesDir, localLibraryDir, nativesDir, result, features);
             } catch (FileDownloadException e) {
                 exceptionQueue.add(e);
-                failed = true;
             }
         }
         if(!exceptionQueue.isEmpty()) {
@@ -238,13 +239,15 @@ public class MinecraftGame {
             return versions;
         }
         try {
-            List<MinecraftVersion> v = MinecraftVersion.fromVersionManifest(FileUtil.getStringFromUrl(getVersionManifestUrl()));
+            List<MinecraftVersion> v = MinecraftVersion.fromVersionManifest(HttpUtil.getString(getVersionManifestUrl()));
             if(cacheVersions) {
                 versions = v;
             }
             return v;
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse version manifest", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download version manifest", e);
         }
     }
 
@@ -265,9 +268,11 @@ public class MinecraftGame {
      */
     public static MinecraftVersion getVersion(String url) throws FileDownloadException {
         try {
-            return MinecraftVersion.fromJson(FileUtil.getStringFromUrl(url));
+            return MinecraftVersion.fromJson(HttpUtil.getString(url));
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse version manifest", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download version manifest", e);
         }
     }
 
@@ -279,18 +284,20 @@ public class MinecraftGame {
      */
     public static MinecraftVersionDetails getVersionDetails(String url) throws FileDownloadException {
         try {
-            return MinecraftVersionDetails.fromJson(FileUtil.getStringFromUrl(url));
+            return MinecraftVersionDetails.fromJson(HttpUtil.getString(url));
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse version manifest", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download version manifest", e);
         }
     }
 
     /**
-     * If set to true a list of minecraft versions will be cached when @code{getVersions} or @code{getReleases} is first called and reused on subsequent calls. Else the versions will be fetched every time. Default is false.
-     * @param useCache if true the versions will be cached
+     * Sets a caching strategy for versions (default: {@link RuntimeCaching})
+     * @param caching The caching strategy to use
      */
-    public static void useVersionCache(boolean useCache) {
-        cacheVersions = useCache;
+    public static void setVersionCaching(Caching<List<MinecraftVersion>> caching) {
+        MinecraftVersion.setCaching(caching);
     }
 
     public static String getVersionManifestUrl() {

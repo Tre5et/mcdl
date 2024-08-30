@@ -1,6 +1,8 @@
 package net.treset.mcdl.exception;
 
-public class FileDownloadException extends Exception {
+import java.io.IOException;
+
+public class FileDownloadException extends IOException {
     public FileDownloadException(String message) {
         super(message);
     }

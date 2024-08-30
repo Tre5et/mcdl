@@ -4,8 +4,9 @@ import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.util.DownloadStatus;
 import net.treset.mcdl.util.FileUtil;
-import net.treset.mcdl.minecraft.MinecraftGame;
+import net.treset.mcdl.minecraft.MinecraftDL;
 import net.treset.mcdl.minecraft.MinecraftLibrary;
+import net.treset.mcdl.util.HttpUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -48,13 +49,15 @@ public class MinecraftForge {
             return versionCache;
         }
         try {
-            List<ForgeMetaVersion> v = ForgeMetaVersion.fromJson(FileUtil.getStringFromUrl(mavenMetaUrl));
+            List<ForgeMetaVersion> v = ForgeMetaVersion.fromJson(HttpUtil.getString(mavenMetaUrl));
             if(cacheVersions) {
                 versionCache = v;
             }
             return v;
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse forge versions", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to read forge versions", e);
         }
     }
 
@@ -131,18 +134,18 @@ public class MinecraftForge {
 
         List<ForgeInstallProcessor> processors = profile.getProcessors().stream().filter(p -> p.getSides() == null || p.getSides().contains("client")).toList();
 
-        statusCallback.accept(new DownloadStatus(1, processors.size() + 3, "Download Installer Libraries", false));
+        statusCallback.accept(new DownloadStatus(1, processors.size() + 3, "Download Installer Libraries"));
         List<LibraryData> libraries = downloadInstallerLibraries(profile, librariesDir, localLibrariesDir);
 
-        statusCallback.accept(new DownloadStatus(2, processors.size() + 3, "Extract Installer Data", false));
+        statusCallback.accept(new DownloadStatus(2, processors.size() + 3, "Extract Installer Data"));
         extractData(version, tempDir);
 
         for (int i = 0; i < processors.size(); i++) {
-            statusCallback.accept(new DownloadStatus(i + 3, processors.size() + 3, "Run Processor: " + processors.get(i).getJar(), false));
+            statusCallback.accept(new DownloadStatus(i + 3, processors.size() + 3, "Run Processor: " + processors.get(i).getJar()));
             startProcessor(processors.get(i), libraries, profile, minecraftJar, tempDir, librariesDir, javaFile);
         }
 
-        statusCallback.accept(new DownloadStatus(processors.size() + 2, processors.size() + 3, "Copy Processed Libraries", false));
+        statusCallback.accept(new DownloadStatus(processors.size() + 2, processors.size() + 3, "Copy Processed Libraries"));
     }
 
     /**
@@ -169,7 +172,7 @@ public class MinecraftForge {
     public static List<String> downloadForgeLibraries(File targetDir, String version, List<MinecraftLibrary> libraries, File nativesDir, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
         extractMaven(version, targetDir);
         File localLibsDir = new File(targetDir, "maven");
-        return MinecraftGame.downloadVersionLibraries(libraries, targetDir, localLibsDir, List.of(), nativesDir, statusCallback);
+        return MinecraftDL.downloadVersionLibraries(libraries, targetDir, localLibsDir, List.of(), nativesDir, statusCallback);
     }
 
     /**

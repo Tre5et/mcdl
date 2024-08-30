@@ -6,8 +6,9 @@ import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.minecraft.MinecraftLaunchArguments;
-import net.treset.mcdl.util.FileUtil;
+import net.treset.mcdl.util.HttpUtil;
 
+import java.io.IOException;
 import java.util.List;
 
 public class FabricProfile extends GenericJsonParsable {
@@ -48,10 +49,12 @@ public class FabricProfile extends GenericJsonParsable {
     public static FabricProfile get(String mcVersion, String fabricVersion) throws FileDownloadException {
         try {
             String url = FabricMC.getFabricProfileUrl(mcVersion, fabricVersion);
-            String content = FileUtil.getStringFromUrl(url);
+            String content = HttpUtil.getString(url);
             return fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse fabric profile", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download fabric profile", e);
         }
     }
 
