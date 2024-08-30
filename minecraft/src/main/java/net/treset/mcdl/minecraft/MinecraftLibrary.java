@@ -2,14 +2,25 @@ package net.treset.mcdl.minecraft;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
+import net.treset.mcdl.util.DownloadStatus;
+import net.treset.mcdl.util.FileUtil;
+import net.treset.mcdl.util.OsUtil;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class MinecraftLibrary {
     private String name;
@@ -71,6 +82,71 @@ public class MinecraftLibrary {
                 this.url = url;
             }
 
+            /**
+             * Downloads the artifact and returns its path
+             * @param baseDir The base directory to download the artifact to
+             * @param localDir The local directory to download the artifact to
+             * @return The path of the downloaded artifact
+             * @throws FileDownloadException if there is an error downloading the artifact
+             */
+            public String download(File baseDir, File localDir) throws FileDownloadException {
+                if(baseDir == null || !baseDir.isDirectory() || getPath() == null || getPath().isBlank()) {
+                    throw new FileDownloadException("Unmet requirements for artifact download: artifact=" + getPath());
+                }
+
+                if(getUrl() == null) {
+                    return copyLocal(getPath(), baseDir, localDir);
+                } else {
+                    URL downloadUrl;
+                    try {
+                        downloadUrl = new URL(getUrl());
+                    } catch (MalformedURLException e) {
+                        throw new FileDownloadException("Unable to convert artifact download url: artifact=" + getUrl(), e);
+                    }
+
+                    File outDir = new File(baseDir, getPath().substring(0, getPath().lastIndexOf('/')));
+                    if (!outDir.isDirectory() && !outDir.mkdirs()) {
+                        throw new FileDownloadException("Unable to make required dirs: artifact=" + getPath());
+                    }
+                    File outFile = new File(outDir, getPath().substring(getPath().lastIndexOf('/')));
+
+                    FileUtil.downloadFile(downloadUrl, outFile);
+
+                    return getPath();
+                }
+            }
+
+            /**
+             * Copies a local artifact to the base directory
+             * @param path The path of the artifact
+             * @param baseDir The base directory to copy the artifact to
+             * @param localDir The local directory to copy the artifact from
+             * @return The path of the copied artifact
+             * @throws FileDownloadException if there is an error copying the artifact
+             */
+            public static String copyLocal(String path, File baseDir, File localDir) throws FileDownloadException {
+                if(path == null || path.isBlank() || baseDir == null || !baseDir.isDirectory() || localDir == null || !localDir.isDirectory()) {
+                    return null;
+                }
+
+                File outDir = new File(baseDir, path.substring(0, path.lastIndexOf('/')));
+                if (!outDir.isDirectory() && !outDir.mkdirs()) {
+                    return null;
+                }
+                File outFile = new File(outDir, path.substring(path.lastIndexOf('/')));
+
+                File localFile = new File(localDir, path);
+                if (localFile.isFile()) {
+                    try {
+                        Files.copy(localFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        return path;
+                    } catch (IOException e) {
+                        throw new FileDownloadException("Unable to copy local artifact: artifact=" + path, e);
+                    }
+                }
+                throw new FileDownloadException("Local artifact not found: artifact=" + path);
+            }
+
             public String getPath() {
                 return path;
             }
@@ -124,6 +200,73 @@ public class MinecraftLibrary {
                             name,
                             GenericJsonParsable.fromJson(nativeObj.toString(), Downloads.Artifact.class)
                     );
+                }
+
+                /**
+                 * Applies a native and moves it to the correct location
+                 * @param nativeFile The native file to apply the extract to
+                 * @param nativeDir The directory to extract the native file to
+                 * @param extract The extract to apply
+                 * @return true if the extract was applied, false if the extract was not applied
+                 * @throws FileDownloadException if there is an error applying the extract
+                 */
+                public static boolean apply(File nativeFile, File nativeDir, MinecraftLibrary.Extract extract) throws FileDownloadException {
+                    if(nativeFile == null || !nativeFile.isFile() || nativeDir == null) {
+                        throw new FileDownloadException("Unmet requirements for native application: file=" + nativeFile);
+                    }
+
+                    try {
+                        Files.createDirectories(nativeDir.toPath());
+                    } catch (IOException e) {
+                        throw new FileDownloadException("Unable to create native directory", e);
+                    }
+
+                    try {
+                        applyExtract(nativeFile, nativeDir, extract);
+                        return true;
+                    } catch(IOException e) {
+                        File target = new File(nativeDir, nativeFile.getName());
+                        try {
+                            Files.copy(nativeFile.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                        } catch (IOException e1) {
+                            throw new FileDownloadException("Unable to extract or copy native file: file=" + nativeFile, e1);
+                        }
+                        return false;
+                    }
+                }
+
+                /**
+                 * Applies the extract to the file
+                 * @param file The file to apply the extract to
+                 * @param nativesDir The directory to extract the file to
+                 * @param extract The extract to apply
+                 * @throws IOException if there is an error applying the extract
+                 */
+                public static void applyExtract(File file, File nativesDir, MinecraftLibrary.Extract extract) throws IOException {
+                    if(file == null || !file.isFile() || nativesDir == null || !nativesDir.isDirectory()) {
+                        throw new IOException("Unmet requirements for extract: file=" + file);
+                    }
+
+                    File tempDir = new File(FileUtil.getTempDir(), file.getName());
+                    Files.createDirectories(tempDir.toPath());
+
+                    FileUtil.exctractFile(file, tempDir);
+
+                    if(extract != null && extract.getExclude() != null) {
+                        for(String exclude : extract.getExclude()) {
+                            File toRemove = new File(tempDir, exclude);
+
+                            if(toRemove.exists()) {
+                                try {
+                                    FileUtil.delete(toRemove);
+                                } catch (IOException e) {
+                                    throw new IOException("Unable to delete extracted file: file=" + toRemove, e);
+                                }
+                            }
+                        }
+                    }
+
+                    FileUtil.copyDirectory(tempDir, nativesDir, StandardCopyOption.REPLACE_EXISTING);
                 }
 
                 public String getName() {
@@ -202,6 +345,76 @@ public class MinecraftLibrary {
 
         public void setExclude(List<String> exclude) {
             this.exclude = exclude;
+        }
+    }
+
+    /**
+     * Downloads all libraries in a list
+     * @param libraries The libraries to download
+     * @param librariesDir The directory to download the libraries to
+     * @param localLibraryDir The directory to download the libraries to
+     * @param features The features to check for rule applicability
+     * @param nativesDir The directory to download the natives to
+     * @param onStatus The callback to call with download status
+     * @return a list of the downloaded libraries
+     * @throws FileDownloadException if there is an error downloading the libraries
+     */
+    public static List<String> downloadAll(List<MinecraftLibrary> libraries, File librariesDir, File localLibraryDir, List<String> features, File nativesDir, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
+        ArrayList<String> result = new ArrayList<>();
+        List<Exception> exceptionQueue = new ArrayList<>();
+        int size = libraries.size();
+        int current = 0;
+        for(MinecraftLibrary l : libraries) {
+            onStatus.accept(new DownloadStatus(++current, size, l.getName()));
+            try {
+                l.download(librariesDir, localLibraryDir, nativesDir, features, result);
+            } catch (FileDownloadException e) {
+                exceptionQueue.add(e);
+            }
+        }
+        if(!exceptionQueue.isEmpty()) {
+            throw new FileDownloadException("Unable to download " + exceptionQueue.size() + " libraries", exceptionQueue.get(0));
+        }
+        return result;
+    }
+
+    /**
+     * Downloads the library
+     * @param librariesDir The directory to download the library to
+     * @param localLibrariesDir The directory to download the library to
+     * @param nativesDir The directory to download the natives to
+     * @param features The features to check for rule applicability
+     * @throws FileDownloadException if there is an error downloading the library
+     */
+    public void download(File librariesDir, File localLibrariesDir, File nativesDir, List<String> features, ArrayList<String> currentLibraries) throws FileDownloadException {
+        if(getRules() != null && !getRules().stream().allMatch(r -> r.isApplicable(features))) {
+            return;
+        }
+
+        if(getDownloads() == null || librariesDir == null || !librariesDir.isDirectory()) {
+            throw new FileDownloadException("Unmet requirements for library download: library=" + getName());
+        }
+
+        if (getNatives() != null && getDownloads().getClassifiers() != null && getDownloads().getClassifiers().getNatives() != null) {
+            String applicableNative = null;
+            if (OsUtil.isOsName("windows") && getNatives().getWindows() != null) {
+                applicableNative = getNatives().getWindows();
+            } else if (OsUtil.isOsName("linux") && getNatives().getLinux() != null) {
+                applicableNative = getNatives().getLinux();
+            } else if (OsUtil.isOsName("osx") && getNatives().getOsx() != null) {
+                applicableNative = getNatives().getOsx();
+            }
+
+            for (MinecraftLibrary.Downloads.Classifiers.Native na : getDownloads().getClassifiers().getNatives()) {
+                if (na.getName().equals(applicableNative)) {
+                    String libPath = na.getArtifact().download(librariesDir, localLibrariesDir);
+                    Downloads.Classifiers.Native.apply(new File(librariesDir, libPath), nativesDir, getExtract());
+                }
+            }
+        }
+
+        if(getDownloads().getArtifact() != null && !getDownloads().getArtifact().getUrl().isBlank()) {
+            currentLibraries.add(getDownloads().getArtifact().download(librariesDir, localLibrariesDir));
         }
     }
 

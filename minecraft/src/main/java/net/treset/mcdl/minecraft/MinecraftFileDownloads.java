@@ -1,5 +1,12 @@
 package net.treset.mcdl.minecraft;
 
+import net.treset.mcdl.exception.FileDownloadException;
+import net.treset.mcdl.util.FileUtil;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 public class MinecraftFileDownloads {
     private Downloads client;
     private Downloads client_mappings;
@@ -54,6 +61,26 @@ public class MinecraftFileDownloads {
             this.sha1 = sha1;
             this.size = size;
             this.url = url;
+        }
+
+        /**
+         * Downloads the file to the target file.
+         * @param targetFile the file to download to
+         * @throws FileDownloadException if there is an error downloading the file
+         */
+        public void download(File targetFile) throws FileDownloadException {
+            if(getUrl() == null || getUrl().isBlank() || targetFile == null || !targetFile.getParentFile().isDirectory()) {
+                throw new FileDownloadException("Unmet requirements for version download: download=" + getUrl());
+            }
+
+            URL downloadUrl;
+            try {
+                downloadUrl = new URL(getUrl());
+            } catch (MalformedURLException e) {
+                throw new FileDownloadException("Unable to convert version download url: download=" + getUrl(), e);
+            }
+
+            FileUtil.downloadFile(downloadUrl, targetFile);
         }
 
         public String getSha1() {

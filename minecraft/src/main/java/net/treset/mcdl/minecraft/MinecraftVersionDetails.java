@@ -3,10 +3,13 @@ package net.treset.mcdl.minecraft;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
+import net.treset.mcdl.util.HttpUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,6 +73,22 @@ public class MinecraftVersionDetails {
         }
         details.setLibraries(libs);
         return details;
+    }
+
+    /**
+     * Gets details for a specific minecraft version by an url
+     * @param url The url of the version details. Usually found in {@link MinecraftVersion#getUrl()}
+     * @return The version details
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
+    public static MinecraftVersionDetails get(String url) throws FileDownloadException {
+        try {
+            return MinecraftVersionDetails.fromJson(HttpUtil.getString(url));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse version manifest", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download version manifest", e);
+        }
     }
 
     public List<MinecraftLibrary> getActiveLibraries(List<String> activeFeatures) {

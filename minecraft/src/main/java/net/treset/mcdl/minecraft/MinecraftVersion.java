@@ -11,11 +11,12 @@ import net.treset.mcdl.util.cache.Caching;
 import net.treset.mcdl.util.cache.RuntimeCaching;
 
 import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Objects;
 
 public class MinecraftVersion extends GenericJsonParsable {
-    private static Caching<List<MinecraftVersion>> caching = new RuntimeCaching<>();
+    private static Caching<HttpResponse<byte[]>> caching = new RuntimeCaching<>();
 
     private int complianceLevel;
     private String id;
@@ -43,27 +44,6 @@ public class MinecraftVersion extends GenericJsonParsable {
         return fromJson(json, MinecraftVersion.class, JsonUtils.getGsonCamelCase());
     }
 
-    /**
-     * Gets a list of all minecraft versions
-     * @return a list of all minecraft versions
-     * @throws FileDownloadException if there is an error downloading the version manifest
-     */
-    public static List<MinecraftVersion> getVersions() throws FileDownloadException {
-        List<MinecraftVersion> versions = caching.get("versions");
-        if(versions != null) {
-            return versions;
-        }
-        try {
-            List<MinecraftVersion> v = MinecraftVersion.fromVersionManifest(HttpUtil.getString(MinecraftDL.getVersionManifestUrl()));
-            caching.put("versions", v);
-            return v;
-        } catch (SerializationException e) {
-            throw new FileDownloadException("Unable to parse version manifest", e);
-        } catch (IOException e) {
-            throw new FileDownloadException("Unable to download version manifest", e);
-        }
-    }
-
     public static List<MinecraftVersion> fromVersionManifest(String versionManifest) throws SerializationException {
         JsonObject versionObj = JsonUtils.getAsJsonObject(JsonUtils.parseJson(versionManifest));
         try {
@@ -74,10 +54,46 @@ public class MinecraftVersion extends GenericJsonParsable {
     }
 
     /**
+     * Gets a list of all minecraft versions
+     * @return a list of all minecraft versions
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
+    public static List<MinecraftVersion> getAll() throws FileDownloadException {
+        try {
+            String content = HttpUtil.getString(MinecraftDL.getVersionManifestUrl(), caching);
+            return MinecraftVersion.fromVersionManifest(content);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse version manifest", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download version manifest", e);
+        }
+    }
+
+    /**
+     * Gets a specific version by its id
+     * @param id The id of the version to get
+     * @return The version with the specified id
+     * @throws FileDownloadException if there is an error downloading the version manifest
+     */
+    public static MinecraftVersion get(String id) throws FileDownloadException {
+        try {
+            List<MinecraftVersion> versions = getAll();
+            for (MinecraftVersion version : versions) {
+                if (version.getId().equals(id)) {
+                    return version;
+                }
+            }
+            throw new FileDownloadException("Version " + id + " not found");
+        } catch (FileDownloadException e) {
+            throw new FileDownloadException("Unable to get version " + id, e);
+        }
+    }
+
+    /**
      * Sets a caching strategy for versions (default: {@link RuntimeCaching})
      * @param caching The caching strategy to use
      */
-    public static void setCaching(Caching<List<MinecraftVersion>> caching) {
+    public static void setCaching(Caching<HttpResponse<byte[]>> caching) {
         MinecraftVersion.caching = caching;
     }
 
