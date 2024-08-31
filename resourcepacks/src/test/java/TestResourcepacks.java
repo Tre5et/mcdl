@@ -12,13 +12,13 @@ public class TestResourcepacks {
     @ValueSource(strings = {"testfiles/CCD_RP.zip", "testfiles/CCD_RP", "testfiles/VT_RP.zip", "testfiles/VT_RP"})
     public void testResourcePack(String path) {
         File file = new File(path);
-        assertDoesNotThrow(() -> Resourcepack.from(file), "cant parse ressourcepack: " + file.getName());
+        assertDoesNotThrow(() -> Resourcepack.get(file), "can't parse ressourcepack: " + file.getName());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"testfiles/Sphax_TP.zip", "testfiles/Sphax_TP", "testfiles/SC_TP.zip", "testfiles/SC_TP"})
     public void testTexturePack(String path) {
         File file = new File(path);
-        assertDoesNotThrow(() -> Texturepack.from(file), "cant parse texturepack: " + file.getName());
+        assertDoesNotThrow(() -> Texturepack.get(file), "can't parse texturepack: " + file.getName());
     }
 }

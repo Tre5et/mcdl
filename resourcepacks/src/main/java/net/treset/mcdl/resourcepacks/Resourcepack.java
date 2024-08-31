@@ -56,7 +56,7 @@ public class Resourcepack {
      * @return The resourcepack data
      * @throws IOException If there is an error reading or parsing the resourcepack
      */
-    public static Resourcepack from(File file) throws IOException {
+    public static Resourcepack get(File file) throws IOException {
         if(!file.exists()) {
             throw new IOException("File does not exist: " + file.getAbsolutePath());
         }

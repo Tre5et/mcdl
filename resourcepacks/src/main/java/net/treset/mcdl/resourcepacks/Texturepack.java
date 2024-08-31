@@ -48,7 +48,13 @@ public class Texturepack {
         this.image = image;
     }
 
-    public static Texturepack from(File file) throws IOException {
+    /**
+     * Reads texturepack data from a resourcepack directory or zip file.
+     * @param file The texturepack directory or zip file
+     * @return The texturepack data
+     * @throws IOException If there is an error reading or parsing the texturepack
+     */
+    public static Texturepack get(File file) throws IOException {
         if(!file.exists()) {
             throw new IOException("File does not exist: " + file.getAbsolutePath());
         }
