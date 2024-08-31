@@ -1,6 +1,6 @@
 import net.treset.mcdl.mojang.MinecraftProfile;
 import net.treset.mcdl.mojang.MinecraftUser;
-import net.treset.mcdl.mojang.MojangData;
+import net.treset.mcdl.mojang.MojangDL;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -23,14 +23,14 @@ public class TestMojang {
     @ParameterizedTest
     @MethodSource("params")
     public void testProfile(String name, String uuid) {
-        MinecraftProfile profile = assertDoesNotThrow(() -> MojangData.getMinecraftProfile(uuid));
+        MinecraftProfile profile = assertDoesNotThrow(() -> MojangDL.getMinecraftProfile(uuid));
         assertEquals(profile.getName(), name);
     }
 
     @ParameterizedTest
     @MethodSource("params")
     public void testUser(String name, String uuid) {
-        MinecraftUser user = assertDoesNotThrow(() -> MojangData.getMinecraftUser(name));
+        MinecraftUser user = assertDoesNotThrow(() -> MojangDL.getMinecraftUser(name));
         assertEquals(user.getId(), uuid);
     }
 }

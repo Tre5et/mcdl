@@ -1,7 +1,11 @@
 package net.treset.mcdl.mojang;
 
+import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.SerializationException;
+import net.treset.mcdl.util.HttpUtil;
+
+import java.io.IOException;
 
 public class MinecraftUser extends GenericJsonParsable {
     private String id;
@@ -18,6 +22,22 @@ public class MinecraftUser extends GenericJsonParsable {
 
     public static MinecraftUser fromJson(String json) throws SerializationException {
         return fromJson(json, MinecraftUser.class);
+    }
+
+    /**
+     * Gets minecraft user data for the user with the specified username.
+     * @param userName The username of the user to get data for
+     * @return The user data
+     * @throws FileDownloadException If there is an error loading or parsing the user data
+     */
+    public static MinecraftUser get(String userName) throws FileDownloadException {
+        try {
+            return MinecraftUser.fromJson(HttpUtil.getString(MojangDL.getMojangUserProfileUrl(userName)));
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Failed to parse mojang user", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to get mojang user", e);
+        }
     }
 
     public String getId() {

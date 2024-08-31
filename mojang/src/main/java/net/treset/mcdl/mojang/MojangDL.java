@@ -1,12 +1,8 @@
 package net.treset.mcdl.mojang;
 
 import net.treset.mcdl.exception.FileDownloadException;
-import net.treset.mcdl.json.SerializationException;
-import net.treset.mcdl.util.HttpUtil;
 
-import java.io.IOException;
-
-public class MojangData {
+public class MojangDL {
     private static final String MOJANG_USER_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s"; // Playername
     private static final String MOJANG_SESSION_PROFILE_URL = "https://sessionserver.mojang.com/session/minecraft/profile/%s"; // UUID
 
@@ -17,13 +13,7 @@ public class MojangData {
      * @throws FileDownloadException If there is an error loading or parsing the profile data
      */
     public static MinecraftProfile getMinecraftProfile(String uuid) throws FileDownloadException {
-        try {
-            return MinecraftProfile.fromJson(HttpUtil.getString(getMojangSessionProfileUrl(uuid)));
-        } catch (SerializationException e) {
-            throw new FileDownloadException("Failed to parse mojang profile", e);
-        } catch (IOException e) {
-            throw new FileDownloadException("Failed to get mojang profile", e);
-        }
+        return MinecraftProfile.get(uuid);
     }
 
     /**
@@ -33,13 +23,7 @@ public class MojangData {
      * @throws FileDownloadException If there is an error loading or parsing the user data
      */
     public static MinecraftUser getMinecraftUser(String userName) throws FileDownloadException {
-        try {
-            return MinecraftUser.fromJson(HttpUtil.getString(getMojangUserProfileUrl(userName)));
-        } catch (SerializationException e) {
-            throw new FileDownloadException("Failed to parse mojang user", e);
-        } catch (IOException e) {
-            throw new FileDownloadException("Failed to get mojang user", e);
-        }
+        return MinecraftUser.get(userName);
     }
 
     public static String getMojangUserProfileUrl(String playerName) {
