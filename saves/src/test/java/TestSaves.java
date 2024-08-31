@@ -11,6 +11,6 @@ public class TestSaves {
     @ValueSource(strings = {"testfiles/parkour-spiral", "testfiles/tschui-iwa"})
     public void testSave(String path) {
         File file = new File(path);
-        assertDoesNotThrow(() -> Save.from(file), "cant parse save: " + file.getName());
+        assertDoesNotThrow(() -> Save.get(file), "cant parse save: " + file.getName());
     }
 }

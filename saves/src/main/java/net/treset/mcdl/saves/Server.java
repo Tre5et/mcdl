@@ -65,7 +65,7 @@ public class Server {
      * @return A list of servers
      * @throws IOException If there is an error reading or parsing the file
      */
-    public static List<Server> from(File file) throws IOException {
+    public static List<Server> getAll(File file) throws IOException {
         if(!file.exists()) {
             throw new IOException("File does not exist");
         }

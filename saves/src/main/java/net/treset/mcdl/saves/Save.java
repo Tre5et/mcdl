@@ -26,7 +26,7 @@ public class Save {
      * @return The save data
      * @throws IOException If there is an error reading or parsing the save data
      */
-    public static Save from(File file) throws IOException {
+    public static Save get(File file) throws IOException {
         if(!file.exists() || !file.isDirectory()) {
             throw new IOException("File does not exist or is not a directory");
         }
