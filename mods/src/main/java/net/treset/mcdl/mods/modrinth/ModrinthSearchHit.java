@@ -3,7 +3,7 @@ package net.treset.mcdl.mods.modrinth;
 import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.format.FormatUtils;
 import net.treset.mcdl.mods.GenericModData;
-import net.treset.mcdl.mods.MinecraftMods;
+import net.treset.mcdl.mods.ModsDL;
 import net.treset.mcdl.mods.ModProvider;
 import net.treset.mcdl.mods.ModVersionData;
 
@@ -135,7 +135,7 @@ public class ModrinthSearchHit extends GenericModData {
         if(versionProviders != null && !versionProviders.contains(ModProvider.MODRINTH)) {
             return List.of();
         }
-        currentVersions = List.copyOf(MinecraftMods.getModrinthVersions(projectId, this, versionGameVersions, versionModLoaders));
+        currentVersions = List.copyOf(ModsDL.getModrinthVersions(projectId, this, versionGameVersions, versionModLoaders));
         return currentVersions;
     }
 

@@ -2,10 +2,13 @@ package net.treset.mcdl.mods;
 
 import net.treset.mcdl.exception.FileDownloadException;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ModVersionData extends Comparable<ModVersionData> {
+    LocalModVersion download(File parentDir) throws FileDownloadException;
+
     LocalDateTime getDatePublished();
     int getDownloads();
     String getName();

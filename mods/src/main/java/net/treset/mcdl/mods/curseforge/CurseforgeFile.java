@@ -7,10 +7,12 @@ import net.treset.mcdl.json.JsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.mods.*;
+import net.treset.mcdl.util.HttpUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +65,65 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
 
     public static CurseforgeFile fromJson(String json) throws SerializationException {
         return GenericJsonParsable.fromJson(json, CurseforgeFile.class);
+    }
+
+    /**
+     * Gets all versions of a curseforge project
+     * @param modId The curseforge project id
+     * @param parent The parent mod
+     * @param gameVersions The game versions to filter by
+     * @param modLoaders The mod loaders to filter by
+     * @param index The index to start at
+     * @return The versions
+     * @throws FileDownloadException If an error occurs while downloading the versions
+     */
+    public static List<CurseforgeFile> getAll(int modId, ModData parent, List<String> gameVersions, List<String> modLoaders, int index) throws FileDownloadException {
+        if(ModsDL.getCurseforgeApiKey() == null) {
+            throw new FileDownloadException("Curseforge api key not set");
+        }
+        Map<String, String> params = new HashMap<>();
+        params.put(ModsDL.getCurseforgeSearchIndexParam(), String.valueOf(index));
+
+        try {
+            String content = HttpUtil.getString(ModsDL.getCurseforgeProjectVersionsUrl(modId), ModsDL.getCurseforgeHeaders(ModsDL.getCurseforgeApiKey()), params);
+            CurseforgeFiles files = CurseforgeFiles.fromJson(content, parent);
+            ArrayList<CurseforgeFile> versions = new ArrayList<>();
+            if(files.getData() != null) {
+                versions.addAll(files.getData());
+            }
+            if(files.getPagination().getTotalCount() > files.getPagination().getIndex() + files.getPagination().getPageSize()) {
+                versions.addAll(getAll(modId, parent, gameVersions, modLoaders, files.getPagination().getIndex() + files.getPagination().getPageSize()));
+            }
+            return versions.stream().filter(v ->
+                    (gameVersions == null || gameVersions.isEmpty() || v.getGameVersions().stream().anyMatch(gameVersions::contains))
+                            && (modLoaders == null || modLoaders.isEmpty() || v.getModLoaders().stream().anyMatch(modLoaders::contains))
+            ).toList();
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse curseforge project versions", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download curseforge project versions", e);
+        }
+    }
+
+    /**
+     * Gets a curseforge version
+     * @param modId The curseforge project id
+     * @param versionId The curseforge version id
+     * @return The version
+     * @throws FileDownloadException If an error occurs while downloading the version
+     */
+    public static CurseforgeFile get(int modId, int versionId) throws FileDownloadException {
+        if(ModsDL.getCurseforgeApiKey() == null) {
+            throw new FileDownloadException("Curseforge api key not set");
+        }
+        try {
+            String content = HttpUtil.getString(ModsDL.getCurseforgeVersionUrl(modId, versionId), ModsDL.getCurseforgeHeaders(ModsDL.getCurseforgeApiKey()), Map.of());
+            return CurseforgeFile.fromJson(content);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse curseforge version", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download curseforge version", e);
+        }
     }
 
     @Override
@@ -142,7 +203,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
 
     @Override
     public List<ModVersionData> updateRequiredDependencies() throws FileDownloadException {
-        if(MinecraftMods.getCurseforgeApiKey() == null) {
+        if(ModsDL.getCurseforgeApiKey() == null) {
             throw new FileDownloadException("Curseforge api key not set");
         }
         List<Exception> exceptionQueue = new ArrayList<>();
@@ -151,7 +212,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
                     .filter(d -> d != null && d.getRelationType() == 3)
                     .map(d -> {
                         try {
-                            return MinecraftMods.getCurseforgeMod(d.getModId());
+                            return ModsDL.getCurseforgeMod(d.getModId());
                         } catch (FileDownloadException e) {
                             exceptionQueue.add(e);
                         }

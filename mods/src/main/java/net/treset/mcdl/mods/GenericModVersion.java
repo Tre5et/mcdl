@@ -2,7 +2,12 @@ package net.treset.mcdl.mods;
 
 import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.format.FormatUtils;
+import net.treset.mcdl.util.FileUtil;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GenericModVersion implements ModVersionData {
@@ -15,6 +20,41 @@ public abstract class GenericModVersion implements ModVersionData {
     private List<String> currentDependencyGameVersions = null;
     private List<String> currentDependencyModLoaders = null;
     private List<ModProvider> currentDownloadProviders = null;
+
+    public LocalModVersion download(File parentDir) throws FileDownloadException {
+        if(getParentMod() == null) {
+            throw new FileDownloadException("Unable to download mod: unmet requirements: mod=" + getName());
+        }
+
+        List<ModProvider> providers = getParentMod().getModProviders();
+        List<String> projectIds = getParentMod().getProjectIds();
+        if(providers.size() != projectIds.size()) {
+            throw new FileDownloadException("Unable to download mod, provider count does not match project id count: mod=" + getName());
+        }
+
+        String[] urlParts = getDownloadUrl().split("/");
+        String fileName = urlParts[urlParts.length - 1];
+        File modFile = new File(parentDir, fileName);
+        URL downloadUrl;
+        try {
+            downloadUrl = new URL(getDownloadUrl());
+        } catch (MalformedURLException e) {
+            throw new FileDownloadException("Unable to download mod, malformed url: mod=" + getName(), e);
+        }
+        FileUtil.downloadFile(downloadUrl, modFile);
+
+        ArrayList<LocalModVersion.LocalModDownload> downloads = new ArrayList<>();
+        for(int i = 0; i < providers.size(); i++) {
+            downloads.add(new LocalModVersion.LocalModDownload(providers.get(i), projectIds.get(i)));
+        }
+
+        return new LocalModVersion(
+                this,
+                downloadUrl.toString().contains("modrinth") ? ModProvider.MODRINTH : ModProvider.CURSEFORGE,
+                fileName,
+                downloads
+        );
+    }
 
     @Override
     public boolean isSame(ModVersionData otherVersion) {

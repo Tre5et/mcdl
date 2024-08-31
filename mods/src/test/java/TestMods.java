@@ -24,8 +24,8 @@ public class TestMods {
     @ParameterizedTest
     @MethodSource
     public void testMod(String query, List<String> versions, List<String> loaders) {
-        MinecraftMods.setModrinthUserAgent("test");
-        MinecraftMods.setCurseforgeApiKey("$2a$10$3rdQBL3FRS2RSSS4MF5F5uuOQpFr5flAzUCAdBvZDEfu1fIXFq.DW");
+        ModsDL.setModrinthUserAgent("test");
+        ModsDL.setCurseforgeApiKey("$2a$10$3rdQBL3FRS2RSSS4MF5F5uuOQpFr5flAzUCAdBvZDEfu1fIXFq.DW");
 
         ModData mod = testSearch(query, versions, loaders);
         textModPreference(mod);
@@ -37,7 +37,7 @@ public class TestMods {
     }
 
     public static ModData testSearch(String query, List<String> versions, List<String> loaders) {
-        List<ModData> mods = assertDoesNotThrow(() -> MinecraftMods.searchCombinedMods(
+        List<ModData> mods = assertDoesNotThrow(() -> ModsDL.searchCombinedMods(
                 query,
                 versions,
                 loaders,

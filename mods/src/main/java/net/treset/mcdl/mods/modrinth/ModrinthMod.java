@@ -5,12 +5,15 @@ import net.treset.mcdl.format.FormatUtils;
 import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.mods.GenericModData;
-import net.treset.mcdl.mods.MinecraftMods;
+import net.treset.mcdl.mods.ModsDL;
 import net.treset.mcdl.mods.ModProvider;
 import net.treset.mcdl.mods.ModVersionData;
+import net.treset.mcdl.util.HttpUtil;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public class ModrinthMod extends GenericModData {
     private List<String> additionalCategories;
@@ -91,6 +94,26 @@ public class ModrinthMod extends GenericModData {
         return GenericJsonParsable.fromJson(json, ModrinthMod.class);
     }
 
+    /**
+     * Gets a mod from Modrinth
+     * @param id The mod ID
+     * @return The mod
+     * @throws FileDownloadException If an error occurs while downloading the mod
+     */
+    public static ModrinthMod get(String id) throws FileDownloadException {
+        if(ModsDL.getModrinthUserAgent() == null) {
+            throw new FileDownloadException("Modrinth user agent not set");
+        }
+        try {
+            String content = HttpUtil.getString(ModsDL.getModrinthProjectUrl(id), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), Map.of());
+            return ModrinthMod.fromJson(content);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse modrinth mod", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download modrinth mod", e);
+        }
+    }
+
     @Override
     public List<String> getAuthors() {
         // TODO (but stays like that for now)
@@ -158,7 +181,7 @@ public class ModrinthMod extends GenericModData {
         if(versionProviders != null && !versionProviders.contains(ModProvider.MODRINTH)) {
             return List.of();
         }
-        currentVersions = List.copyOf(MinecraftMods.getModrinthVersions(id, this, versionGameVersions, versionModLoaders));
+        currentVersions = List.copyOf(ModsDL.getModrinthVersions(id, this, versionGameVersions, versionModLoaders));
         return currentVersions;
     }
 

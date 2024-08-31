@@ -9,14 +9,17 @@ import net.treset.mcdl.json.JsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.mods.*;
+import net.treset.mcdl.util.HttpUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ModrinthVersion extends GenericModVersion implements JsonParsable {
+
     private String authorId;
     private String changelog;
     private String changelogUrl;
@@ -71,6 +74,61 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
         return out;
     }
 
+    /**
+     * Gets all modrinth versions for a mod
+     * @param modId The mod id
+     * @param parent The parent mod
+     * @param versions The versions to filter by
+     * @param modLoaders The mod loaders to filter by
+     * @return The modrinth versions
+     * @throws FileDownloadException If an error occurs while downloading the modrinth versions
+     */
+    public static List<ModrinthVersion> getAll(String modId, ModData parent, List<String> versions, List<String> modLoaders) throws FileDownloadException {
+        if(ModsDL.getModrinthUserAgent() == null) {
+            throw new FileDownloadException("Modrinth user agent not set");
+        }
+        Map<String, String> params = new HashMap<>();
+        if(versions != null && !versions.isEmpty()) {
+            StringBuilder ver = new StringBuilder("[");
+            versions.forEach(v -> ver.append("\"").append(v).append("\","));
+            params.put(ModsDL.getModrinthVersionsGameversionsParam(), ver.substring(0, ver.length() - 1) + "]");
+        }
+        if(modLoaders != null && !modLoaders.isEmpty()) {
+            StringBuilder loaders = new StringBuilder("[");
+            modLoaders.forEach(l -> loaders.append("\"").append(l).append("\","));
+            params.put(ModsDL.getModrinthVersionsLoadersParam(), loaders.substring(0, loaders.length() - 1) + "]");
+        }
+        try {
+            String content = HttpUtil.getString(ModsDL.getModrinthProjectVersionsUrl(modId), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), params);
+            return ModrinthVersion.fromJsonArray(content, parent);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse modrinth project versions", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download modrinth project versions", e);
+        }
+    }
+
+    /**
+     * Gets a modrinth version
+     * @param versionId The version id
+     * @param parent The parent mod
+     * @return The modrinth version
+     * @throws FileDownloadException If an error occurs while downloading the modrinth version
+     */
+    public static ModrinthVersion get(String versionId, ModData parent) throws FileDownloadException {
+        if(ModsDL.getModrinthUserAgent() == null) {
+            throw new FileDownloadException("Modrinth user agent not set");
+        }
+        try {
+            String content = HttpUtil.getString(ModsDL.getModrinthVersionUrl(versionId), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), Map.of());
+            return ModrinthVersion.fromJson(content, parent);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse modrinth version", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download modrinth version", e);
+        }
+    }
+
     @Override
     public String toJson() {
         return JsonUtils.getGson().toJson(this);
@@ -121,7 +179,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
 
     @Override
     public List<ModVersionData> updateRequiredDependencies() throws FileDownloadException {
-        if(MinecraftMods.getModrinthUserAgent() == null) {
+        if(ModsDL.getModrinthUserAgent() == null) {
             throw new FileDownloadException("Modrinth user agent is null");
         }
         ArrayList<ModVersionData> requiredDependencies = new ArrayList<>();
@@ -132,12 +190,12 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                 if (d.isRequired()) {
                     if (d.getProjectId() != null) {
                         try {
-                            parent =  MinecraftMods.getModrinthMod(d.getProjectId());
+                            parent =  ModsDL.getModrinthMod(d.getProjectId());
                         } catch (FileDownloadException e) {
                             throw new FileDownloadException("Failed to download parent mod", e);
                         }
                         if(d.getVersionId() != null) {
-                            version = MinecraftMods.getModrinthVersion(d.getVersionId(), parent);
+                            version = ModsDL.getModrinthVersion(d.getVersionId(), parent);
                         } else {
                             if(parent != null) {
                                 parent.setVersionConstraints(dependencyGameVersions, dependencyModLoaders, downloadProviders);
@@ -154,8 +212,8 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
                     } else {
                         if(d.getVersionId() != null) {
                             try {
-                                version = MinecraftMods.getModrinthVersion(d.getVersionId(), null);
-                                parent = MinecraftMods.getModrinthMod(version.getProjectId());
+                                version = ModsDL.getModrinthVersion(d.getVersionId(), null);
+                                parent = ModsDL.getModrinthMod(version.getProjectId());
                             } catch (FileDownloadException e) {
                                 throw new FileDownloadException("Failed to parse modrinth version json", e);
                             }

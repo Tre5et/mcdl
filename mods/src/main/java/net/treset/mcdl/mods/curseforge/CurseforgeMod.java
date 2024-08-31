@@ -6,12 +6,15 @@ import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.mods.GenericModData;
-import net.treset.mcdl.mods.MinecraftMods;
+import net.treset.mcdl.mods.ModsDL;
 import net.treset.mcdl.mods.ModProvider;
 import net.treset.mcdl.mods.ModVersionData;
+import net.treset.mcdl.util.HttpUtil;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public class CurseforgeMod extends GenericModData {
     private boolean allowModDistribution;
@@ -74,6 +77,26 @@ public class CurseforgeMod extends GenericModData {
             json = json.substring(0, json.length() - 1);
         }
         return GenericJsonParsable.fromJson(json, CurseforgeMod.class, JsonUtils.getGsonCamelCase());
+    }
+
+    /**
+     * Gets a curseforge mod by its project id
+     * @param projectId The project id
+     * @return The curseforge mod
+     * @throws FileDownloadException If an error occurs while downloading the mod
+     */
+    public static CurseforgeMod get(long projectId) throws FileDownloadException {
+        if(ModsDL.getCurseforgeApiKey() == null) {
+            throw new FileDownloadException("Curseforge api key not set");
+        }
+        try {
+            String content = HttpUtil.getString(ModsDL.getCurseforgeProjectUrl(projectId), ModsDL.getCurseforgeHeaders(ModsDL.getCurseforgeApiKey()), Map.of());
+            return CurseforgeMod.fromJson(content);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Unable to parse curseforge mod", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download curseforge mod", e);
+        }
     }
 
     @Override
@@ -162,7 +185,7 @@ public class CurseforgeMod extends GenericModData {
         if(versionProviders != null && !versionProviders.contains(ModProvider.CURSEFORGE)) {
             return List.of();
         }
-        currentVersions = List.copyOf(MinecraftMods.getCurseforgeVersions(id, this, versionGameVersions, versionModLoaders));
+        currentVersions = List.copyOf(ModsDL.getCurseforgeVersions(id, this, versionGameVersions, versionModLoaders));
         return currentVersions;
     }
 
