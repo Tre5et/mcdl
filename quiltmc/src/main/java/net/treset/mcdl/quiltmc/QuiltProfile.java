@@ -1,11 +1,14 @@
 package net.treset.mcdl.quiltmc;
 
 import com.google.gson.JsonObject;
+import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.GenericJsonParsable;
 import net.treset.mcdl.json.JsonUtils;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.minecraft.MinecraftLaunchArguments;
+import net.treset.mcdl.util.HttpUtil;
 
+import java.io.IOException;
 import java.util.List;
 
 public class QuiltProfile extends GenericJsonParsable {
@@ -35,6 +38,24 @@ public class QuiltProfile extends GenericJsonParsable {
         JsonObject argumentsObj = JsonUtils.getAsJsonObject(obj, "arguments");
         profile.arguments = MinecraftLaunchArguments.fromJson(argumentsObj);
         return profile;
+    }
+
+    /**
+     * Get the QuiltMC profile for a specific Minecraft version and QuiltMC version.
+     * @param mcVersion The Minecraft version
+     * @param quiltVersion The QuiltMC version
+     * @return The QuiltMC profile
+     * @throws FileDownloadException If the profile could not be fetched
+     */
+    public static QuiltProfile get(String mcVersion, String quiltVersion) throws FileDownloadException {
+        try {
+            String content = HttpUtil.getString(QuiltDL.getQuiltMetaUrl() + "loader/" + mcVersion + "/" + quiltVersion + "/profile/json");
+            return QuiltProfile.fromJson(content);
+        } catch (SerializationException e) {
+            throw new FileDownloadException("Failed to parse QuiltMC profile JSON", e);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to download QuiltMC profile JSON", e);
+        }
     }
 
     public String getId() {

@@ -1,4 +1,4 @@
-import net.treset.mcdl.quiltmc.QuiltMC;
+import net.treset.mcdl.quiltmc.QuiltDL;
 import net.treset.mcdl.quiltmc.QuiltProfile;
 import net.treset.mcdl.quiltmc.QuiltVersion;
 import net.treset.mcdl.util.FileUtil;
@@ -35,9 +35,9 @@ public class TestQuilt {
         }
         assertDoesNotThrow(libraries::mkdirs);
 
-        List<QuiltVersion> versions = assertDoesNotThrow(() -> QuiltMC.getQuiltVersions(mcVersion));
+        List<QuiltVersion> versions = assertDoesNotThrow(() -> QuiltDL.getQuiltVersions(mcVersion));
         QuiltVersion version = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getLoader().getVersion().equals(quiltVersion)).findFirst().get());
-        QuiltProfile profile = assertDoesNotThrow(() -> QuiltMC.getQuiltProfile(mcVersion, quiltVersion));
-        assertDoesNotThrow(() -> QuiltMC.downloadQuiltLibraries(libraries, profile.getLibraries()));
+        QuiltProfile profile = assertDoesNotThrow(() -> QuiltDL.getQuiltProfile(mcVersion, quiltVersion));
+        assertDoesNotThrow(() -> QuiltDL.downloadQuiltLibraries(profile.getLibraries(), libraries));
     }
 }
