@@ -48,7 +48,7 @@ public class FabricProfile extends GenericJsonParsable {
      */
     public static FabricProfile get(String mcVersion, String fabricVersion) throws FileDownloadException {
         try {
-            String url = FabricMC.getFabricProfileUrl(mcVersion, fabricVersion);
+            String url = FabricDL.getFabricProfileUrl(mcVersion, fabricVersion);
             String content = HttpUtil.getString(url);
             return fromJson(content);
         } catch (SerializationException e) {

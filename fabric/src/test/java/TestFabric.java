@@ -1,4 +1,4 @@
-import net.treset.mcdl.fabric.FabricMC;
+import net.treset.mcdl.fabric.FabricDL;
 import net.treset.mcdl.fabric.FabricVersion;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,14 +23,14 @@ public class TestFabric {
     @ParameterizedTest
     @MethodSource("testFabric")
     public void testFabric(String mcVersion, String fabricVersion) {
-        List<FabricVersion> versions = assertDoesNotThrow(() -> FabricMC.getFabricVersions(mcVersion));
+        List<FabricVersion> versions = assertDoesNotThrow(() -> FabricDL.getFabricVersions(mcVersion));
         FabricVersion version = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getLoader().getVersion().equals(fabricVersion)).findFirst().get());
 
         File client = new File("download/client-" + mcVersion + "-" + fabricVersion + ".jar");
         if(client.isFile()) {
             assertDoesNotThrow(client::delete);
         }
-        assertDoesNotThrow(() -> FabricMC.downloadFabricClient(client, version.getLoader()));
+        assertDoesNotThrow(() -> FabricDL.downloadFabricClient(client, version.getLoader()));
         assertTrue(client.isFile(), "Client jar does not exist");
 
         File libraries = new File("download/libraries-" + mcVersion + "-" + fabricVersion);
@@ -38,8 +38,8 @@ public class TestFabric {
             assertDoesNotThrow(libraries::delete);
         }
         assertDoesNotThrow(libraries::mkdirs);
-        assertDoesNotThrow(() -> FabricMC.downloadFabricLibraries(libraries, version.getLauncherMeta().getLibraries().getCommon()));
-        assertDoesNotThrow(() -> FabricMC.downloadFabricLibraries(libraries, version.getLauncherMeta().getLibraries().getClient()));
+        assertDoesNotThrow(() -> version.getLauncherMeta().downloadClientLibraries(libraries, status -> {}));
+        assertDoesNotThrow(() -> version.getLauncherMeta().downloadCommonLibraries(libraries, status -> {}));
         assertTrue(libraries.isDirectory(), "Libraries directory does not exist");
         assertTrue(libraries.listFiles().length > 0, "Libraries directory is empty");
     }

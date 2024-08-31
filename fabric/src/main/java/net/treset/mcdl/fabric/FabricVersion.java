@@ -57,7 +57,7 @@ public class FabricVersion extends GenericJsonParsable {
             return versionCache.get(mcVersion);
         }
         try {
-            String url = FabricMC.getFabricIndexUrl(mcVersion);
+            String url = FabricDL.getFabricIndexUrl(mcVersion);
             String content = HttpUtil.getString(url);
             List<FabricVersion> v = fromJsonArray(content);
             if(properties.isUseVersionCache()) {
@@ -90,7 +90,7 @@ public class FabricVersion extends GenericJsonParsable {
      */
     public static FabricVersion get(String mcVersion, String fabricVersion) throws FileDownloadException {
         try {
-            String url = FabricMC.getFabricVersionUrl(mcVersion, fabricVersion);
+            String url = FabricDL.getFabricVersionUrl(mcVersion, fabricVersion);
             String content = HttpUtil.getString(url);
             return fromJson(content);
         } catch (SerializationException e) {

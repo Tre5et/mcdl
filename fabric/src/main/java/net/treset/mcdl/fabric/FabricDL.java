@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class FabricMC {
+public class FabricDL {
     private static final String FABRIC_MAVEN_URL = "https://maven.fabricmc.net/";
     private static final String FABRIC_INDEX_URL = "https://meta.fabricmc.net/v2/versions/loader/%s"; // MC-Version
     private static final String FABRIC_VERSION_URL = "https://meta.fabricmc.net/v2/versions/loader/%s/%s"; // MC-Version, Fabric Version
@@ -69,25 +69,25 @@ public class FabricMC {
 
     /**
      * Downloads a list of fabric libraries to a specified directory and returns a list of library paths.
-     * @param baseDir The directory to download the libraries to
      * @param libraries The libraries to download
+     * @param baseDir The directory to download the libraries to
      * @return A list of library paths
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
-    public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries) throws FileDownloadException {
-        return FabricLibraries.download(baseDir, libraries, status -> {});
+    public static List<String> downloadFabricLibraries(List<FabricLibrary> libraries, File baseDir) throws FileDownloadException {
+        return FabricLibrary.downloadAll(libraries, baseDir, status -> {});
     }
 
     /**
      * Downloads a list of fabric libraries to a specified directory and returns a list of library paths.
-     * @param baseDir The directory to download the libraries to
      * @param libraries The libraries to download
+     * @param baseDir The directory to download the libraries to
      * @param onStatus A callback to be called when a library is downloaded
      * @return A list of library paths
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
-    public static List<String> downloadFabricLibraries(File baseDir, List<FabricLibrary> libraries, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
-        return FabricLibraries.download(baseDir, libraries, onStatus);
+    public static List<String> downloadFabricLibraries(List<FabricLibrary> libraries, File baseDir, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
+        return FabricLibrary.downloadAll(libraries, baseDir, onStatus);
     }
 
     /**
@@ -98,7 +98,7 @@ public class FabricMC {
      * @throws FileDownloadException If there is an error downloading or writing the library
      */
     public static void downloadLibrary(File baseDir, FabricLibrary library, ArrayList<String> libraryPaths) throws FileDownloadException {
-        library.download(baseDir, libraryPaths);
+        library.downloadAll(baseDir, libraryPaths);
     }
 
     /**
@@ -109,7 +109,7 @@ public class FabricMC {
      */
     public static List<String> downloadLibrary(File baseDir, FabricLibrary library) throws FileDownloadException {
         ArrayList<String> libraryPaths = new ArrayList<>();
-        library.download(baseDir, libraryPaths);
+        library.downloadAll(baseDir, libraryPaths);
         return libraryPaths;
     }
 

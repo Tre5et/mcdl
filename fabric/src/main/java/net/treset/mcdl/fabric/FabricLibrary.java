@@ -1,6 +1,7 @@
 package net.treset.mcdl.fabric;
 
 import net.treset.mcdl.exception.FileDownloadException;
+import net.treset.mcdl.util.DownloadStatus;
 import net.treset.mcdl.util.FileUtil;
 import net.treset.mcdl.util.MavenPom;
 
@@ -8,6 +9,8 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 
 public class FabricLibrary {
     private String name;
@@ -21,12 +24,36 @@ public class FabricLibrary {
     }
 
     /**
+     * Downloads a list of fabric libraries to a specified directory and returns a list of library paths.
+     * @param libraries The libraries to download
+     * @param baseDir The directory to download the libraries to
+     * @param onStatus A callback to be called when a library is downloaded
+     * @return A list of library paths
+     * @throws FileDownloadException If there is an error downloading or writing a library
+     */
+    public static List<String> downloadAll(List<FabricLibrary> libraries, File baseDir, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
+        onStatus.accept(new DownloadStatus(0, libraries.size(), ""));
+        ArrayList<String> libraryPaths = new ArrayList<>();
+        int size = libraries.size();
+        int current = 0;
+        for(FabricLibrary library : libraries) {
+            onStatus.accept(new DownloadStatus(++current, size, library.getName()));
+            try {
+                library.downloadAll(baseDir, libraryPaths);
+            } catch (FileDownloadException e) {
+                throw new FileDownloadException("Unable to download fabric library " + library, e);
+            }
+        }
+        return libraryPaths;
+    }
+
+    /**
      * Downloads the library to a specified directory and adds it to a list of library paths.
      * @param baseDir The directory to download the library to
      * @param libraryPaths The list of library paths to add the library to
      * @throws FileDownloadException If there is an error downloading or writing the library
      */
-    public void download(File baseDir, ArrayList<String> libraryPaths) throws FileDownloadException {
+    public void downloadAll(File baseDir, ArrayList<String> libraryPaths) throws FileDownloadException {
         if(getUrl() == null || getUrl().isBlank() || getName() == null || getName().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for fabric library download: library=" + getName());
         }
