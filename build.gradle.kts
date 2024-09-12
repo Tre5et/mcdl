@@ -31,6 +31,10 @@ subprojects {
         }
 
         fun addDependency(dep: ResolvedDependency, from: (FileTree) -> Unit) {
+            if(dep.name.startsWith("org.slf4j")) {
+                System.out.println("Skipping dependency: ${dep.name}")
+                return
+            }
             System.out.println("Adding dependency to jar: ${dep.name}")
             dep.moduleArtifacts.forEach {
                 from(zipTree(it.file.absoluteFile))
