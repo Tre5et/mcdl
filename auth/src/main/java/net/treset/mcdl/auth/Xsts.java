@@ -18,7 +18,7 @@ public class Xsts {
                 "Accept", "application/json"
         );
         try {
-            HttpResponse<byte[]> response = HttpUtil.post(XstsRequest.getUrl(), request.toJson().getBytes(), headers);
+            HttpResponse<byte[]> response = HttpUtil.post(XstsRequest.getUrl(), request.toJson().getBytes(), headers, Map.of());
             if(response.statusCode() != 200) {
                 try {
                     XstsError error = XstsError.fromJson(new String(response.body()));
@@ -32,7 +32,7 @@ public class Xsts {
             } catch (SerializationException e) {
                 throw new AuthenticationException("Failed to authenticate with XSTS: Failed to parse response: " +  new String(response.body()), e);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new AuthenticationException("Failed to authenticate with XSTS", e);
         }
     }

@@ -17,7 +17,7 @@ public class Xbl {
                 "Accept", "application/json"
         );
         try {
-            HttpResponse<byte[]> response = HttpUtil.post(XblRequest.getUrl(), request.toJson().getBytes(), headers);
+            HttpResponse<byte[]> response = HttpUtil.post(XblRequest.getUrl(), request.toJson().getBytes(), headers, Map.of());
             if(response.statusCode() != 200) {
                 throw new AuthenticationException("Failed to authenticate with Xbox Live: Wrong status code: " + response.statusCode() + ": " + new String(response.body()));
             }
@@ -26,7 +26,7 @@ public class Xbl {
             } catch (SerializationException e) {
                 throw new AuthenticationException("Failed to authenticate with Xbox Live: Failed to parse response: " +  new String(response.body()), e);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             throw new AuthenticationException("Failed to authenticate with Xbox Live", e);
         }
     }

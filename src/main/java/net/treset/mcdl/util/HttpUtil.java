@@ -165,11 +165,14 @@ public class HttpUtil {
 
     private static URI constructParamUri(URL url, Map<String, String> params) throws IOException {
         StringBuilder urlBuilder = new StringBuilder();
-        urlBuilder.append(url).append("?");
-        for(Map.Entry<String, String> p : params.entrySet()) {
-            urlBuilder.append(URLEncoder.encode(p.getKey(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
-                    .append("=").append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
-                    .append("&");
+        urlBuilder.append(url);
+        if(!params.isEmpty()) {
+            urlBuilder.append("?");
+            for(Map.Entry<String, String> p : params.entrySet()) {
+                urlBuilder.append(URLEncoder.encode(p.getKey(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
+                        .append("=").append(URLEncoder.encode(p.getValue(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
+                        .append("&");
+            }
         }
         try {
             return new URI(urlBuilder.toString());

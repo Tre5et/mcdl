@@ -2,6 +2,7 @@ package net.treset.mcdl.auth;
 
 import com.microsoft.aad.msal4j.IAuthenticationResult;
 import net.treset.mcdl.auth.data.MinecraftTokenResponse;
+import net.treset.mcdl.auth.data.ProfileResponse;
 import net.treset.mcdl.auth.data.TokenResponse;
 
 public class AuthenticationData {
@@ -9,14 +10,25 @@ public class AuthenticationData {
     private TokenResponse xbl;
     private TokenResponse xsts;
     private MinecraftTokenResponse minecraft;
-    private UserData user;
+    private ProfileResponse profile;
 
-    public AuthenticationData(IAuthenticationResult msal, TokenResponse xbl, TokenResponse xsts, MinecraftTokenResponse minecraft, UserData user) {
+    public AuthenticationData(IAuthenticationResult msal, TokenResponse xbl, TokenResponse xsts, MinecraftTokenResponse minecraft, ProfileResponse profile) {
         this.msal = msal;
         this.xbl = xbl;
         this.xsts = xsts;
         this.minecraft = minecraft;
-        this.user = user;
+        this.profile = profile;
+    }
+
+    public UserData toUserData() {
+        return new UserData(
+                profile.getName(),
+                profile.getId(),
+                minecraft.getAccessToken(),
+                xbl.getDisplayClaims().getXui()[0].getUhs(),
+                profile.getSkins(),
+                profile.getCapes()
+        );
     }
 
     public IAuthenticationResult getMsal() {
@@ -51,11 +63,11 @@ public class AuthenticationData {
         this.minecraft = minecraft;
     }
 
-    public UserData getUser() {
-        return user;
+    public ProfileResponse getProfile() {
+        return profile;
     }
 
-    public void setUser(UserData user) {
-        this.user = user;
+    public void setProfile(ProfileResponse profile) {
+        this.profile = profile;
     }
 }

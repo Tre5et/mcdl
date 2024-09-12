@@ -1,6 +1,7 @@
 package net.treset.mcdl.auth;
 
 import net.treset.mcdl.auth.data.MinecraftTokenResponse;
+import net.treset.mcdl.auth.data.ProfileResponse;
 import net.treset.mcdl.auth.data.TokenResponse;
 import net.treset.mcdl.auth.token.TokenPolicy;
 
@@ -11,15 +12,22 @@ import java.net.URISyntaxException;
 import java.util.Set;
 
 public class MinecraftAuth {
-    public static AuthenticationData authenticate() throws AuthenticationException {
+    public static UserData authenticate() throws AuthenticationException {
+        AuthenticationData data = runAuthenticationSteps();
+        return data.toUserData();
+    }
+
+    public static AuthenticationData runAuthenticationSteps() throws AuthenticationException {
         IAuthenticationResult msalResult = Msa.authenticate();
         if(msalResult.accessToken() == null) {
             throw new AuthenticationException("No access token");
         }
+
         TokenResponse xblResult = Xbl.authenticate(msalResult.accessToken());
         if(xblResult.getToken() == null) {
             throw new AuthenticationException("No XBL token");
         }
+
         TokenResponse xstsResult = Xsts.authenticate(xblResult.getToken());
         if(xstsResult.getToken() == null) {
             throw new AuthenticationException("No XSTS token");
@@ -27,14 +35,20 @@ public class MinecraftAuth {
         if(xstsResult.getDisplayClaims() == null || xstsResult.getDisplayClaims().getXui() == null || xstsResult.getDisplayClaims().getXui().length == 0) {
             throw new AuthenticationException("No XUI claims");
         }
-        MinecraftTokenResponse minecraftResult = Minecraft.authenticate(xstsResult.getToken(), xstsResult.getDisplayClaims().getXui()[0].getUhs());
+
+        MinecraftTokenResponse minecraftResult = Minecraft.authenticate( xstsResult.getDisplayClaims().getXui()[0].getUhs(), xstsResult.getToken());
+
+        if(minecraftResult.getAccessToken() == null) {
+            throw new AuthenticationException("No Minecraft access token");
+        }
+        ProfileResponse profile = Minecraft.getProfile(minecraftResult.getAccessToken());
 
         return new AuthenticationData(
                 msalResult,
                 xblResult,
                 xstsResult,
                 minecraftResult,
-                null
+                profile
         );
     }
 

@@ -3,7 +3,7 @@ package net.treset.mcdl.auth.data;
 import com.google.gson.annotations.SerializedName;
 import net.treset.mcdl.json.GenericJsonParsable;
 
-import java.net.URI;
+import java.net.URL;
 
 public class XblRequest extends GenericJsonParsable {
     @SerializedName("Properties")
@@ -90,9 +90,9 @@ public class XblRequest extends GenericJsonParsable {
         this.tokenType = tokenType;
     }
 
-    public static URI getUrl() {
+    public static URL getUrl() {
         try {
-            return new URI("https://user.auth.xboxlive.com/user/authenticate");
+            return new URL("https://user.auth.xboxlive.com/user/authenticate");
         } catch (Exception e) {
             // This doesn't happen
             throw new RuntimeException("Failed to create URL", e);

@@ -3,7 +3,7 @@ package net.treset.mcdl.auth.data;
 import com.google.gson.annotations.SerializedName;
 import net.treset.mcdl.json.GenericJsonParsable;
 
-import java.net.URI;
+import java.net.URL;
 
 public class MinecraftTokenRequest extends GenericJsonParsable {
     @SerializedName("identityToken")
@@ -21,9 +21,9 @@ public class MinecraftTokenRequest extends GenericJsonParsable {
         this.identityToken = identityToken;
     }
 
-    public static URI getUrl() {
+    public static URL getUrl() {
         try {
-            return new URI("https://api.minecraftservices.com/authentication/login_with_xbox");
+            return new URL("https://api.minecraftservices.com/authentication/login_with_xbox");
         } catch (Exception e) {
             // This doesn't happen
             throw new RuntimeException("Failed to create URL", e);
