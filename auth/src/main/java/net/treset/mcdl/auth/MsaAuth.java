@@ -11,7 +11,7 @@ import java.net.URL;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class Msa {
+public class MsaAuth {
     private static String clientId;
     private static TokenPolicy tokenPolicy = new DefaultTokenPolicy();
     private static String authority = "https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode";
@@ -83,7 +83,7 @@ public class Msa {
     }
 
     public static void setClientId(String clientId) {
-        Msa.clientId = clientId;
+        MsaAuth.clientId = clientId;
     }
 
     public static TokenPolicy getTokenPolicy() {
@@ -91,7 +91,7 @@ public class Msa {
     }
 
     public static void setTokenPolicy(TokenPolicy tokenPolicy) {
-        Msa.tokenPolicy = tokenPolicy;
+        MsaAuth.tokenPolicy = tokenPolicy;
     }
 
     public static String getAuthority() {
@@ -100,7 +100,7 @@ public class Msa {
 
     public static void setAuthority(String authority) throws MalformedURLException {
         new URL(authority);
-        Msa.authority = authority;
+        MsaAuth.authority = authority;
     }
 
     public static Set<String> getScopes() {
@@ -108,7 +108,7 @@ public class Msa {
     }
 
     public static void setScopes(Set<String> scopes) {
-        Msa.scopes = scopes;
+        MsaAuth.scopes = scopes;
     }
 
     public static String getRedirectUri() {
@@ -117,6 +117,6 @@ public class Msa {
 
     public static void setRedirectUri(String redirectUri) throws URISyntaxException {
         new URI(redirectUri);
-        Msa.redirectUri = redirectUri;
+        MsaAuth.redirectUri = redirectUri;
     }
 }

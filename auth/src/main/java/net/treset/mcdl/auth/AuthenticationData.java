@@ -4,6 +4,7 @@ import com.microsoft.aad.msal4j.IAuthenticationResult;
 import net.treset.mcdl.auth.data.MinecraftTokenResponse;
 import net.treset.mcdl.auth.data.ProfileResponse;
 import net.treset.mcdl.auth.data.TokenResponse;
+import net.treset.mcdl.auth.data.UserData;
 
 public class AuthenticationData {
     private IAuthenticationResult msal;

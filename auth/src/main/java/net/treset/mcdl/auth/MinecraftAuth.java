@@ -1,94 +1,55 @@
 package net.treset.mcdl.auth;
 
+import net.treset.mcdl.auth.data.MinecraftTokenRequest;
 import net.treset.mcdl.auth.data.MinecraftTokenResponse;
 import net.treset.mcdl.auth.data.ProfileResponse;
-import net.treset.mcdl.auth.data.TokenResponse;
-import net.treset.mcdl.auth.token.TokenPolicy;
+import net.treset.mcdl.json.SerializationException;
+import net.treset.mcdl.util.HttpUtil;
 
-import com.microsoft.aad.msal4j.IAuthenticationResult;
-
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.Set;
+import java.io.IOException;
+import java.net.http.HttpResponse;
+import java.util.Map;
 
 public class MinecraftAuth {
-    public static UserData authenticate() throws AuthenticationException {
-        AuthenticationData data = runAuthenticationSteps();
-        return data.toUserData();
-    }
-
-    public static AuthenticationData runAuthenticationSteps() throws AuthenticationException {
-        IAuthenticationResult msalResult = Msa.authenticate();
-        if(msalResult.accessToken() == null) {
-            throw new AuthenticationException("No access token");
-        }
-
-        TokenResponse xblResult = Xbl.authenticate(msalResult.accessToken());
-        if(xblResult.getToken() == null) {
-            throw new AuthenticationException("No XBL token");
-        }
-
-        TokenResponse xstsResult = Xsts.authenticate(xblResult.getToken());
-        if(xstsResult.getToken() == null) {
-            throw new AuthenticationException("No XSTS token");
-        }
-        if(xstsResult.getDisplayClaims() == null || xstsResult.getDisplayClaims().getXui() == null || xstsResult.getDisplayClaims().getXui().length == 0) {
-            throw new AuthenticationException("No XUI claims");
-        }
-
-        MinecraftTokenResponse minecraftResult = Minecraft.authenticate( xstsResult.getDisplayClaims().getXui()[0].getUhs(), xstsResult.getToken());
-
-        if(minecraftResult.getAccessToken() == null) {
-            throw new AuthenticationException("No Minecraft access token");
-        }
-        ProfileResponse profile = Minecraft.getProfile(minecraftResult.getAccessToken());
-
-        return new AuthenticationData(
-                msalResult,
-                xblResult,
-                xstsResult,
-                minecraftResult,
-                profile
+    public static MinecraftTokenResponse authenticate(String userHash, String xstsToken) throws AuthenticationException {
+        MinecraftTokenRequest request = new MinecraftTokenRequest(userHash, xstsToken);
+        Map<String, String> headers = Map.of(
+                "Content-Type", "application/json",
+                "Accept", "application/json"
         );
+        try {
+            HttpResponse<byte[]> response = HttpUtil.post(MinecraftTokenRequest.getUrl(), request.toJson().getBytes(), headers, Map.of());
+            if (response.statusCode() != 200) {
+                throw new AuthenticationException("Failed to authenticate with Minecraft: Wrong status code: " + response.statusCode() + ": " + new String(response.body()));
+            }
+            try {
+                return MinecraftTokenResponse.fromJson(new String(response.body()));
+            } catch (SerializationException e) {
+                throw new AuthenticationException("Failed to authenticate with Minecraft: Failed to parse response: " + new String(response.body()), e);
+            }
+        } catch (IOException e) {
+            throw new AuthenticationException("Failed to authenticate with Minecraft", e);
+        }
     }
 
-    public static String getClientId() {
-        return Msa.getClientId();
-    }
+    public static ProfileResponse getProfile(String accessToken) throws AuthenticationException {
+        Map<String, String> headers = Map.of(
+                "Accept", "application/json",
+                "Authorization", "Bearer " + accessToken
+        );
 
-    public static void setClientId(String clientId) {
-        Msa.setClientId(clientId);
-    }
-
-    public static TokenPolicy getTokenPolicy() {
-        return Msa.getTokenPolicy();
-    }
-
-    public static void setTokenPolicy(TokenPolicy tokenPolicy) {
-        Msa.setTokenPolicy(tokenPolicy);
-    }
-
-    public static String getAuthority() {
-        return Msa.getAuthority();
-    }
-
-    public static void setAuthority(String authority) throws MalformedURLException {
-        Msa.setAuthority(authority);
-    }
-
-    public static Set<String> getScopes() {
-        return Msa.getScopes();
-    }
-
-    public static void setScopes(Set<String> scopes) {
-        Msa.setScopes(scopes);
-    }
-
-    public static String getRedirectUri() {
-        return Msa.getRedirectUri();
-    }
-
-    public static void setRedirectUri(String redirectUri) throws URISyntaxException {
-        Msa.setRedirectUri(redirectUri);
+        try {
+            HttpResponse<byte[]> response = HttpUtil.get(ProfileResponse.getUrl(), headers, Map.of());
+            if (response.statusCode() != 200) {
+                throw new AuthenticationException("Failed to get profile: Wrong status code: " + response.statusCode() + ": " + new String(response.body()));
+            }
+            try {
+                return ProfileResponse.fromJson(new String(response.body()));
+            } catch (SerializationException e) {
+                throw new AuthenticationException("Failed to get profile: Failed to parse response: " + new String(response.body()), e);
+            }
+        } catch (IOException e) {
+            throw new AuthenticationException("Failed to get profile", e);
+        }
     }
 }

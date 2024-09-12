@@ -56,6 +56,32 @@ public class FileUtil {
      * @throws FileDownloadException if the file can not be downloaded
      */
     public static MavenPom parseMavenUrl(String baseUrl, String mavenFileName) throws MalformedURLException, FileDownloadException {
+        String mavenPath = toMavenPath(mavenFileName, ".pom");
+
+        String pomFile;
+        try {
+            pomFile = HttpUtil.getString(baseUrl + mavenPath);
+        } catch (IOException e) {
+            throw new FileDownloadException("Unable to download pom file: url=" + baseUrl + mavenPath, e);
+        }
+
+        return new MavenPom(
+                parseMavenProperty(pomFile, "modelVersion"),
+                parseMavenProperty(pomFile, "groupId"),
+                parseMavenProperty(pomFile, "artifactId"),
+                parseMavenProperty(pomFile, "version"),
+                parseMavenProperty(pomFile, "packaging")
+        );
+    }
+
+    /**
+     * Converts a maven file name to a relative file path
+     * @param mavenFileName The maven file name
+     * @param fileExtension The file extension of the resulting file
+     * @return The relative file path
+     * @throws MalformedURLException if the maven file name is invalid
+     */
+    public static String toMavenPath(String mavenFileName, String fileExtension) throws MalformedURLException {
         String[] parts = mavenFileName.split(":");
         if(parts.length < 2) {
             throw new MalformedURLException("Invalid maven file name");
@@ -68,22 +94,8 @@ public class FileUtil {
             mavenPath.append(parts[i]).append("/");
         }
         mavenFile.deleteCharAt(mavenFile.lastIndexOf("-"));
-        mavenFile.append(".pom");
-
-        String pomFile;
-        try {
-            pomFile = HttpUtil.getString(baseUrl + mavenPath + mavenFile);
-        } catch (IOException e) {
-            throw new FileDownloadException("Unable to download pom file: url=" + baseUrl + mavenPath + mavenFile, e);
-        }
-
-        return new MavenPom(
-                parseMavenProperty(pomFile, "modelVersion"),
-                parseMavenProperty(pomFile, "groupId"),
-                parseMavenProperty(pomFile, "artifactId"),
-                parseMavenProperty(pomFile, "version"),
-                parseMavenProperty(pomFile, "packaging")
-        );
+        mavenFile.append(fileExtension);
+        return mavenPath.toString() + mavenFile;
     }
 
     private static String parseMavenProperty(String pomFile, String property) {

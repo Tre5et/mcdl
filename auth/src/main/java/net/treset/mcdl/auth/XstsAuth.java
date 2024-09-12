@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
-public class Xsts {
+public class XstsAuth {
     public static TokenResponse authenticate(String xblToken) throws AuthenticationException {
         XstsRequest request = new XstsRequest(xblToken);
         Map<String, String> headers = Map.of(

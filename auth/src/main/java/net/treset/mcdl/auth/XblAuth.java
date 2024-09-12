@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.Map;
 
-public class Xbl {
+public class XblAuth {
     public static TokenResponse authenticate(String msalAccessToken) throws AuthenticationException {
         XblRequest request = new XblRequest(msalAccessToken);
         Map<String, String> headers = Map.of(
