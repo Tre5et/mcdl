@@ -32,7 +32,7 @@ public class TestMinecraft {
         assertDoesNotThrow(() -> MinecraftDL.downloadVersionDownload(details.getDownloads().getClient(), new File("download/client-" + id + ".jar")));
         assertTrue(new File("download/client-" + id + ".jar").isFile(), "Client jar does not exist");
         assertDoesNotThrow(() -> Files.createDirectories(new File("download/libraries-" + id).toPath()));
-        assertDoesNotThrow(() -> MinecraftDL.downloadVersionLibraries(details.getLibraries(), new File("download/libraries-" + id), List.of(), new File("download/natives-" + id), (v) -> {}));
+        List<String> libs = assertDoesNotThrow(() -> MinecraftDL.downloadVersionLibraries(details.getLibraries(), new File("download/libraries-" + id), List.of(), new File("download/natives-" + id), (v) -> {}));
         assertTrue(new File("download/libraries-" + id).isDirectory(), "Libraries directory does not exist");
         assertTrue(Objects.requireNonNull(new File("download/libraries-" + id).listFiles()).length > 0, "Libraries directory is empty");
     }

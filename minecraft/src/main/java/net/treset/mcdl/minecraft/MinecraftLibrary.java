@@ -94,7 +94,7 @@ public class MinecraftLibrary {
                     throw new FileDownloadException("Unmet requirements for artifact download: artifact=" + getPath());
                 }
 
-                if(getUrl() == null) {
+                if(getUrl() == null || getUrl().isBlank()) {
                     return copyLocal(getPath(), baseDir, localDir);
                 } else {
                     URL downloadUrl;
@@ -144,7 +144,8 @@ public class MinecraftLibrary {
                         throw new FileDownloadException("Unable to copy local artifact: artifact=" + path, e);
                     }
                 }
-                throw new FileDownloadException("Local artifact not found: artifact=" + path);
+                System.out.println("Local artifact not found: artifact=" + path);
+                return null;
             }
 
             public String getPath() {
@@ -311,8 +312,9 @@ public class MinecraftLibrary {
             }
         }
 
-        public Downloads(Artifact artifact) {
+        public Downloads(Artifact artifact, Classifiers classifiers) {
             this.artifact = artifact;
+            this.classifiers = classifiers;
         }
 
         public Artifact getArtifact() {
@@ -346,6 +348,14 @@ public class MinecraftLibrary {
         public void setExclude(List<String> exclude) {
             this.exclude = exclude;
         }
+    }
+
+    public MinecraftLibrary(String name, Downloads downloads, Extract extract, List<MinecraftRule> rules, Natives natives) {
+        this.name = name;
+        this.downloads = downloads;
+        this.extract = extract;
+        this.rules = rules;
+        this.natives = natives;
     }
 
     /**
@@ -413,8 +423,11 @@ public class MinecraftLibrary {
             }
         }
 
-        if(getDownloads().getArtifact() != null && !getDownloads().getArtifact().getUrl().isBlank()) {
-            currentLibraries.add(getDownloads().getArtifact().download(librariesDir, localLibrariesDir));
+        if(getDownloads().getArtifact() != null) {
+            String path = getDownloads().getArtifact().download(librariesDir, localLibrariesDir);
+            if(path != null) {
+                currentLibraries.add(path);
+            }
         }
     }
 
