@@ -46,7 +46,7 @@ public class AssetsDL {
 
     /**
      * Parses an asset index from a specified url.
-     * @param url The url to get the asset index from. Typically found in {@link MinecraftVersionDetails#getAssetIndex()}.
+     * @param url The url to get the asset index from. Typically found in {@code MinecraftVersionDetails::getAssetIndex}.
      * @return The asset index as a object
      * @throws FileDownloadException If there is an error downloading or parsing the file
      */

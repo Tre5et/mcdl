@@ -18,9 +18,9 @@ public class MsaAuth {
     private static Set<String> scopes = Set.of("XboxLive.signin");
     private static String redirectUri = "http://localhost:9095";
 
-    public static IAuthenticationResult authenticate() throws AuthenticationException {
+    public static IAuthenticationResult authenticate(Consumer<InteractiveData> interactiveDataConsumer) throws AuthenticationException {
         IPublicClientApplication app = createPublicClientApplication();
-        return authenticateMsal(app);
+        return authenticateMsal(app, interactiveDataConsumer);
     }
 
     private static void requireReady() throws AuthenticationException {
@@ -43,10 +43,10 @@ public class MsaAuth {
         }
     }
 
-    public static IAuthenticationResult authenticateMsal(IPublicClientApplication app) throws AuthenticationException {
+    public static IAuthenticationResult authenticateMsal(IPublicClientApplication app, Consumer<InteractiveData> interactiveDataConsumer) throws AuthenticationException {
         Set<IAccount> accounts = app.getAccounts().join();
         if (accounts.isEmpty()) {
-            return interactiveMsal(app);
+            return interactiveMsal(app, interactiveDataConsumer);
         } else {
             Exception lastException = null;
             for(IAccount account : accounts) {
@@ -63,14 +63,10 @@ public class MsaAuth {
         }
     }
 
-    public static IAuthenticationResult interactiveMsal(IPublicClientApplication app) throws AuthenticationException {
+    public static IAuthenticationResult interactiveMsal(IPublicClientApplication app, Consumer<InteractiveData> interactiveDataConsumer) throws AuthenticationException {
         try {
-            Consumer<DeviceCode> deviceCodeConsumer = (DeviceCode deviceCode) -> {
-                System.out.println(deviceCode.verificationUri());
-                System.out.println(deviceCode.userCode());
-            };
             DeviceCodeFlowParameters parameters = DeviceCodeFlowParameters
-                    .builder(scopes, deviceCodeConsumer)
+                    .builder(scopes, d -> interactiveDataConsumer.accept(InteractiveData.fromDeviceCode(d)))
                     .build();
             return app.acquireToken(parameters).join();
         } catch (Exception e) {
