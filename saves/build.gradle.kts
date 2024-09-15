@@ -1,2 +1,4 @@
 val nbt: String by project
-ext["addDeps"] = listOf("com.github.Querz:NBT:$nbt")
+dependencies {
+    implementation("com.github.Querz:NBT:$nbt")
+}
