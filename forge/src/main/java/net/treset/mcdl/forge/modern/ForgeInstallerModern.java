@@ -6,6 +6,7 @@ import net.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.minecraft.MinecraftDL;
 import net.treset.mcdl.minecraft.MinecraftLibrary;
+import net.treset.mcdl.minecraft.MinecraftVersion;
 import net.treset.mcdl.util.DownloadStatus;
 import net.treset.mcdl.util.FileUtil;
 
@@ -76,10 +77,10 @@ public class ForgeInstallerModern extends ForgeInstaller {
         }
 
         try {
-            String versionJson = FileUtil.readFileAsString(new File(extracted, "version.json"));
-            ForgeVersion version = ForgeVersion.fromJson(versionJson);
             String profileJson = FileUtil.readFileAsString(new File(extracted, "install_profile.json"));
             profile = ForgeInstallProfile.fromJson(profileJson);
+            String versionJson = FileUtil.readFileAsString(new File(extracted, profile.getJson()));
+            ForgeVersion version = ForgeVersion.fromJson(versionJson);
             return version.toInstallData();
         } catch (IOException | SerializationException e) {
             throw new FileDownloadException("Failed to read install profile", e);
@@ -102,17 +103,17 @@ public class ForgeInstallerModern extends ForgeInstaller {
                 p.getSides() == null || p.getSides().contains("client")
         ).toList();
 
-        onStatus.accept(new DownloadStatus(1, processors.size() + 3, "Download Installer Libraries"));
+        onStatus.accept(new DownloadStatus(2, processors.size() + 4, "Download Installer Libraries"));
         List<LibraryData> libraries = downloadInstallerLibraries(librariesDir, mavenDir);
 
-        onStatus.accept(new DownloadStatus(2, processors.size() + 3, "Extract Installer Data"));
+        onStatus.accept(new DownloadStatus(3, processors.size() + 4, "Extract Installer Data"));
 
         for (int i = 0; i < processors.size(); i++) {
-            onStatus.accept(new DownloadStatus(i + 3, processors.size() + 3, "Run Processor: " + processors.get(i).getJar()));
+            onStatus.accept(new DownloadStatus(i + 4, processors.size() + 4, "Run Processor: " + processors.get(i).getJar()));
             startProcessor(processors.get(i), libraries, minecraftClient, librariesDir, javaExecutable);
         }
 
-        onStatus.accept(new DownloadStatus(processors.size() + 2, processors.size() + 3, "Copy Processed Libraries"));
+        onStatus.accept(new DownloadStatus(processors.size() + 4, processors.size() + 4, "Copy Processed Libraries"));
     }
 
     @Override
@@ -191,15 +192,29 @@ public class ForgeInstallerModern extends ForgeInstaller {
         classpathString.append(mainLib.getPath());
         classpath.forEach(c -> classpathString.append(';').append(c));
 
+        boolean isDeobfRealms = false;
+
         ProcessBuilder builder = new ProcessBuilder(javaExecutable.getAbsolutePath(), "-cp");
         builder.command().add(classpathString.toString());
         builder.command().add(mainLib.getMainClass());
         for(String arg : processor.getArgs()) {
             try {
                 builder.command().add(processArg(arg, profile, minecraftClient, librariesDir));
+                if(arg.equals("DEOBF_REALMS")) {
+                    isDeobfRealms = true;
+                }
             } catch (NoSuchElementException e) {
                 throw new FileDownloadException("Failed to process argument: " + arg, e);
             }
+        }
+        if(isDeobfRealms) {
+            File versionJson = new File(getExtractedDir(), "mc-version.json");
+            provideMinecraftVersionJson(versionJson, minecraftClient);
+
+            builder.command().add("--libs");
+            builder.command().add(librariesDir.getAbsolutePath());
+            builder.command().add("--json");
+            builder.command().add(versionJson.getAbsolutePath());
         }
 
         builder.directory(getExtractedDir());
@@ -234,9 +249,18 @@ public class ForgeInstallerModern extends ForgeInstaller {
                         value -> System.out.println("Processor: ERROR: " + value)
                 );
             } catch (IOException e) {
-                System.out.println("Game error forwarding failed: " + processor.getJar());
+                System.out.println("Processor error forwarding failed: " + processor.getJar());
             }
             throw new FileDownloadException("Processor failed: " + processor.getJar());
+        }
+    }
+
+    private void provideMinecraftVersionJson(File target, File minecraftClient) throws FileDownloadException {
+        MinecraftVersion version = MinecraftVersion.get(profile.getMinecraft());
+        try {
+            FileUtil.writeToFile(version.toJson().getBytes(), target);
+        } catch (IOException e) {
+            throw new FileDownloadException("Failed to write version.json", e);
         }
     }
 
