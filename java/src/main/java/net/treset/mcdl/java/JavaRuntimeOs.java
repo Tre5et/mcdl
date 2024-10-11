@@ -3,8 +3,8 @@ package net.treset.mcdl.java;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.treset.mcdl.json.JsonUtils;
-import net.treset.mcdl.json.SerializationException;
+import dev.treset.mcdl.json.JsonUtils;
+import dev.treset.mcdl.json.SerializationException;
 
 import java.util.ArrayList;
 import java.util.List;

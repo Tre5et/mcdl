@@ -1,8 +1,8 @@
 package net.treset.mcdl.mods;
 
-import net.treset.mcdl.exception.FileDownloadException;
-import net.treset.mcdl.format.FormatUtils;
-import net.treset.mcdl.util.FileUtil;
+import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.format.FormatUtils;
+import dev.treset.mcdl.util.FileUtil;
 
 import java.io.File;
 import java.net.MalformedURLException;

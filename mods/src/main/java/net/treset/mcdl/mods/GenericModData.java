@@ -1,7 +1,7 @@
 package net.treset.mcdl.mods;
 
-import net.treset.mcdl.exception.FileDownloadException;
-import net.treset.mcdl.format.FormatUtils;
+import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.format.FormatUtils;
 
 import java.util.List;
 

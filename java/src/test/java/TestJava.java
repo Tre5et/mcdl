@@ -2,7 +2,7 @@ import net.treset.mcdl.java.JavaFile;
 import net.treset.mcdl.java.JavaRuntimeRelease;
 import net.treset.mcdl.java.JavaRuntimes;
 import net.treset.mcdl.java.JavaDL;
-import net.treset.mcdl.util.FileUtil;
+import dev.treset.mcdl.util.FileUtil;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 

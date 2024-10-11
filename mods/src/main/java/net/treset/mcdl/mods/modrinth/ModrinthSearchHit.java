@@ -1,7 +1,7 @@
 package net.treset.mcdl.mods.modrinth;
 
-import net.treset.mcdl.exception.FileDownloadException;
-import net.treset.mcdl.format.FormatUtils;
+import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.format.FormatUtils;
 import net.treset.mcdl.mods.GenericModData;
 import net.treset.mcdl.mods.ModsDL;
 import net.treset.mcdl.mods.ModProvider;

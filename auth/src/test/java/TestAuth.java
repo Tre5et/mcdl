@@ -1,8 +1,8 @@
-import net.treset.mcdl.auth.AuthenticationData;
-import net.treset.mcdl.auth.AuthDL;
-import net.treset.mcdl.auth.InteractiveData;
-import net.treset.mcdl.auth.token.DefaultTokenPolicy;
-import net.treset.mcdl.auth.token.FileTokenPolicy;
+import dev.treset.mcdl.auth.AuthenticationData;
+import dev.treset.mcdl.auth.AuthDL;
+import dev.treset.mcdl.auth.InteractiveData;
+import dev.treset.mcdl.auth.token.DefaultTokenPolicy;
+import dev.treset.mcdl.auth.token.FileTokenPolicy;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;

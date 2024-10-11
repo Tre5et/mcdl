@@ -2,14 +2,14 @@ package net.treset.mcdl.mods.modrinth;
 
 import com.google.gson.reflect.TypeToken;
 
-import net.treset.mcdl.exception.FileDownloadException;
-import net.treset.mcdl.format.FormatUtils;
-import net.treset.mcdl.json.GenericJsonParsable;
-import net.treset.mcdl.json.JsonParsable;
-import net.treset.mcdl.json.JsonUtils;
-import net.treset.mcdl.json.SerializationException;
+import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.format.FormatUtils;
+import dev.treset.mcdl.json.GenericJsonParsable;
+import dev.treset.mcdl.json.JsonParsable;
+import dev.treset.mcdl.json.JsonUtils;
+import dev.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.mods.*;
-import net.treset.mcdl.util.HttpUtil;
+import dev.treset.mcdl.util.HttpUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

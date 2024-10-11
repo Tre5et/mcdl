@@ -1,8 +1,8 @@
 package net.treset.mcdl.java;
 
-import net.treset.mcdl.exception.FileDownloadException;
-import net.treset.mcdl.json.SerializationException;
-import net.treset.mcdl.util.HttpUtil;
+import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.json.SerializationException;
+import dev.treset.mcdl.util.HttpUtil;
 
 import java.io.IOException;
 import java.util.HashMap;

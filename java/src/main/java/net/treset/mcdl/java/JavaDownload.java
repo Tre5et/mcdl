@@ -1,8 +1,8 @@
 package net.treset.mcdl.java;
 
 import com.google.gson.JsonObject;
-import net.treset.mcdl.json.JsonUtils;
-import net.treset.mcdl.json.SerializationException;
+import dev.treset.mcdl.json.JsonUtils;
+import dev.treset.mcdl.json.SerializationException;
 
 public class JavaDownload {
     private String sha1;

@@ -1,6 +1,6 @@
 package net.treset.mcdl.mods;
 
-import net.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.exception.FileDownloadException;
 
 import java.time.LocalDateTime;
 import java.util.*;

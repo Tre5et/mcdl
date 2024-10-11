@@ -1,13 +1,13 @@
 package net.treset.mcdl.mods;
 
-import net.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.exception.FileDownloadException;
 import net.treset.mcdl.mods.curseforge.CurseforgeFile;
 import net.treset.mcdl.mods.curseforge.CurseforgeMod;
 import net.treset.mcdl.mods.curseforge.CurseforgeSearch;
 import net.treset.mcdl.mods.modrinth.ModrinthMod;
 import net.treset.mcdl.mods.modrinth.ModrinthSearch;
 import net.treset.mcdl.mods.modrinth.ModrinthVersion;
-import net.treset.mcdl.util.HttpUtil;
+import dev.treset.mcdl.util.HttpUtil;
 
 import java.io.File;
 import java.io.IOException;

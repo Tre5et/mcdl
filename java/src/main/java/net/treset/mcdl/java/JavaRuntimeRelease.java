@@ -2,8 +2,8 @@ package net.treset.mcdl.java;
 
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import net.treset.mcdl.json.GenericJsonParsable;
-import net.treset.mcdl.json.SerializationException;
+import dev.treset.mcdl.json.GenericJsonParsable;
+import dev.treset.mcdl.json.SerializationException;
 
 import java.util.List;
 import java.util.Map;

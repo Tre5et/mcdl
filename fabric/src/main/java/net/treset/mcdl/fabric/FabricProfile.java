@@ -1,12 +1,12 @@
 package net.treset.mcdl.fabric;
 
 import com.google.gson.JsonObject;
-import net.treset.mcdl.exception.FileDownloadException;
-import net.treset.mcdl.json.GenericJsonParsable;
-import net.treset.mcdl.json.JsonUtils;
-import net.treset.mcdl.json.SerializationException;
-import net.treset.mcdl.minecraft.MinecraftLaunchArguments;
-import net.treset.mcdl.util.HttpUtil;
+import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.json.GenericJsonParsable;
+import dev.treset.mcdl.json.JsonUtils;
+import dev.treset.mcdl.json.SerializationException;
+import dev.treset.mcdl.minecraft.MinecraftLaunchArguments;
+import dev.treset.mcdl.util.HttpUtil;
 
 import java.io.IOException;
 import java.util.List;

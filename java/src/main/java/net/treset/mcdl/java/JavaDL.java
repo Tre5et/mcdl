@@ -1,7 +1,7 @@
 package net.treset.mcdl.java;
 
-import net.treset.mcdl.exception.FileDownloadException;
-import net.treset.mcdl.util.DownloadStatus;
+import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.util.DownloadStatus;
 
 import java.io.File;
 import java.util.List;

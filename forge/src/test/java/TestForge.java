@@ -1,10 +1,12 @@
-import net.treset.mcdl.forge.*;
+import dev.treset.mcdl.forge.ForgeDL;
+import dev.treset.mcdl.forge.ForgeInstaller;
+import dev.treset.mcdl.forge.ForgeMetaVersion;
 import net.treset.mcdl.java.JavaFile;
 import net.treset.mcdl.java.JavaRuntimeRelease;
 import net.treset.mcdl.java.JavaDL;
-import net.treset.mcdl.minecraft.MinecraftDL;
-import net.treset.mcdl.minecraft.MinecraftVersion;
-import net.treset.mcdl.minecraft.MinecraftVersionDetails;
+import dev.treset.mcdl.minecraft.MinecraftDL;
+import dev.treset.mcdl.minecraft.MinecraftVersion;
+import dev.treset.mcdl.minecraft.MinecraftVersionDetails;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;

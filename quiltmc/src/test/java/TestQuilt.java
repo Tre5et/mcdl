@@ -1,7 +1,7 @@
-import net.treset.mcdl.quiltmc.QuiltDL;
-import net.treset.mcdl.quiltmc.QuiltProfile;
-import net.treset.mcdl.quiltmc.QuiltVersion;
-import net.treset.mcdl.util.FileUtil;
+import dev.treset.mcdl.quiltmc.QuiltDL;
+import dev.treset.mcdl.quiltmc.QuiltProfile;
+import dev.treset.mcdl.quiltmc.QuiltVersion;
+import dev.treset.mcdl.util.FileUtil;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;

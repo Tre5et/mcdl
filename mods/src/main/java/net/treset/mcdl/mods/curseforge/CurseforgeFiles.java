@@ -1,8 +1,8 @@
 package net.treset.mcdl.mods.curseforge;
 
-import net.treset.mcdl.json.GenericJsonParsable;
-import net.treset.mcdl.json.JsonUtils;
-import net.treset.mcdl.json.SerializationException;
+import dev.treset.mcdl.json.GenericJsonParsable;
+import dev.treset.mcdl.json.JsonUtils;
+import dev.treset.mcdl.json.SerializationException;
 import net.treset.mcdl.mods.ModData;
 
 import java.util.List;

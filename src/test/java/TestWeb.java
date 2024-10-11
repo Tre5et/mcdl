@@ -1,4 +1,4 @@
-import net.treset.mcdl.util.HttpUtil;
+import dev.treset.mcdl.util.HttpUtil;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;

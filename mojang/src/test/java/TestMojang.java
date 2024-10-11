@@ -1,6 +1,6 @@
-import net.treset.mcdl.mojang.MinecraftProfile;
-import net.treset.mcdl.mojang.MinecraftUser;
-import net.treset.mcdl.mojang.MojangDL;
+import dev.treset.mcdl.mojang.MinecraftProfile;
+import dev.treset.mcdl.mojang.MinecraftUser;
+import dev.treset.mcdl.mojang.MojangDL;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;

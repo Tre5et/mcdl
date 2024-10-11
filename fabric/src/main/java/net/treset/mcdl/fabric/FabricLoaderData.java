@@ -1,8 +1,8 @@
 package net.treset.mcdl.fabric;
 
-import net.treset.mcdl.exception.FileDownloadException;
-import net.treset.mcdl.util.FileUtil;
-import net.treset.mcdl.util.MavenPom;
+import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.util.FileUtil;
+import dev.treset.mcdl.util.MavenPom;
 
 import java.io.File;
 import java.net.MalformedURLException;

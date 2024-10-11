@@ -1,7 +1,7 @@
-import net.treset.mcdl.minecraft.MinecraftDL;
-import net.treset.mcdl.minecraft.MinecraftVersion;
-import net.treset.mcdl.minecraft.MinecraftVersionDetails;
-import net.treset.mcdl.util.FileUtil;
+import dev.treset.mcdl.minecraft.MinecraftDL;
+import dev.treset.mcdl.minecraft.MinecraftVersion;
+import dev.treset.mcdl.minecraft.MinecraftVersionDetails;
+import dev.treset.mcdl.util.FileUtil;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 

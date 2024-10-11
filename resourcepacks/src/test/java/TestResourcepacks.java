@@ -1,5 +1,5 @@
-import net.treset.mcdl.resourcepacks.Resourcepack;
-import net.treset.mcdl.resourcepacks.Texturepack;
+import dev.treset.mcdl.resourcepacks.Resourcepack;
+import dev.treset.mcdl.resourcepacks.Texturepack;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
