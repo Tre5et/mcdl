@@ -93,7 +93,7 @@ public class ForgeInstallerModern extends ForgeInstaller {
             throw new FileDownloadException("Failed to create directory for forge installer");
         }
 
-        File mavenDir = new File(getExtractedDir(), "META-INF/maven");
+        File mavenDir = new File(getExtractedDir(), "maven");
         if(!mavenDir.isDirectory()) {
             throw new FileDownloadException("Maven directory does not exist");
         }
@@ -167,6 +167,8 @@ public class ForgeInstallerModern extends ForgeInstaller {
                     }
                 } catch (IOException ignored) {
                 }
+            } else {
+                System.out.println("Failed to download library: " + lib.getName());
             }
 
             libraryData.add(new LibraryData(lib.getName(), outFile.getAbsolutePath(), mainClass));
