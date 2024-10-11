@@ -1,13 +1,18 @@
+import io.gitee.pkmer.enums.PublishingType
 import java.util.*
 
 plugins {
     java
     `maven-publish`
+    signing
+    id("io.gitee.pkmer.pkmerboot-central-publisher") version "1.1.1"
 }
 
 allprojects {
     apply(plugin = "java")
     apply(plugin = "maven-publish")
+    apply(plugin = "signing")
+    apply(plugin = "io.gitee.pkmer.pkmerboot-central-publisher")
 
     repositories {
         mavenCentral()
@@ -19,11 +24,20 @@ allprojects {
         withSourcesJar()
     }
 
-    afterEvaluate {
+    val isRelease = project.version.toString().all { it.isDigit() || it == '.' }
 
+    afterEvaluate {
         publishing {
+            repositories {
+                maven {
+                    name = "Local"
+                    setUrl(layout.buildDirectory.dir("target/staging-deploy"))
+                }
+            }
+
             publications {
                 create<MavenPublication>("maven") {
+
                     groupId = rootProject.group.toString()
                     artifactId = "${rootProject.name}${if (rootProject.name == project.name) "" else "-${project.name}"}"
                     version = project.version.toString()
@@ -53,7 +67,7 @@ allprojects {
                         scm {
                             connection.set("scm:git:git://github.com/Tre5et/mcdl.git")
                             developerConnection.set("scm:git:ssh://github.com/Tre5et/mcdl.git")
-                            url.set("https://github.com/Tre5et/mcdl/tree/main")
+                            url.set("https://github.com/Tre5et/mcdl")
                         }
                     }
 
@@ -63,9 +77,28 @@ allprojects {
         }
     }
 
+    pkmerBoot {
+        sonatypeMavenCentral {
+            if(!isRelease) {
+                throw IllegalStateException("Cannot publish non-release version to Maven Central")
+            }
+
+            stagingRepository = layout.buildDirectory.dir("target/staging-deploy")
+            username = findProperty("ossrhUsername") as String
+            password = findProperty("ossrhPassword") as String
+
+            publishingType = PublishingType.USER_MANAGED
+        }
+    }
+
+    signing {
+        sign(publishing.publications)
+    }
+
     tasks.test {
         useJUnitPlatform()
     }
+
 }
 
 subprojects {
@@ -80,7 +113,7 @@ subprojects {
     }
 }
 
-group = "net.treset.mcdl"
+group = "dev.treset.mcdl"
 
 val gson: String by project
 dependencies {
