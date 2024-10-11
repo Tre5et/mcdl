@@ -43,8 +43,11 @@ allprojects {
                     version = project.version.toString()
 
                     pom {
-                        val humanName =
+                        val humanName = if(project.name == rootProject.name) {
+                            "Base"
+                        } else {
                             project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                        }
 
                         name.set("MC Data Loader - $humanName")
                         description.set("The ${humanName} module for the MC Data Loader library.")
@@ -67,7 +70,7 @@ allprojects {
                         scm {
                             connection.set("scm:git:git://github.com/Tre5et/mcdl.git")
                             developerConnection.set("scm:git:ssh://github.com/Tre5et/mcdl.git")
-                            url.set("https://github.com/Tre5et/mcdl")
+                            url.set("https://github.com/Tre5et/mcdl/tree/main")
                         }
                     }
 
