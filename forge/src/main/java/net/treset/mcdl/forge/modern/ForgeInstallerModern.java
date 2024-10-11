@@ -103,17 +103,17 @@ public class ForgeInstallerModern extends ForgeInstaller {
                 p.getSides() == null || p.getSides().contains("client")
         ).toList();
 
-        onStatus.accept(new DownloadStatus(2, processors.size() + 4, "Download Installer Libraries"));
+        onStatus.accept(new DownloadStatus(1, processors.size() + 3, "Download Installer Libraries"));
         List<LibraryData> libraries = downloadInstallerLibraries(librariesDir, mavenDir);
 
-        onStatus.accept(new DownloadStatus(3, processors.size() + 4, "Extract Installer Data"));
+        onStatus.accept(new DownloadStatus(2, processors.size() + 3, "Extract Installer Data"));
 
         for (int i = 0; i < processors.size(); i++) {
-            onStatus.accept(new DownloadStatus(i + 4, processors.size() + 4, "Run Processor: " + processors.get(i).getJar()));
+            onStatus.accept(new DownloadStatus(i + 3, processors.size() + 3, "Run Processor: " + processors.get(i).getJar()));
             startProcessor(processors.get(i), libraries, minecraftClient, librariesDir, javaExecutable);
         }
 
-        onStatus.accept(new DownloadStatus(processors.size() + 4, processors.size() + 4, "Copy Processed Libraries"));
+        onStatus.accept(new DownloadStatus(processors.size() + 3, processors.size() + 3, "Copy Processed Libraries"));
     }
 
     @Override
