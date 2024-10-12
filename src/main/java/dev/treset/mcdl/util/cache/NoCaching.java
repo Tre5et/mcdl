@@ -1,5 +1,6 @@
 package dev.treset.mcdl.util.cache;
 
+import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -8,21 +9,21 @@ import java.util.function.Consumer;
  * A caching implementation that does not cache anything
  * @param <T> the type of data to cache
  */
-public class NoCaching<T> extends Caching<T> {
+public class NoCaching extends Caching<HttpResponse<byte[]>> {
     @Override
-    public T get(String key) {
+    public HttpResponse<byte[]> get(String key) {
         return null;
     }
 
     @Override
-    public void put(String key, T value, Long validDuration) {
+    public void put(String key, HttpResponse<byte[]> value, Long validDuration) {
     }
 
     @Override
-    void onStartup(Consumer<HashMap<String, CacheValue<T>>> setCache) {
+    void onStartup(Consumer<HashMap<String, CacheValue<HttpResponse<byte[]>>>> setCache) {
     }
 
     @Override
-    void onShutdown(Map<String, CacheValue<T>> cache) {
+    void onShutdown(Map<String, CacheValue<HttpResponse<byte[]>>> cache) {
     }
 }

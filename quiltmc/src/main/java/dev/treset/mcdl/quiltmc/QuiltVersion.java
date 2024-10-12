@@ -6,16 +6,11 @@ import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.json.GenericJsonParsable;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.util.HttpUtil;
-import dev.treset.mcdl.util.cache.Caching;
-import dev.treset.mcdl.util.cache.MemoryCaching;
 
 import java.io.IOException;
-import java.net.http.HttpResponse;
 import java.util.List;
 
 public class QuiltVersion extends GenericJsonParsable {
-    private static Caching<HttpResponse<byte[]>> caching = new MemoryCaching<>();
-
     private QuiltLoader loader;
     private QuiltHashed hashed;
     private QuiltIntermediary intermediary;
@@ -45,21 +40,13 @@ public class QuiltVersion extends GenericJsonParsable {
      */
     public static List<QuiltVersion> getAll(String mcVersion) throws FileDownloadException {
         try {
-            String content = HttpUtil.getString(QuiltDL.getQuiltMetaUrl() + "loader/" + mcVersion, caching);
+            String content = HttpUtil.getString(QuiltDL.getQuiltMetaUrl() + "loader/" + mcVersion, QuiltDL.getCaching());
             return QuiltVersion.fromJsonArray(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse QuiltMC version JSON", e);
         } catch (IOException e) {
             throw new FileDownloadException("Failed to get QuiltMC versions JSON", e);
         }
-    }
-
-    /**
-     * Set the caching strategy for Quilt versions
-     * @param caching The caching strategy
-     */
-    public static void setCaching(Caching<HttpResponse<byte[]>> caching) {
-        QuiltVersion.caching = caching;
     }
 
     public QuiltLoader getLoader() {

@@ -40,7 +40,7 @@ public class AssetIndex extends GenericJsonParsable {
             String[] indexFileUrlSplit = url.split("/");
             String fileName = indexFileUrlSplit[indexFileUrlSplit.length - 1];
             String version = fileName.substring(0, fileName.length() - 5);
-            String content = HttpUtil.getString(url);
+            String content = HttpUtil.getString(url, AssetsDL.getCaching());
             return AssetIndex.fromJson(content, version);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse asset index", e);

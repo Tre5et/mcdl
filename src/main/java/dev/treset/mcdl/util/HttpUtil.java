@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class HttpUtil {
-    private static Caching<HttpResponse<byte[]>> defaultCaching = new MemoryCaching<>();
+    private static Caching<HttpResponse<byte[]>> defaultCaching = new MemoryCaching();
 
     /**
      * Gets the result from a GET request to the specified URL as a string using the default caching strategy
@@ -95,15 +95,19 @@ public class HttpUtil {
         headers.forEach(builder::header);
 
         String cacheKey = constructCacheKey("GET", uri, headers, new byte[0]);
-        HttpResponse<byte[]> cached = caching.get(cacheKey);
-        if(cached != null) {
-            return cached;
+        if(caching != null) {
+            HttpResponse<byte[]> cached = caching.get(cacheKey);
+            if (cached != null) {
+                return cached;
+            }
         }
 
         HttpClient client = HttpClient.newHttpClient();
         try {
             HttpResponse<byte[]> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
-            caching.put(cacheKey, response, getCacheTime(response.headers()));
+            if(caching != null) {
+                caching.put(cacheKey, response, getCacheTime(response.headers()));
+            }
             return response;
         } catch (InterruptedException e) {
             throw new IOException(e);

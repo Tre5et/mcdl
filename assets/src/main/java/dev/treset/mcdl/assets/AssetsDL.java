@@ -2,9 +2,11 @@ package dev.treset.mcdl.assets;
 
 import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.util.DownloadStatus;
+import dev.treset.mcdl.util.cache.Caching;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.util.function.Consumer;
 
 public class AssetsDL {
@@ -92,5 +94,20 @@ public class AssetsDL {
             throw new IllegalArgumentException("Invalid assetId=" + assetId);
         }
         return String.format(ASSET_URL, assetId.substring(0,2), assetId);
+    }
+
+
+    private static Caching<HttpResponse<byte[]>> caching = null;
+
+    /**
+     * Sets a caching strategy for this module
+     * @param caching The caching strategy to use
+     */
+    public static void setCaching(Caching<HttpResponse<byte[]>> caching) {
+        AssetsDL.caching = caching;
+    }
+
+    public static Caching<HttpResponse<byte[]>> getCaching() {
+        return caching;
     }
 }

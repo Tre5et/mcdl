@@ -91,7 +91,7 @@ public class FabricVersion extends GenericJsonParsable {
     public static FabricVersion get(String mcVersion, String fabricVersion) throws FileDownloadException {
         try {
             String url = FabricDL.getFabricVersionUrl(mcVersion, fabricVersion);
-            String content = HttpUtil.getString(url);
+            String content = HttpUtil.getString(url, FabricDL.getCaching());
             return fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse fabric version details, version: " + mcVersion + "-" + fabricVersion, e);

@@ -43,7 +43,7 @@ public class FabricLibrary {
                 onStatus.accept(new DownloadStatus(++current, size, library.getName()));
             }
             try {
-                library.downloadAll(baseDir, libraryPaths);
+                library.download(baseDir, libraryPaths);
             } catch (FileDownloadException e) {
                 throw new FileDownloadException("Unable to download fabric library " + library, e);
             }
@@ -57,7 +57,7 @@ public class FabricLibrary {
      * @param libraryPaths The list of library paths to add the library to
      * @throws FileDownloadException If there is an error downloading or writing the library
      */
-    public void downloadAll(File baseDir, ArrayList<String> libraryPaths) throws FileDownloadException {
+    public void download(File baseDir, ArrayList<String> libraryPaths) throws FileDownloadException {
         if(getUrl() == null || getUrl().isBlank() || getName() == null || getName().isBlank() || baseDir == null || !baseDir.isDirectory()) {
             throw new FileDownloadException("Unmet requirements for fabric library download: library=" + getName());
         }
@@ -93,7 +93,7 @@ public class FabricLibrary {
 
         libraryPaths.add(getLocalPath() + getLocalFileName());
 
-        FileUtil.downloadFile(downloadUrl, libraryFile);
+        FileUtil.downloadFile(downloadUrl, libraryFile, FabricDL.getCaching());
     }
 
     public String getName() {

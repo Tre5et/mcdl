@@ -32,7 +32,7 @@ public class MinecraftUser extends GenericJsonParsable {
      */
     public static MinecraftUser get(String userName) throws FileDownloadException {
         try {
-            return MinecraftUser.fromJson(HttpUtil.getString(MojangDL.getMojangUserProfileUrl(userName)));
+            return MinecraftUser.fromJson(HttpUtil.getString(MojangDL.getMojangUserProfileUrl(userName), MojangDL.getCaching()));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse mojang user", e);
         } catch (IOException e) {

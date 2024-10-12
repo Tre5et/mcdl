@@ -52,7 +52,7 @@ public class QuiltProfile extends GenericJsonParsable {
      */
     public static QuiltProfile get(String mcVersion, String quiltVersion) throws FileDownloadException {
         try {
-            String content = HttpUtil.getString(QuiltDL.getQuiltMetaUrl() + "loader/" + mcVersion + "/" + quiltVersion + "/profile/json");
+            String content = HttpUtil.getString(QuiltDL.getQuiltMetaUrl() + "loader/" + mcVersion + "/" + quiltVersion + "/profile/json", QuiltDL.getCaching());
             return QuiltProfile.fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse QuiltMC profile JSON", e);

@@ -4,6 +4,7 @@ import dev.treset.mcdl.auth.data.TokenResponse;
 import dev.treset.mcdl.auth.data.MinecraftTokenResponse;
 import dev.treset.mcdl.auth.data.ProfileResponse;
 import dev.treset.mcdl.auth.data.UserData;
+import dev.treset.mcdl.auth.token.DefaultTokenPolicy;
 import dev.treset.mcdl.auth.token.TokenPolicy;
 
 import com.microsoft.aad.msal4j.IAuthenticationResult;
@@ -63,6 +64,10 @@ public class AuthDL {
         return MsaAuth.getClientId();
     }
 
+    /**
+     * Sets the application client id for the microsoft authentication
+     * @param clientId The client id
+     */
     public static void setClientId(String clientId) {
         MsaAuth.setClientId(clientId);
     }
@@ -71,6 +76,10 @@ public class AuthDL {
         return MsaAuth.getTokenPolicy();
     }
 
+    /**
+     * Sets the token policy for the microsoft authentication (default: {@link DefaultTokenPolicy})
+     * @param tokenPolicy The token policy
+     */
     public static void setTokenPolicy(TokenPolicy tokenPolicy) {
         MsaAuth.setTokenPolicy(tokenPolicy);
     }
@@ -79,6 +88,11 @@ public class AuthDL {
         return MsaAuth.getAuthority();
     }
 
+    /**
+     * Sets the authority for the microsoft authentication (default: {@code https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode})
+     * @param authority The authority
+     * @throws MalformedURLException if the authority is not a valid URL
+     */
     public static void setAuthority(String authority) throws MalformedURLException {
         MsaAuth.setAuthority(authority);
     }
@@ -87,6 +101,10 @@ public class AuthDL {
         return MsaAuth.getScopes();
     }
 
+    /**
+     * Sets the scopes for the microsoft authentication (default: {@code XboxLive.signin})
+     * @param scopes The scopes
+     */
     public static void setScopes(Set<String> scopes) {
         MsaAuth.setScopes(scopes);
     }
@@ -95,6 +113,11 @@ public class AuthDL {
         return MsaAuth.getRedirectUri();
     }
 
+    /**
+     * Sets the redirect uri for the microsoft authentication (default: {@code http://localhost:9095})
+     * @param redirectUri The redirect uri
+     * @throws URISyntaxException if the redirect uri is not a valid URI
+     */
     public static void setRedirectUri(String redirectUri) throws URISyntaxException {
         MsaAuth.setRedirectUri(redirectUri);
     }

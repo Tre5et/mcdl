@@ -55,7 +55,7 @@ public class ForgeVersion extends GenericJsonParsable {
      * @throws FileDownloadException If the versions could not be downloaded
      */
     public static List<String> getAll(String mcVersion) throws FileDownloadException {
-        List<ForgeMetaVersion> metaVersions = ForgeDL.getForgeVersions();
+        List<ForgeMetaVersion> metaVersions = ForgeMetaVersion.getAll();
         ForgeMetaVersion metaVersion = metaVersions.stream().filter(v -> v.getName().equals(mcVersion)).findFirst().orElseThrow(() -> new FileDownloadException("Could not find forge version for " + mcVersion));
         return metaVersion.getVersions();
     }

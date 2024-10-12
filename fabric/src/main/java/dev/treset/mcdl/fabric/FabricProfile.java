@@ -49,7 +49,7 @@ public class FabricProfile extends GenericJsonParsable {
     public static FabricProfile get(String mcVersion, String fabricVersion) throws FileDownloadException {
         try {
             String url = FabricDL.getFabricProfileUrl(mcVersion, fabricVersion);
-            String content = HttpUtil.getString(url);
+            String content = HttpUtil.getString(url, FabricDL.getCaching());
             return fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse fabric profile", e);

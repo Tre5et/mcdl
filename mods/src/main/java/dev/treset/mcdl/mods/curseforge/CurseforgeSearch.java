@@ -55,7 +55,7 @@ public class CurseforgeSearch extends GenericJsonParsable {
             params.put(ModsDL.getCurseforgeSearchIndexParam(), String.valueOf(offset));
         }
         try {
-            String content = HttpUtil.getString(ModsDL.getCurseforgeSearchUrl(), ModsDL.getCurseforgeHeaders(ModsDL.getCurseforgeApiKey()), params);
+            String content = HttpUtil.getString(ModsDL.getCurseforgeSearchUrl(), ModsDL.getCurseforgeHeaders(ModsDL.getCurseforgeApiKey()), params, ModsDL.getCaching());
             return CurseforgeSearch.fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse curseforge search results", e);

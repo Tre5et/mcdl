@@ -1,6 +1,9 @@
 package dev.treset.mcdl.mojang;
 
 import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.util.cache.Caching;
+
+import java.net.http.HttpResponse;
 
 public class MojangDL {
     private static final String MOJANG_USER_PROFILE_URL = "https://api.mojang.com/users/profiles/minecraft/%s"; // Playername
@@ -24,6 +27,20 @@ public class MojangDL {
      */
     public static MinecraftUser getMinecraftUser(String userName) throws FileDownloadException {
         return MinecraftUser.get(userName);
+    }
+
+    private static Caching<HttpResponse<byte[]>> caching = null;
+
+    /**
+     * Sets a caching strategy for this module
+     * @param caching The caching strategy to use
+     */
+    public static void setCaching(Caching<HttpResponse<byte[]>> caching) {
+        MojangDL.caching = caching;
+    }
+
+    public static Caching<HttpResponse<byte[]>> getCaching() {
+        return caching;
     }
 
     public static String getMojangUserProfileUrl(String playerName) {

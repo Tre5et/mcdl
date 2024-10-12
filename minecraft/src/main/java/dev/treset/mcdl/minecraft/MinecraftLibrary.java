@@ -110,7 +110,7 @@ public class MinecraftLibrary {
                     }
                     File outFile = new File(outDir, getPath().substring(getPath().lastIndexOf('/')));
 
-                    FileUtil.downloadFile(downloadUrl, outFile);
+                    FileUtil.downloadFile(downloadUrl, outFile, MinecraftDL.getCaching());
 
                     return getPath();
                 }

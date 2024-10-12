@@ -99,7 +99,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
             params.put(ModsDL.getModrinthVersionsLoadersParam(), loaders.substring(0, loaders.length() - 1) + "]");
         }
         try {
-            String content = HttpUtil.getString(ModsDL.getModrinthProjectVersionsUrl(modId), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), params);
+            String content = HttpUtil.getString(ModsDL.getModrinthProjectVersionsUrl(modId), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), params, ModsDL.getCaching());
             return ModrinthVersion.fromJsonArray(content, parent);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse modrinth project versions", e);

@@ -1,5 +1,6 @@
 package dev.treset.mcdl.forge.pre1_13;
 
+import dev.treset.mcdl.forge.ForgeDL;
 import dev.treset.mcdl.forge.ForgeInstallData;
 import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.json.GenericJsonParsable;
@@ -243,7 +244,7 @@ public class ForgeInstallProfilePre1_13 {
     public String getMirrorUrl() throws FileDownloadException {
         String file;
         try {
-            file = HttpUtil.getString(getInstall().getMirrorList());
+            file = HttpUtil.getString(getInstall().getMirrorList(), ForgeDL.getCaching());
         } catch (IOException e) {
             throw new FileDownloadException("Failed to download mirror list", e);
         }

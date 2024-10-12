@@ -65,7 +65,7 @@ public class JavaFile extends GenericJsonParsable {
      */
     public static List<JavaFile> getAll(String url) throws FileDownloadException {
         try {
-            return JavaFile.fromJson(HttpUtil.getString(url));
+            return JavaFile.fromJson(HttpUtil.getString(url, JavaDL.getCaching()));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse java file", e);
         } catch (IOException e) {
@@ -132,7 +132,7 @@ public class JavaFile extends GenericJsonParsable {
             }
 
             File outFile = new File(outDir, getName().substring(getName().lastIndexOf('/') == -1 ? 0 : getName().lastIndexOf('/')));
-            FileUtil.downloadFile(downloadUrl, outFile);
+            FileUtil.downloadFile(downloadUrl, outFile, JavaDL.getCaching());
             return;
         }
         throw new FileDownloadException("Unable to determine file type: file=" + getName());

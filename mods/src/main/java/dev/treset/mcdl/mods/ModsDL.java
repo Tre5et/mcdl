@@ -8,9 +8,11 @@ import dev.treset.mcdl.mods.modrinth.ModrinthMod;
 import dev.treset.mcdl.mods.modrinth.ModrinthSearch;
 import dev.treset.mcdl.mods.modrinth.ModrinthVersion;
 import dev.treset.mcdl.util.HttpUtil;
+import dev.treset.mcdl.util.cache.Caching;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.util.*;
 
 public class ModsDL {
@@ -208,6 +210,20 @@ public class ModsDL {
         } catch (IOException e) {
             throw new FileDownloadException("Unable to check curseforge mod", e);
         }
+    }
+
+    private static Caching<HttpResponse<byte[]>> caching = null;
+
+    /**
+     * Sets a caching strategy for this module
+     * @param caching The caching strategy to use
+     */
+    public static void setCaching(Caching<HttpResponse<byte[]>> caching) {
+        ModsDL.caching = caching;
+    }
+
+    public static Caching<HttpResponse<byte[]>> getCaching() {
+        return caching;
     }
 
     public static String getCurseforgeApiKey() {

@@ -86,7 +86,7 @@ public class MinecraftVersionDetails {
      */
     public static MinecraftVersionDetails get(String url) throws FileDownloadException {
         try {
-            return MinecraftVersionDetails.fromJson(HttpUtil.getString(url));
+            return MinecraftVersionDetails.fromJson(HttpUtil.getString(url, MinecraftDL.getCaching()));
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse version manifest", e);
         } catch (IOException e) {

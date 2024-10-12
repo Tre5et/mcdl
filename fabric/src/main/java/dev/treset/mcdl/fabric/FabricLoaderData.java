@@ -35,7 +35,7 @@ public class FabricLoaderData {
 
         MavenPom mavenPom;
         try {
-            mavenPom = FileUtil.parseMavenUrl(FabricDL.getFabricMavenUrl(), getMaven());
+            mavenPom = FileUtil.parseMavenUrl(FabricDL.getFabricMavenUrl(), getMaven(), FabricDL.getCaching());
         } catch (MalformedURLException | FileDownloadException e) {
             throw new FileDownloadException("Unable to parse fabric version maven file Url", e);
         }
@@ -52,7 +52,7 @@ public class FabricLoaderData {
             throw new FileDownloadException("Unable to parse fabric download Url", e);
         }
 
-        FileUtil.downloadFile(downloadUrl, outFile);
+        FileUtil.downloadFile(downloadUrl, outFile, FabricDL.getCaching());
     }
 
     public int getBuild() {

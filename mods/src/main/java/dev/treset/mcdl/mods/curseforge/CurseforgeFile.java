@@ -85,7 +85,7 @@ public class CurseforgeFile extends GenericModVersion implements JsonParsable {
         params.put(ModsDL.getCurseforgeSearchIndexParam(), String.valueOf(index));
 
         try {
-            String content = HttpUtil.getString(ModsDL.getCurseforgeProjectVersionsUrl(modId), ModsDL.getCurseforgeHeaders(ModsDL.getCurseforgeApiKey()), params);
+            String content = HttpUtil.getString(ModsDL.getCurseforgeProjectVersionsUrl(modId), ModsDL.getCurseforgeHeaders(ModsDL.getCurseforgeApiKey()), params, ModsDL.getCaching());
             CurseforgeFiles files = CurseforgeFiles.fromJson(content, parent);
             ArrayList<CurseforgeFile> versions = new ArrayList<>();
             if(files.getData() != null) {

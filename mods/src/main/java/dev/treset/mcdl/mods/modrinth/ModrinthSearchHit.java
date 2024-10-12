@@ -5,7 +5,6 @@ import dev.treset.mcdl.format.FormatUtils;
 import dev.treset.mcdl.mods.GenericModData;
 import dev.treset.mcdl.mods.ModProvider;
 import dev.treset.mcdl.mods.ModVersionData;
-import dev.treset.mcdl.mods.ModsDL;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -135,7 +134,7 @@ public class ModrinthSearchHit extends GenericModData {
         if(versionProviders != null && !versionProviders.contains(ModProvider.MODRINTH)) {
             return List.of();
         }
-        currentVersions = List.copyOf(ModsDL.getModrinthVersions(projectId, this, versionGameVersions, versionModLoaders));
+        currentVersions = List.copyOf(ModrinthVersion.getAll(projectId, this, versionGameVersions, versionModLoaders));
         return currentVersions;
     }
 

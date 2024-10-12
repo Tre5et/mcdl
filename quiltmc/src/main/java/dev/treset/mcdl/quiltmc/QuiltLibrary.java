@@ -58,7 +58,7 @@ public class QuiltLibrary {
 
         MavenPom mavenPom;
         try {
-            mavenPom = FileUtil.parseMavenUrl(getUrl(), getName());
+            mavenPom = FileUtil.parseMavenUrl(getUrl(), getName(), QuiltDL.getCaching());
         } catch (MalformedURLException | FileDownloadException e) {
             throw new FileDownloadException("Unable to parse quilt library maven file Url: library=" + getName(), e);
         }
@@ -82,7 +82,7 @@ public class QuiltLibrary {
 
         File libraryFile = new File(libraryDir, mavenPom.getMavenFileName());
 
-        FileUtil.downloadFile(downloadUrl, libraryFile);
+        FileUtil.downloadFile(downloadUrl, libraryFile, QuiltDL.getCaching());
 
         currentLibraries.add(mavenPom.getMavenDir() + mavenPom.getMavenFileName());
     }

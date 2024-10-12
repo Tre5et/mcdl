@@ -7,16 +7,12 @@ import dev.treset.mcdl.json.GenericJsonParsable;
 import dev.treset.mcdl.json.JsonUtils;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.util.HttpUtil;
-import dev.treset.mcdl.util.cache.Caching;
-import dev.treset.mcdl.util.cache.MemoryCaching;
 
 import java.io.IOException;
-import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Objects;
 
 public class MinecraftVersion extends GenericJsonParsable {
-    private static Caching<HttpResponse<byte[]>> caching = new MemoryCaching<>();
 
     private int complianceLevel;
     private String id;
@@ -60,7 +56,7 @@ public class MinecraftVersion extends GenericJsonParsable {
      */
     public static List<MinecraftVersion> getAll() throws FileDownloadException {
         try {
-            String content = HttpUtil.getString(MinecraftDL.getVersionManifestUrl(), caching);
+            String content = HttpUtil.getString(MinecraftDL.getVersionManifestUrl(), MinecraftDL.getCaching());
             return MinecraftVersion.fromVersionManifest(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse version manifest", e);
@@ -87,14 +83,6 @@ public class MinecraftVersion extends GenericJsonParsable {
         } catch (FileDownloadException e) {
             throw new FileDownloadException("Unable to get version " + id, e);
         }
-    }
-
-    /**
-     * Sets a caching strategy for versions (default: {@link MemoryCaching})
-     * @param caching The caching strategy to use
-     */
-    public static void setCaching(Caching<HttpResponse<byte[]>> caching) {
-        MinecraftVersion.caching = caching;
     }
 
     /**

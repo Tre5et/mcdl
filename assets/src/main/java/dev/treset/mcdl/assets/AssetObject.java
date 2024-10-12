@@ -45,7 +45,7 @@ public class AssetObject {
             URL url = new URL(AssetsDL.getAssetUrl(getHash()));
             if(!objectFile.exists() || overwrite) {
                 try {
-                    FileUtil.downloadFile(url, objectFile);
+                    FileUtil.downloadFile(url, objectFile, AssetsDL.getCaching());
                 } catch (FileDownloadException e) {
                     throw new FileDownloadException("Unable to download assets object, id=" + getHash(), e);
                 }

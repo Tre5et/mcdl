@@ -67,7 +67,7 @@ public abstract class ForgeInstaller {
             }
 
             try {
-                FileUtil.downloadFile(new URL(ForgeDL.getInstallerUrl(getVersion())), jarFile);
+                FileUtil.downloadFile(new URL(ForgeDL.getInstallerUrl(getVersion())), jarFile, ForgeDL.getCaching());
             } catch (MalformedURLException e) {
                 throw new FileDownloadException("Failed to parse forge installer Url", e);
             }

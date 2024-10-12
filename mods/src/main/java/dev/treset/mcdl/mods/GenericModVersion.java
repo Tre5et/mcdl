@@ -41,7 +41,7 @@ public abstract class GenericModVersion implements ModVersionData {
         } catch (MalformedURLException e) {
             throw new FileDownloadException("Unable to download mod, malformed url: mod=" + getName(), e);
         }
-        FileUtil.downloadFile(downloadUrl, modFile);
+        FileUtil.downloadFile(downloadUrl, modFile, ModsDL.getCaching());
 
         ArrayList<LocalModVersion.LocalModDownload> downloads = new ArrayList<>();
         for(int i = 0; i < providers.size(); i++) {

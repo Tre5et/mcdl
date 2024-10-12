@@ -29,8 +29,6 @@ public class MinecraftLaunchArguments {
     }
 
     public MinecraftLaunchCommand getLaunchCommand(String javaBaseDir, String gameLaunchFile, String mainClass, String libsDir, List<MinecraftLibrary> libraries, List<String> features) {
-
-
         StringBuilder outString = new StringBuilder();
         outString.append(javaBaseDir).append("\\bin\\java ");
 

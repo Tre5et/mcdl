@@ -80,7 +80,7 @@ public class MinecraftFileDownloads {
                 throw new FileDownloadException("Unable to convert version download url: download=" + getUrl(), e);
             }
 
-            FileUtil.downloadFile(downloadUrl, targetFile);
+            FileUtil.downloadFile(downloadUrl, targetFile, MinecraftDL.getCaching());
         }
 
         public String getSha1() {

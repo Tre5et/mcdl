@@ -27,7 +27,7 @@ public class JavaRuntimes extends HashMap<String, Map<String, List<JavaRuntimeRe
      */
     public static JavaRuntimes get() throws FileDownloadException {
         try {
-            return JavaRuntimes.fromJson(HttpUtil.getString(JavaDL.getJavaRuntimeUrl()));
+            return JavaRuntimes.fromJson(HttpUtil.getString(JavaDL.getJavaRuntimeUrl(), JavaDL.getCaching()));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse runtimes file", e);
         } catch (IOException e) {

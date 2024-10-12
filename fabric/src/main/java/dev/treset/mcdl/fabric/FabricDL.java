@@ -2,8 +2,10 @@ package dev.treset.mcdl.fabric;
 
 import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.util.DownloadStatus;
+import dev.treset.mcdl.util.cache.Caching;
 
 import java.io.File;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -98,7 +100,7 @@ public class FabricDL {
      * @throws FileDownloadException If there is an error downloading or writing the library
      */
     public static void downloadLibrary(File baseDir, FabricLibrary library, ArrayList<String> libraryPaths) throws FileDownloadException {
-        library.downloadAll(baseDir, libraryPaths);
+        library.download(baseDir, libraryPaths);
     }
 
     /**
@@ -109,7 +111,7 @@ public class FabricDL {
      */
     public static List<String> downloadLibrary(File baseDir, FabricLibrary library) throws FileDownloadException {
         ArrayList<String> libraryPaths = new ArrayList<>();
-        library.downloadAll(baseDir, libraryPaths);
+        library.download(baseDir, libraryPaths);
         return libraryPaths;
     }
 
@@ -119,6 +121,20 @@ public class FabricDL {
      */
     public static FabricProperties getDefaultProperties() {
         return FabricVersion.getDefaultProperties();
+    }
+
+    private static Caching<HttpResponse<byte[]>> caching = null;
+
+    /**
+     * Sets a caching strategy this module
+     * @param caching The caching strategy to use
+     */
+    public static void setCaching(Caching<HttpResponse<byte[]>> caching) {
+        FabricDL.caching = caching;
+    }
+
+    public static Caching<HttpResponse<byte[]>> getCaching() {
+        return caching;
     }
 
     public static String getFabricMavenUrl() {

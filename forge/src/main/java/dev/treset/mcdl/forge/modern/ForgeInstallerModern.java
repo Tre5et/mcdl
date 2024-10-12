@@ -147,7 +147,7 @@ public class ForgeInstallerModern extends ForgeInstaller {
 
             boolean found = false;
             try {
-                FileUtil.downloadFile(new URL(lib.getDownloads().getArtifact().getUrl()), outFile);
+                FileUtil.downloadFile(new URL(lib.getDownloads().getArtifact().getUrl()), outFile, ForgeDL.getCaching());
                 found = true;
             } catch (MalformedURLException e) {
                 if(mavenDir != null) {

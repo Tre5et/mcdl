@@ -19,8 +19,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class FileUtil {
-    private static Caching<HttpResponse<byte[]>> defaultCaching = new NoCaching<>();
-
     /**
      * Downloads a file from a URL to a specified file using the default caching strategy
      * @param downloadUrl The URL to download the file from
@@ -28,7 +26,7 @@ public class FileUtil {
      * @throws FileDownloadException If there is an error downloading the file
      */
     public static void downloadFile(URL downloadUrl, File outFile) throws FileDownloadException {
-        downloadFile(downloadUrl, outFile, defaultCaching);
+        downloadFile(downloadUrl, outFile, caching);
     }
 
     /**
@@ -48,6 +46,18 @@ public class FileUtil {
     }
 
     /**
+     * Downloads a file from a URL to a byte array
+     * @param baseUrl The base URL
+     * @param mavenFileName The maven file name
+     * @return The downloaded file as a byte array
+     * @throws MalformedURLException If the URL is invalid
+     * @throws FileDownloadException If the file can not be downloaded
+     */
+    public static MavenPom parseMavenUrl(String baseUrl, String mavenFileName) throws MalformedURLException, FileDownloadException {
+        return parseMavenUrl(baseUrl, mavenFileName, caching);
+    }
+
+    /**
      * Gets maven data from a maven path
      * @param baseUrl The maven url
      * @param mavenFileName The maven library name
@@ -55,12 +65,12 @@ public class FileUtil {
      * @throws MalformedURLException if the url is invalid
      * @throws FileDownloadException if the file can not be downloaded
      */
-    public static MavenPom parseMavenUrl(String baseUrl, String mavenFileName) throws MalformedURLException, FileDownloadException {
+    public static MavenPom parseMavenUrl(String baseUrl, String mavenFileName, Caching<HttpResponse<byte[]>> caching) throws MalformedURLException, FileDownloadException {
         String mavenPath = toMavenPath(mavenFileName, ".pom");
 
         String pomFile;
         try {
-            pomFile = HttpUtil.getString(baseUrl + mavenPath);
+            pomFile = HttpUtil.getString(baseUrl + mavenPath, caching);
         } catch (IOException e) {
             throw new FileDownloadException("Unable to download pom file: url=" + baseUrl + mavenPath, e);
         }
@@ -324,11 +334,17 @@ public class FileUtil {
         return tempDir;
     }
 
+    private static Caching<HttpResponse<byte[]>> caching = null;
+
     /**
      * Sets the default caching strategy for file downloads. Default: {@link NoCaching}
      * @param defaultCaching The caching strategy to use
      */
-    public static void setDefaultCaching(Caching<HttpResponse<byte[]>> defaultCaching) {
-        FileUtil.defaultCaching = defaultCaching;
+    public static void setCaching(Caching<HttpResponse<byte[]>> defaultCaching) {
+        FileUtil.caching = defaultCaching;
+    }
+
+    public static Caching<HttpResponse<byte[]>> getCaching() {
+        return caching;
     }
 }

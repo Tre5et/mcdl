@@ -6,15 +6,15 @@ import dev.treset.mcdl.util.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 /**
  * A caching implementation that stores cache data between program runs
- * @param <T> the type of data to cache
  */
-public class PersistentCaching<T> extends MemoryCaching<T> {
+public class PersistentCaching extends MemoryCaching {
     private File cacheFile;
 
     public PersistentCaching(File cacheFile) {
@@ -22,11 +22,11 @@ public class PersistentCaching<T> extends MemoryCaching<T> {
     }
 
     @Override
-    void onStartup(Consumer<HashMap<String, CacheValue<T>>> setCache) {
+    void onStartup(Consumer<HashMap<String, CacheValue<HttpResponse<byte[]>>>> setCache) {
         if(cacheFile.exists()) {
             try {
                 String content = FileUtil.readFileAsString(cacheFile);
-                HashMap<String, CacheValue<T>> newCache = new Gson().fromJson(content, new TypeToken<>() {});
+                HashMap<String, CacheValue<HttpResponse<byte[]>>> newCache = new Gson().fromJson(content, new TypeToken<>() {});
                 setCache.accept(newCache);
             } catch (IOException e) {
                 System.out.println("Failed to read cache file");
@@ -36,7 +36,7 @@ public class PersistentCaching<T> extends MemoryCaching<T> {
     }
 
     @Override
-    void onShutdown(Map<String, CacheValue<T>> cache) {
+    void onShutdown(Map<String, CacheValue<HttpResponse<byte[]>>> cache) {
         String content = new Gson().toJson(cache);
         try {
             FileUtil.writeToFile(content.getBytes(), cacheFile);

@@ -2,8 +2,10 @@ package dev.treset.mcdl.java;
 
 import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.util.DownloadStatus;
+import dev.treset.mcdl.util.cache.Caching;
 
 import java.io.File;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -58,6 +60,20 @@ public class JavaDL {
      */
     public static List<JavaFile> getJavaFiles(String url) throws FileDownloadException {
         return JavaFile.getAll(url);
+    }
+
+    private static Caching<HttpResponse<byte[]>> caching = null;
+
+    /**
+     * Sets a caching strategy this module
+     * @param caching The caching strategy to use
+     */
+    public static void setCaching(Caching<HttpResponse<byte[]>> caching) {
+        JavaDL.caching = caching;
+    }
+
+    public static Caching<HttpResponse<byte[]>> getCaching() {
+        return caching;
     }
 
     public static String getJavaRuntimeUrl() {

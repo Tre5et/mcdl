@@ -31,7 +31,7 @@ public class MinecraftProfile extends GenericJsonParsable {
      */
     public static MinecraftProfile get(String uuid) throws FileDownloadException {
         try {
-            return MinecraftProfile.fromJson(HttpUtil.getString(MojangDL.getMojangSessionProfileUrl(uuid)));
+            return MinecraftProfile.fromJson(HttpUtil.getString(MojangDL.getMojangSessionProfileUrl(uuid), MojangDL.getCaching()));
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse mojang profile", e);
         } catch (IOException e) {

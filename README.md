@@ -159,15 +159,15 @@ Caching can be set for different types of requests. There are three types of cac
 - `MemoryChaching`: Data is cached for the runtime of the application, but not saved to disk
 - `PersistentCaching`: Data is cached for the runtime of the application and saved to disk
 
-Data will be cached for as long as the data header specifies, or for a default duration, which can be set using `setCacheDurations(long durationMs)` on the `Caching` object. Default is 10 minutes.
+Data will be cached for as long as the data header specifies, or for a default duration, which can be set using `setCacheDuration(long durationMs)` on the `Caching` object. Default is 10 minutes.
 
 #### Setting global caching
 
-The global caching strategy for all requests can be set using ``HttpUtil.setDefaultCaching(Caching<HttpResponse<byte[]>> caching)``. Default is `RuntimeCaching`.
+The global caching strategy for all requests can be set using ``HttpUtil.setDefaultCaching(Caching.{STRATEGY}> caching)``. Default is `RuntimeCaching`.
 
 #### Setting module specific caching
 
-Some modules allow you to set a caching strategy for the module, which overrides the global caching strategy. This can be set using `{Module]DL.set{Component}Caching(Caching<HttpResponse<byte[]>> caching)`.
+Most modules allow you to set a caching strategy for the module, which overrides the global caching strategy. This can be set using `{Module]DL.setCaching(Caching.{STRATEGY}> caching)`. If it is set to `null` (default) the global caching strategy will be used.
 
 ## Issues And Contributions
 

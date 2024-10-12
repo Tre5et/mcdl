@@ -90,7 +90,7 @@ public class CurseforgeMod extends GenericModData {
             throw new FileDownloadException("Curseforge api key not set");
         }
         try {
-            String content = HttpUtil.getString(ModsDL.getCurseforgeProjectUrl(projectId), ModsDL.getCurseforgeHeaders(ModsDL.getCurseforgeApiKey()), Map.of());
+            String content = HttpUtil.getString(ModsDL.getCurseforgeProjectUrl(projectId), ModsDL.getCurseforgeHeaders(ModsDL.getCurseforgeApiKey()), Map.of(), ModsDL.getCaching());
             return CurseforgeMod.fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse curseforge mod", e);

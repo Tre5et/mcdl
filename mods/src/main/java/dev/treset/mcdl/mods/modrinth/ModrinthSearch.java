@@ -75,7 +75,7 @@ public class ModrinthSearch extends GenericJsonParsable {
             params.put(ModsDL.getModrinthSearchFacetsParam(), facets.toString());
         }
         try {
-            String content = HttpUtil.getString(ModsDL.getModrinthSearchUrl(), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), params);
+            String content = HttpUtil.getString(ModsDL.getModrinthSearchUrl(), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), params, ModsDL.getCaching());
             return ModrinthSearch.fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse modrinth search results", e);

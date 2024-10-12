@@ -8,18 +8,13 @@ import dev.treset.mcdl.json.GenericJsonParsable;
 import dev.treset.mcdl.json.JsonUtils;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.util.HttpUtil;
-import dev.treset.mcdl.util.cache.Caching;
-import dev.treset.mcdl.util.cache.MemoryCaching;
 
 import java.io.IOException;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class ForgeMetaVersion extends GenericJsonParsable {
-    private static Caching<HttpResponse<byte[]>> caching = new MemoryCaching<>();
-
     private String name;
     private List<String> versions;
 
@@ -58,7 +53,7 @@ public class ForgeMetaVersion extends GenericJsonParsable {
      */
     public static List<ForgeMetaVersion> getAll() throws FileDownloadException {
         try {
-            String content = HttpUtil.getString(ForgeDL.getMavenMetaUrl(), caching);
+            String content = HttpUtil.getString(ForgeDL.getMavenMetaUrl(), ForgeDL.getCaching());
             return ForgeMetaVersion.fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Failed to parse forge versions", e);
@@ -81,13 +76,5 @@ public class ForgeMetaVersion extends GenericJsonParsable {
 
     public void setVersions(List<String> versions) {
         this.versions = versions;
-    }
-
-    /**
-     * Sets the caching strategy for forge versions. Default: {@link MemoryCaching}
-     * @param caching The caching strategy to use
-     */
-    public static void setCaching(Caching<HttpResponse<byte[]>> caching) {
-        ForgeMetaVersion.caching = caching;
     }
 }
