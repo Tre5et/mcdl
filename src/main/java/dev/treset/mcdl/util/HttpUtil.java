@@ -163,6 +163,10 @@ public class HttpUtil {
         defaultCaching = caching;
     }
 
+    public static Caching<HttpResponse<byte[]>> getDefaultCaching() {
+        return defaultCaching;
+    }
+
     private static URI constructParamUri(URL url, Map<String, String> params) throws IOException {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(url);

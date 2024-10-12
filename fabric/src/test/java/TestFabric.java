@@ -1,5 +1,5 @@
-import net.treset.mcdl.fabric.FabricDL;
-import net.treset.mcdl.fabric.FabricVersion;
+import dev.treset.mcdl.fabric.FabricDL;
+import dev.treset.mcdl.fabric.FabricVersion;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -30,7 +30,7 @@ public class TestFabric {
         if(client.isFile()) {
             assertDoesNotThrow(client::delete);
         }
-        assertDoesNotThrow(() -> FabricDL.downloadFabricClient(client, version.getLoader()));
+        assertDoesNotThrow(() -> FabricDL.downloadFabricClient(version.getLoader(), client));
         assertTrue(client.isFile(), "Client jar does not exist");
 
         File libraries = new File("download/libraries-" + mcVersion + "-" + fabricVersion);

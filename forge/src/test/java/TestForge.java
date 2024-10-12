@@ -1,9 +1,9 @@
 import dev.treset.mcdl.forge.ForgeDL;
 import dev.treset.mcdl.forge.ForgeInstaller;
 import dev.treset.mcdl.forge.ForgeMetaVersion;
-import net.treset.mcdl.java.JavaFile;
-import net.treset.mcdl.java.JavaRuntimeRelease;
-import net.treset.mcdl.java.JavaDL;
+import dev.treset.mcdl.java.JavaFile;
+import dev.treset.mcdl.java.JavaRuntimeRelease;
+import dev.treset.mcdl.java.JavaDL;
 import dev.treset.mcdl.minecraft.MinecraftDL;
 import dev.treset.mcdl.minecraft.MinecraftVersion;
 import dev.treset.mcdl.minecraft.MinecraftVersionDetails;

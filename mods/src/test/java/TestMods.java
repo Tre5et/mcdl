@@ -1,8 +1,8 @@
 
 
-import net.treset.mcdl.mods.*;
-import net.treset.mcdl.mods.curseforge.CurseforgeFile;
-import net.treset.mcdl.mods.modrinth.ModrinthVersion;
+import dev.treset.mcdl.mods.*;
+import dev.treset.mcdl.mods.curseforge.CurseforgeFile;
+import dev.treset.mcdl.mods.modrinth.ModrinthVersion;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
