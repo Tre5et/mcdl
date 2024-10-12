@@ -2,7 +2,7 @@ package dev.treset.mcdl.forge;
 
 import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.util.cache.Caching;
-import dev.treset.mcdl.util.cache.RuntimeCaching;
+import dev.treset.mcdl.util.cache.MemoryCaching;
 
 import java.net.http.HttpResponse;
 import java.util.List;
@@ -50,7 +50,7 @@ public class ForgeDL {
     }
 
     /**
-     * Sets the caching strategy for forge versions. Default: {@link RuntimeCaching}
+     * Sets the caching strategy for forge versions. Default: {@link MemoryCaching}
      * @param caching The caching strategy to use
      */
     public static void setVersionCaching(Caching<HttpResponse<byte[]>> caching) {

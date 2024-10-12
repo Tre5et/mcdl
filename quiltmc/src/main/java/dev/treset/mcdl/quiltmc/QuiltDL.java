@@ -2,8 +2,11 @@ package dev.treset.mcdl.quiltmc;
 
 import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.util.DownloadStatus;
+import dev.treset.mcdl.util.cache.Caching;
+import dev.treset.mcdl.util.cache.MemoryCaching;
 
 import java.io.File;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -55,14 +58,22 @@ public class QuiltDL {
     }
 
     /**
-     * Downloads a list of quilt libraries to a specified directory and returns a list of library paths.
+     * Downloads a quilt library to a specified directory.
      * @param baseDir The directory to download the libraries to
      * @param library The library to download
      * @param currentLibraries The list of library paths
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
-    private static void downloadQuiltLibrary(QuiltLibrary library, File baseDir, ArrayList<String> currentLibraries) throws FileDownloadException {
+    public static void downloadQuiltLibrary(QuiltLibrary library, File baseDir, ArrayList<String> currentLibraries) throws FileDownloadException {
         library.download(baseDir, currentLibraries);
+    }
+
+    /**
+     * Sets a caching strategy for versions (default: {@link MemoryCaching})
+     * @param caching The caching strategy to use
+     */
+    public static void setVersionCaching(Caching<HttpResponse<byte[]>> caching) {
+        QuiltVersion.setCaching(caching);
     }
 
     public static String getQuiltMetaUrl() {

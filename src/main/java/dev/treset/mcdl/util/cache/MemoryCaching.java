@@ -8,7 +8,7 @@ import java.util.function.Consumer;
  * A caching implementation that caches data in memory for the duration of the program's runtime
  * @param <T> the type of data to cache
  */
-public class RuntimeCaching<T> extends Caching<T> {
+public class MemoryCaching<T> extends Caching<T> {
     @Override
     public T get(String key) {
         return getIfValid(key);

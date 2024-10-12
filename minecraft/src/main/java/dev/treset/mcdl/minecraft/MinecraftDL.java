@@ -3,7 +3,7 @@ package dev.treset.mcdl.minecraft;
 import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.util.DownloadStatus;
 import dev.treset.mcdl.util.cache.Caching;
-import dev.treset.mcdl.util.cache.RuntimeCaching;
+import dev.treset.mcdl.util.cache.MemoryCaching;
 
 import java.io.File;
 import java.net.http.HttpResponse;
@@ -82,7 +82,7 @@ public class MinecraftDL {
     }
 
     /**
-     * Sets a caching strategy for versions (default: {@link RuntimeCaching})
+     * Sets a caching strategy for versions (default: {@link MemoryCaching})
      * @param caching The caching strategy to use
      */
     public static void setVersionCaching(Caching<HttpResponse<byte[]>> caching) {

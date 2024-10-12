@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 public abstract class Caching<T> {
     private HashMap<String, CacheValue<T>> cache = new HashMap<>();
-    private long defaultTime = 10 * 60 * 1000;
+    private long durationMs = 10 * 60 * 1000;
 
     Caching() {
         onStartup((newCache) -> cache = newCache);
@@ -29,19 +29,19 @@ public abstract class Caching<T> {
     public abstract T get(String key);
 
     protected void addToCache(String key, T value, Long validDuration) {
-        cache.put(key, new CacheValue<>(value, System.currentTimeMillis() + (validDuration == null ? defaultTime : validDuration)));
+        cache.put(key, new CacheValue<>(value, System.currentTimeMillis() + (validDuration == null ? durationMs : validDuration)));
     }
     public void put(String key, T value) {
-        put(key, value, defaultTime);
+        put(key, value, durationMs);
     }
     public abstract void put(String key, T value, Long validDuration);
 
-    public long getDefaultTime() {
-        return defaultTime;
+    public long getCacheDurationMs() {
+        return durationMs;
     }
 
-    public void setDefaultTime(long defaultTime) {
-        this.defaultTime = defaultTime;
+    public void setCacheDuration(long durationMs) {
+        this.durationMs = durationMs;
     }
 
     abstract void onStartup(Consumer<HashMap<String, CacheValue<T>>> setCache);

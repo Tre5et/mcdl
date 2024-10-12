@@ -14,10 +14,10 @@ import java.util.function.Consumer;
  * A caching implementation that stores cache data between program runs
  * @param <T> the type of data to cache
  */
-public class PermanentCaching<T> extends RuntimeCaching<T> {
+public class PersistentCaching<T> extends MemoryCaching<T> {
     private File cacheFile;
 
-    public PermanentCaching(File cacheFile) {
+    public PersistentCaching(File cacheFile) {
         this.cacheFile = cacheFile;
     }
 

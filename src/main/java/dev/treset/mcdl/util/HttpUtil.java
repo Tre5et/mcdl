@@ -1,7 +1,7 @@
 package dev.treset.mcdl.util;
 
 import dev.treset.mcdl.format.FormatUtils;
-import dev.treset.mcdl.util.cache.RuntimeCaching;
+import dev.treset.mcdl.util.cache.MemoryCaching;
 import dev.treset.mcdl.util.cache.Caching;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class HttpUtil {
-    private static Caching<HttpResponse<byte[]>> defaultCaching = new RuntimeCaching<>();
+    private static Caching<HttpResponse<byte[]>> defaultCaching = new MemoryCaching<>();
 
     /**
      * Gets the result from a GET request to the specified URL as a string using the default caching strategy
@@ -156,7 +156,7 @@ public class HttpUtil {
     }
 
     /**
-     * Sets the default caching strategy for all requests. Default is {@link RuntimeCaching}
+     * Sets the default caching strategy for all requests. Default is {@link MemoryCaching}
      * @param caching The caching strategy to use
      */
     public static void setDefaultCaching(Caching<HttpResponse<byte[]>> caching) {

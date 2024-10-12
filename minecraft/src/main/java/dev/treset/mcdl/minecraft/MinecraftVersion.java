@@ -8,7 +8,7 @@ import dev.treset.mcdl.json.JsonUtils;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.util.HttpUtil;
 import dev.treset.mcdl.util.cache.Caching;
-import dev.treset.mcdl.util.cache.RuntimeCaching;
+import dev.treset.mcdl.util.cache.MemoryCaching;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class MinecraftVersion extends GenericJsonParsable {
-    private static Caching<HttpResponse<byte[]>> caching = new RuntimeCaching<>();
+    private static Caching<HttpResponse<byte[]>> caching = new MemoryCaching<>();
 
     private int complianceLevel;
     private String id;
@@ -90,7 +90,7 @@ public class MinecraftVersion extends GenericJsonParsable {
     }
 
     /**
-     * Sets a caching strategy for versions (default: {@link RuntimeCaching})
+     * Sets a caching strategy for versions (default: {@link MemoryCaching})
      * @param caching The caching strategy to use
      */
     public static void setCaching(Caching<HttpResponse<byte[]>> caching) {

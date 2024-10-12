@@ -9,7 +9,7 @@ import dev.treset.mcdl.json.JsonUtils;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.util.HttpUtil;
 import dev.treset.mcdl.util.cache.Caching;
-import dev.treset.mcdl.util.cache.RuntimeCaching;
+import dev.treset.mcdl.util.cache.MemoryCaching;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ForgeMetaVersion extends GenericJsonParsable {
-    private static Caching<HttpResponse<byte[]>> caching = new RuntimeCaching<>();
+    private static Caching<HttpResponse<byte[]>> caching = new MemoryCaching<>();
 
     private String name;
     private List<String> versions;
@@ -84,7 +84,7 @@ public class ForgeMetaVersion extends GenericJsonParsable {
     }
 
     /**
-     * Sets the caching strategy for forge versions. Default: {@link RuntimeCaching}
+     * Sets the caching strategy for forge versions. Default: {@link MemoryCaching}
      * @param caching The caching strategy to use
      */
     public static void setCaching(Caching<HttpResponse<byte[]>> caching) {

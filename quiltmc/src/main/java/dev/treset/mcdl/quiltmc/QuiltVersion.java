@@ -7,14 +7,14 @@ import dev.treset.mcdl.json.GenericJsonParsable;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.util.HttpUtil;
 import dev.treset.mcdl.util.cache.Caching;
-import dev.treset.mcdl.util.cache.RuntimeCaching;
+import dev.treset.mcdl.util.cache.MemoryCaching;
 
 import java.io.IOException;
 import java.net.http.HttpResponse;
 import java.util.List;
 
 public class QuiltVersion extends GenericJsonParsable {
-    private static Caching<HttpResponse<byte[]>> caching = new RuntimeCaching<>();
+    private static Caching<HttpResponse<byte[]>> caching = new MemoryCaching<>();
 
     private QuiltLoader loader;
     private QuiltHashed hashed;
