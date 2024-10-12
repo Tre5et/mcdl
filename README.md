@@ -44,7 +44,7 @@ dependencies {
 > def mcdlVersion = '{version}'
 > def mcdlModules = ['{module-name1}', '{module-name2}']
 > dependencies {
->     implementation 'dev.treset.mcdl:mcdl:{version}'
+>     implementation 'dev.treset.mcdl:mcdl:$mcdlVersion'
 >     for(module in mcdlModules) {
 >         implementation 'dev.treset.mcdl:mcdl-$module:$mcdlVersion'
 >     }
@@ -68,7 +68,7 @@ dependencies {
 > val mcdlVersion = "{version}"
 > val mcdlModules = arrayOf("{module-name1}", "{module-name2}")
 > dependencies {
->     implementation("dev.treset.mcdl:mcdl:{version}")
+>     implementation("dev.treset.mcdl:mcdl:$mcdlVersion")
 >     for(module in mcdlModules) {
 >         implementation("dev.treset.mcdl:mcdl-$module:$mcdlVersion")
 >     }
