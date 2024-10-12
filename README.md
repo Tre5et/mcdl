@@ -175,7 +175,7 @@ Issues can be reported on the [GitHub Issue Tracker](https://github.com/Tre5et/m
 
 ## License
 
-This mod is available under the GNU GPLv3 license. Feel free to redistribute, modify and incorporate it in your own open-source projects.
+This library is available under the GNU LGPLv3 license. Feel free to redistribute, modify and incorporate it in your own open or partially closed source projects.
 
 ## Support Me
 
