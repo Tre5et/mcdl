@@ -8,8 +8,12 @@ plugins {
     id("io.gitee.pkmer.pkmerboot-central-publisher") version "1.1.1"
 }
 
-val stagingDir = layout.buildDirectory.dir("target/staging-deploy/${project.version}")
 val isRelease = project.version.toString().all { it.isDigit() || it == '.' }
+val stagingDir = if(isRelease) {
+    layout.buildDirectory.dir("target/staging-deploy/${project.version}")
+} else {
+    layout.buildDirectory.dir("target/snapshot/${project.version}")
+}
 
 allprojects {
     apply(plugin = "java")
