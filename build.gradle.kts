@@ -25,13 +25,14 @@ allprojects {
     }
 
     val isRelease = project.version.toString().all { it.isDigit() || it == '.' }
+    val stagingDir = layout.buildDirectory.dir("target/staging-deploy/${project.version}")
 
     afterEvaluate {
         publishing {
             repositories {
                 maven {
                     name = "Local"
-                    setUrl(layout.buildDirectory.dir("target/staging-deploy"))
+                    setUrl(stagingDir)
                 }
             }
 
@@ -86,7 +87,7 @@ allprojects {
                 throw IllegalStateException("Cannot publish non-release version to Maven Central")
             }
 
-            stagingRepository = layout.buildDirectory.dir("target/staging-deploy")
+            stagingRepository = stagingDir
             username = findProperty("ossrhUsername") as String
             password = findProperty("ossrhPassword") as String
 
@@ -101,7 +102,6 @@ allprojects {
     tasks.test {
         useJUnitPlatform()
     }
-
 }
 
 subprojects {
