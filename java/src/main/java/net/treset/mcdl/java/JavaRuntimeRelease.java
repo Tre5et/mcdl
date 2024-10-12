@@ -2,11 +2,15 @@ package net.treset.mcdl.java;
 
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
+import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.json.GenericJsonParsable;
 import dev.treset.mcdl.json.SerializationException;
+import dev.treset.mcdl.util.DownloadStatus;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class JavaRuntimeRelease extends GenericJsonParsable {
     private Availability availability;
@@ -114,6 +118,25 @@ public class JavaRuntimeRelease extends GenericJsonParsable {
     public static JavaRuntimeRelease fromJsonObject(JsonObject json, String id) throws SerializationException {
         if(json == null) return new JavaRuntimeRelease(id, null, null, null);
         return GenericJsonParsable.fromJson(json.toString(), JavaRuntimeRelease.class);
+    }
+
+    /**
+     * Gets all the files for this java release
+     * @return A list of java files
+     * @throws FileDownloadException If there is an error downloading or parsing the files
+     */
+    public List<JavaFile> getFiles() throws FileDownloadException {
+        return JavaFile.getAll(getManifest().getUrl());
+    }
+
+    /**
+     * Downloads all the files for this java release to the specified directory
+     * @param baseDir The directory to download the files to
+     * @param onStatus The status callback
+     * @throws FileDownloadException If there is an error downloading or writing a file
+     */
+    public void downloadFiles(File baseDir, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
+        JavaFile.downloadAll(getFiles(), baseDir, onStatus);
     }
 
     public Availability getAvailability() {

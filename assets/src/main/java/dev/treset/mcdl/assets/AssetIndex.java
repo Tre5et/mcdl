@@ -105,7 +105,9 @@ public class AssetIndex extends GenericJsonParsable {
         int totalAmount = getObjects().size();
         int currentAmount = 0;
         for(AssetObject o : getObjects().values()) {
-            onStatus.accept(new DownloadStatus(++currentAmount, totalAmount, o.getHash()));
+            if (onStatus != null) {
+                onStatus.accept(new DownloadStatus(++currentAmount, totalAmount, o.getHash()));
+            }
             try {
                 o.download(objectsDir, overwrite);
             } catch (FileDownloadException e) {

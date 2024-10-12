@@ -82,6 +82,16 @@ public class MinecraftDL {
     }
 
     /**
+     * Gets details for a specific minecraft version.
+     * @param version the version to get details for
+     * @return the minecraft version
+     * @throws FileDownloadException if there is an error downloading the version
+     */
+    public static MinecraftVersionDetails getVersionDetailsForVersion(String version) throws FileDownloadException {
+        return MinecraftVersionDetails.getForVersion(version);
+    }
+
+    /**
      * Sets a caching strategy for versions (default: {@link MemoryCaching})
      * @param caching The caching strategy to use
      */

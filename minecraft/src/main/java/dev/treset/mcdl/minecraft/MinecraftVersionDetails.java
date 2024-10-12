@@ -7,13 +7,16 @@ import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.json.GenericJsonParsable;
 import dev.treset.mcdl.json.JsonUtils;
 import dev.treset.mcdl.json.SerializationException;
+import dev.treset.mcdl.util.DownloadStatus;
 import dev.treset.mcdl.util.HttpUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class MinecraftVersionDetails {
     private String id;
@@ -91,6 +94,16 @@ public class MinecraftVersionDetails {
         }
     }
 
+    /**
+     * Gets details for a specific minecraft version by its id
+     * @param version The version to get details for
+     * @return The version details
+     * @throws FileDownloadException if there is an error downloading the version
+     */
+    public static MinecraftVersionDetails getForVersion(String version) throws FileDownloadException {
+        return get(MinecraftVersion.get(version).getUrl());
+    }
+
     public List<MinecraftLibrary> getActiveLibraries(List<String> activeFeatures) {
         List<MinecraftLibrary> activeLibraries = new ArrayList<>();
         for(MinecraftLibrary l : getLibraries()) {
@@ -103,6 +116,40 @@ public class MinecraftVersionDetails {
 
     public boolean isRelease() {
         return Objects.equals(getType(), "release");
+    }
+
+    /**
+     * Downloads the client jar for this version
+     * @param targetFile The file to download the client to
+     * @throws FileDownloadException If there is an error downloading the client
+     */
+    public void downloadClient(File targetFile) throws FileDownloadException {
+        downloads.getClient().download(targetFile);
+    }
+
+    /**
+     * Downloads all libraries for this version
+     * @param librariesDir The directory to download the libraries to
+     * @param features The features to check for
+     * @param nativesDir The directory to download the natives
+     * @param statusCallback The callback to report download status
+     * @throws FileDownloadException If there is an error downloading the libraries
+     */
+    public void downloadLibraries(File librariesDir, List<String> features, File nativesDir, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+        downloadLibraries(librariesDir, null, features, nativesDir, statusCallback);
+    }
+
+    /**
+     * Downloads all libraries for this version
+     * @param librariesDir The directory to download the libraries to
+     * @param localLibraryDir The directory to check for local libraries, null if none
+     * @param features The features to check for
+     * @param nativesDir The directory to download the natives
+     * @param onStatus The callback to report download status
+     * @throws FileDownloadException If there is an error downloading the libraries
+     */
+    public void downloadLibraries(File librariesDir, File localLibraryDir, List<String> features, File nativesDir, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
+        MinecraftLibrary.downloadAll(getLibraries(), librariesDir, localLibraryDir, features, nativesDir, onStatus);
     }
 
     public String getId() {

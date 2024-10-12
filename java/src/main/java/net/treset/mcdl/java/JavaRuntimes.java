@@ -34,4 +34,23 @@ public class JavaRuntimes extends HashMap<String, Map<String, List<JavaRuntimeRe
             throw new FileDownloadException("Failed to download runtimes file", e);
         }
     }
+
+    /**
+     * Gets a map of all available java runtimes for a specified os
+     * @param os The os identifier
+     * @return A map of java runtimes for the specified os. Structure: {version_id: [release]}
+     */
+    public Map<String, List<JavaRuntimeRelease>> getOsReleases(String os) {
+        return this.get(os);
+    }
+
+    /**
+     * Gets a list of all available java runtimes for a specified os and version
+     * @param os The os identifier
+     * @param version The version identifier
+     * @return A list of java runtimes for the specified os and version
+     */
+    public List<JavaRuntimeRelease> getReleases(String os, String version) {
+        return this.get(os).get(version);
+    }
 }

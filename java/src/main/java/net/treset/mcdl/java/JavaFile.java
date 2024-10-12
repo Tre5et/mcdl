@@ -88,7 +88,9 @@ public class JavaFile extends GenericJsonParsable {
         int size = files.size();
         int current = 0;
         for(JavaFile file : files) {
-            onStatus.accept(new DownloadStatus(++current, size, file.getName()));
+            if (onStatus != null) {
+                onStatus.accept(new DownloadStatus(++current, size, file.getName()));
+            }
             try {
                 file.download(baseDir);
             } catch (FileDownloadException e) {

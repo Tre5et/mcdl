@@ -30,12 +30,16 @@ public class QuiltLibrary {
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
     public static List<String> downloadAll(List<QuiltLibrary> libraries, File baseDir, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
-        onStatus.accept(new DownloadStatus(0, libraries.size(), ""));
+        if (onStatus != null) {
+            onStatus.accept(new DownloadStatus(0, libraries.size(), ""));
+        }
         ArrayList<String> currentLibraries = new ArrayList<>();
         int size = libraries.size();
         int current = 0;
         for(QuiltLibrary lib : libraries) {
-            onStatus.accept(new DownloadStatus(++current, size, lib.getName()));
+            if (onStatus != null) {
+                onStatus.accept(new DownloadStatus(++current, size, lib.getName()));
+            }
             lib.download(baseDir, currentLibraries);
         }
         return currentLibraries;

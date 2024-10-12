@@ -32,12 +32,16 @@ public class FabricLibrary {
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
     public static List<String> downloadAll(List<FabricLibrary> libraries, File baseDir, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
-        onStatus.accept(new DownloadStatus(0, libraries.size(), ""));
+        if (onStatus != null) {
+            onStatus.accept(new DownloadStatus(0, libraries.size(), ""));
+        }
         ArrayList<String> libraryPaths = new ArrayList<>();
         int size = libraries.size();
         int current = 0;
         for(FabricLibrary library : libraries) {
-            onStatus.accept(new DownloadStatus(++current, size, library.getName()));
+            if (onStatus != null) {
+                onStatus.accept(new DownloadStatus(++current, size, library.getName()));
+            }
             try {
                 library.downloadAll(baseDir, libraryPaths);
             } catch (FileDownloadException e) {

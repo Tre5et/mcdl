@@ -375,7 +375,9 @@ public class MinecraftLibrary {
         int size = libraries.size();
         int current = 0;
         for(MinecraftLibrary l : libraries) {
-            onStatus.accept(new DownloadStatus(++current, size, l.getName()));
+            if (onStatus != null) {
+                onStatus.accept(new DownloadStatus(++current, size, l.getName()));
+            }
             try {
                 l.download(librariesDir, localLibraryDir, nativesDir, features, result);
             } catch (FileDownloadException e) {

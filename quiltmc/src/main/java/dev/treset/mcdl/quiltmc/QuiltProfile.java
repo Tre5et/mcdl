@@ -6,10 +6,13 @@ import dev.treset.mcdl.json.GenericJsonParsable;
 import dev.treset.mcdl.json.JsonUtils;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.minecraft.MinecraftLaunchArguments;
+import dev.treset.mcdl.util.DownloadStatus;
 import dev.treset.mcdl.util.HttpUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class QuiltProfile extends GenericJsonParsable {
     private String id;
@@ -56,6 +59,25 @@ public class QuiltProfile extends GenericJsonParsable {
         } catch (IOException e) {
             throw new FileDownloadException("Failed to download QuiltMC profile JSON", e);
         }
+    }
+
+    /**
+     * Downloads all the libraries for this profile to the specified directory.
+     * @param librariesDir The directory to download the libraries to
+     * @throws FileDownloadException If there is an error downloading or writing a library
+     */
+    public void downloadLibraries(File librariesDir) throws FileDownloadException {
+        downloadLibraries(librariesDir, status -> {});
+    }
+
+    /**
+     * Downloads all the libraries for this profile to the specified directory.
+     * @param librariesDir The directory to download the libraries to
+     * @param statusCallback A callback to report download status
+     * @throws FileDownloadException If there is an error downloading or writing a library
+     */
+    public void downloadLibraries(File librariesDir, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+        QuiltLibrary.downloadAll(libraries, librariesDir, statusCallback);
     }
 
     public String getId() {

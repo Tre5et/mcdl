@@ -97,6 +97,15 @@ public class MinecraftVersion extends GenericJsonParsable {
         MinecraftVersion.caching = caching;
     }
 
+    /**
+     * Gets details for this version
+     * @return The version details
+     * @throws FileDownloadException if there is an error downloading the version details
+     */
+    public MinecraftVersionDetails getDetails() throws FileDownloadException {
+        return MinecraftVersionDetails.get(getUrl());
+    }
+
     public boolean isRelease() {
         return Objects.equals(getType(), "release");
     }

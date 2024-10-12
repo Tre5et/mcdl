@@ -36,14 +36,14 @@ public class QuiltDL {
 
     /**
      * Downloads a list of quilt libraries to a specified directory and returns a list of library paths.
-     * @param baseDir The directory to download the libraries to
+     * @param librariesDir The directory to download the libraries to
      * @param libraries The libraries to download
      * @param statusCallback A callback to report download status
      * @return A list of library paths
      * @throws FileDownloadException If there is an error downloading or writing a library
      */
-    public static List<String> downloadQuiltLibraries(List<QuiltLibrary> libraries, File baseDir, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
-        return QuiltLibrary.downloadAll(libraries, baseDir, statusCallback);
+    public static List<String> downloadQuiltLibraries(List<QuiltLibrary> libraries, File librariesDir, Consumer<DownloadStatus> statusCallback) throws FileDownloadException {
+        return QuiltLibrary.downloadAll(libraries, librariesDir, statusCallback);
     }
 
     /**

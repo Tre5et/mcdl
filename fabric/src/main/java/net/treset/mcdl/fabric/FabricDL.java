@@ -63,7 +63,7 @@ public class FabricDL {
      * @param loader The loader to download
      * @throws FileDownloadException If there is an error downloading or writing the loader
      */
-    public static void downloadFabricClient(File outFile, FabricLoaderData loader) throws FileDownloadException {
+    public static void downloadFabricClient(FabricLoaderData loader, File outFile) throws FileDownloadException {
         loader.downloadClient(outFile);
     }
 
