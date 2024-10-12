@@ -7,18 +7,23 @@ A Java-library that allows easy integration with most Minecraft related data.
 
 ## Installation
 The library is split into multiple modules, each containing a different set of features.
-Import the modules you require using your preferred build system:
+Import the base module as well as the modules you require using your preferred build system:
 
 <details>
 <summary>Maven</summary>
 
 ```xml
 <dependencies>
-  <dependency>
-    <groupId>dev.treset.mcdl</groupId>
-    <artifactId>mcdl-{module-name}</artifactId>
-    <version>{version}</version>
-  </dependency>
+    <dependency>
+        <groupId>dev.treset.mcdl</groupId>
+        <artifactId>mcdl</artifactId>
+        <version>{version}</version>
+    </dependency>
+    <dependency>
+      <groupId>dev.treset.mcdl</groupId>
+      <artifactId>mcdl-{module-name}</artifactId>
+      <version>{version}</version>
+    </dependency>
 </dependencies>
 ```
 </details>
@@ -28,7 +33,8 @@ Import the modules you require using your preferred build system:
 
 ```groovy
 dependencies {
-  implementation 'dev.treset.mcdl:mcdl-{module-name}:{version}'
+    implementation 'dev.treset.mcdl:mcdl:{version}'
+    implementation 'dev.treset.mcdl:mcdl-{module-name}:{version}'
 }
 ```
 
@@ -38,9 +44,10 @@ dependencies {
 > def mcdlVersion = '{version}'
 > def mcdlModules = ['{module-name1}', '{module-name2}']
 > dependencies {
->   for(module in mcdlModules) {
->     implementation 'dev.treset.mcdl:mcdl-$module:$mcdlVersion'
->   }
+>     implementation 'dev.treset.mcdl:mcdl:{version}'
+>     for(module in mcdlModules) {
+>         implementation 'dev.treset.mcdl:mcdl-$module:$mcdlVersion'
+>     }
 > }
 > ```
 </details>
@@ -50,7 +57,8 @@ dependencies {
 
 ```kotlin
 dependencies {
-  implementation("dev.treset.mcdl:mcdl-{module-name}:{version}")
+    implementation("dev.treset.mcdl:mcdl:{version}")
+    implementation("dev.treset.mcdl:mcdl-{module-name}:{version}")
 }
 ```
 
@@ -60,9 +68,10 @@ dependencies {
 > val mcdlVersion = "{version}"
 > val mcdlModules = arrayOf("{module-name1}", "{module-name2}")
 > dependencies {
->   for(module in mcdlModules) {
->     implementation("dev.treset.mcdl:mcdl-$module:$mcdlVersion")
->   }
+>     implementation("dev.treset.mcdl:mcdl:{version}")
+>     for(module in mcdlModules) {
+>         implementation("dev.treset.mcdl:mcdl-$module:$mcdlVersion")
+>     }
 > }
 > ```
 </details>
@@ -167,7 +176,7 @@ The global caching strategy for all requests can be set using ``HttpUtil.setDefa
 
 #### Setting module specific caching
 
-Most modules allow you to set a caching strategy for the module, which overrides the global caching strategy. This can be set using `{Module]DL.setCaching(Caching.{STRATEGY}> caching)`. If it is set to `null` (default) the global caching strategy will be used.
+Most modules allow you to set a caching strategy for the module, which overrides the global caching strategy. This can be set using `{Module]DL.setCaching(Caching.{STRATEGY} caching)`. If it is set to `null` (default) the global caching strategy will be used.
 
 ## Issues And Contributions
 
