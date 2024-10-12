@@ -8,11 +8,13 @@ plugins {
     id("io.gitee.pkmer.pkmerboot-central-publisher") version "1.1.1"
 }
 
+val stagingDir = layout.buildDirectory.dir("target/staging-deploy/${project.version}")
+val isRelease = project.version.toString().all { it.isDigit() || it == '.' }
+
 allprojects {
     apply(plugin = "java")
     apply(plugin = "maven-publish")
     apply(plugin = "signing")
-    apply(plugin = "io.gitee.pkmer.pkmerboot-central-publisher")
 
     repositories {
         mavenCentral()
@@ -23,9 +25,6 @@ allprojects {
         withJavadocJar()
         withSourcesJar()
     }
-
-    val isRelease = project.version.toString().all { it.isDigit() || it == '.' }
-    val stagingDir = layout.buildDirectory.dir("target/staging-deploy/${project.version}")
 
     afterEvaluate {
         publishing {
@@ -81,20 +80,6 @@ allprojects {
         }
     }
 
-    pkmerBoot {
-        sonatypeMavenCentral {
-            if(!isRelease) {
-                throw IllegalStateException("Cannot publish non-release version to Maven Central")
-            }
-
-            stagingRepository = stagingDir
-            username = findProperty("ossrhUsername") as String
-            password = findProperty("ossrhPassword") as String
-
-            publishingType = PublishingType.USER_MANAGED
-        }
-    }
-
     signing {
         sign(publishing.publications)
     }
@@ -113,6 +98,21 @@ subprojects {
             testImplementation(platform("org.junit:junit-bom:5.10.0"))
             testImplementation("org.junit.jupiter:junit-jupiter")
         }
+    }
+}
+
+pkmerBoot {
+
+    sonatypeMavenCentral {
+        if(!isRelease) {
+            throw IllegalStateException("Cannot publish non-release version to Maven Central")
+        }
+
+        stagingRepository = stagingDir
+        username = findProperty("ossrhUsername") as String
+        password = findProperty("ossrhPassword") as String
+
+        publishingType = PublishingType.USER_MANAGED
     }
 }
 
