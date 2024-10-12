@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 
 /**
  * A caching implementation that does not cache anything
- * @param <T> the type of data to cache
  */
 public class NoCaching extends Caching<HttpResponse<byte[]>> {
     @Override
