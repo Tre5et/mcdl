@@ -106,10 +106,9 @@ subprojects {
 }
 
 pkmerBoot {
-
     sonatypeMavenCentral {
         if(!isRelease) {
-            throw IllegalStateException("Cannot publish non-release version to Maven Central")
+            throw IllegalStateException("Refusing to publish non-release version to Maven Central")
         }
 
         stagingRepository = stagingDir
