@@ -85,7 +85,9 @@ allprojects {
     }
 
     signing {
-        sign(publishing.publications)
+        if(isRelease) {
+            sign(publishing.publications)
+        }
     }
 
     tasks.test {
@@ -107,15 +109,17 @@ subprojects {
 
 pkmerBoot {
     sonatypeMavenCentral {
-        if(!isRelease) {
-            throw IllegalStateException("Refusing to publish non-release version to Maven Central")
-        }
-
         stagingRepository = stagingDir
-        username = findProperty("ossrhUsername") as String
-        password = findProperty("ossrhPassword") as String
+        username = (findProperty("ossrhUsername") ?: "") as String
+        password = (findProperty("ossrhPassword") ?: "") as String
 
         publishingType = PublishingType.USER_MANAGED
+    }
+}
+
+tasks.getByPath("publishToMavenCentralPortal").doFirst {
+    if(!isRelease) {
+        throw IllegalStateException("Refusing to publish non-release version to Maven Central")
     }
 }
 

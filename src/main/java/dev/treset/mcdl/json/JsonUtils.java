@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class JsonUtils {
-    private static final Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
-    private static final Gson gsonCamelCase = new GsonBuilder().setPrettyPrinting().create();
+    private static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
+    private static Gson gsonCamelCase = new GsonBuilder().setPrettyPrinting().create();
 
     /**
      * Converts the element to a json object.
@@ -259,6 +259,15 @@ public class JsonUtils {
      */
     public static Gson getGson() {
         return gson;
+    }
+
+    /**
+     * Sets the default Gson implementation. This requires a GsonBuilder, as required properties need to be set.
+     * @param builder The Gson builder to derive the default Gson implementation from.
+     */
+    public static void setDefaultGson(GsonBuilder builder) {
+        builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES);
+        gson = builder.create();
     }
 
     /**
