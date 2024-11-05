@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class HttpUtil {
+    private static String userAgent = "mcdl/2.1";
     private static Caching<HttpResponse<byte[]>> defaultCaching = new MemoryCaching();
 
     /**
@@ -92,6 +93,9 @@ public class HttpUtil {
     public static HttpResponse<byte[]> get(URL url, Map<String, String> headers, Map<String, String> params, Caching<HttpResponse<byte[]>> caching) throws IOException {
         URI uri = constructParamUri(url, params);
         HttpRequest.Builder builder = HttpRequest.newBuilder().uri(uri);
+        if(!headers.containsKey("User-Agent")) {
+            builder.header("User-Agent", userAgent);
+        }
         headers.forEach(builder::header);
 
         String cacheKey = constructCacheKey("GET", uri, headers, new byte[0]);
@@ -141,6 +145,9 @@ public class HttpUtil {
         URI uri = constructParamUri(url, params);
         HttpRequest.Builder builder = HttpRequest.newBuilder().uri(uri);
         builder.POST(HttpRequest.BodyPublishers.ofByteArray(body));
+        if(!headers.containsKey("User-Agent")) {
+            builder.header("User-Agent", userAgent);
+        }
         headers.forEach(builder::header);
 
         String cacheKey = constructCacheKey("POST", uri, headers, body);
@@ -165,6 +172,22 @@ public class HttpUtil {
      */
     public static void setDefaultCaching(Caching<HttpResponse<byte[]>> caching) {
         defaultCaching = caching;
+    }
+
+    /**
+     * Gets the default user agent for http requests
+     * @return The user agent
+     */
+    public static String getUserAgent() {
+        return userAgent;
+    }
+
+    /**
+     * Sets the default user agent for http requests
+     * @param userAgent The user agent to use
+     */
+    public static void setUserAgent(String userAgent) {
+        HttpUtil.userAgent = userAgent;
     }
 
     public static Caching<HttpResponse<byte[]>> getDefaultCaching() {
