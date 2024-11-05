@@ -3,6 +3,7 @@ package dev.treset.mcdl.forge;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class ForgeInstallProcessor {
     private List<String> sides;
     private String jar;

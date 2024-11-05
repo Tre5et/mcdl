@@ -12,6 +12,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.function.Consumer;
 
+
+@Deprecated
 public abstract class ForgeInstaller {
     private final String version;
     private ForgeInstallData installData;

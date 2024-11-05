@@ -7,6 +7,7 @@ import dev.treset.mcdl.util.FileUtil;
 import java.net.MalformedURLException;
 import java.util.List;
 
+@Deprecated
 public class ForgeLibrary {
     private String comment;
     private String name;

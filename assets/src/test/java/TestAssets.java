@@ -19,7 +19,7 @@ public class TestAssets {
     public void testDownload(String version) {
         List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftDL::getVersions);
         MinecraftVersion mcVersion = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getId().equals(version)).findFirst().get());
-        MinecraftProfile details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(mcVersion.getUrl()));
+        MinecraftProfile details = assertDoesNotThrow(() -> MinecraftDL.getProfile(mcVersion.getUrl()));
         File dir = new File("assets");
 
         AssetIndex index = assertDoesNotThrow(() -> AssetsDL.getAssetIndex(details.getAssetIndex().getUrl()));

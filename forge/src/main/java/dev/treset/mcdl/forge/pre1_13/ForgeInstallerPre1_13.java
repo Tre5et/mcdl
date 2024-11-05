@@ -15,6 +15,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.function.Consumer;
 
+@Deprecated
 public class ForgeInstallerPre1_13 extends ForgeInstaller {
 
     public ForgeInstallerPre1_13(String version) {

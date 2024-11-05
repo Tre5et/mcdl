@@ -1,5 +1,5 @@
 import dev.treset.mcdl.forge.ForgeDL;
-import dev.treset.mcdl.forge.ForgeInstaller;
+import dev.treset.mcdl.forge.ForgeInstallerExecutor;
 import dev.treset.mcdl.forge.ForgeMetaVersion;
 import dev.treset.mcdl.java.JavaFile;
 import dev.treset.mcdl.java.JavaRuntimeRelease;
@@ -22,8 +22,8 @@ public class TestForge {
 
     public static Stream<Arguments> testForge() {
         return Stream.of(
-                Arguments.of("1.21", "1.21-51.0.33"),
-                Arguments.of("1.12.2", "1.12.2-14.23.5.2851"),
+                Arguments.of("1.21.3", "1.21.3-53.0.8"),
+                Arguments.of("1.12.2", "1.12.2-14.23.5.2859"),
                 Arguments.of("1.5.2", "1.5.2-7.8.0.699")
         );
     }
@@ -36,15 +36,12 @@ public class TestForge {
         File mcClient = new File("download/mc-" + mcVersion + ".jar");
         List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftDL::getVersions);
         MinecraftVersion version = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getId().equals(mcVersion)).findFirst().get());
-        MinecraftProfile details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(version.getUrl()));
-        if(!mcClient.isFile()) {
-            assertDoesNotThrow(() -> MinecraftDL.downloadVersionDownload(details.getDownloads().getClient(), mcClient));
-        }
+        MinecraftProfile profile = assertDoesNotThrow(() -> MinecraftDL.getProfile(version.getUrl()));
 
         File java = new File("download/java-" + mcVersion);
         if (!java.isDirectory()) {
             assertDoesNotThrow(java::mkdirs);
-            JavaRuntimeRelease release = assertDoesNotThrow(() -> JavaDL.getJavaRuntimes().get("windows-x64").get(details.getJavaVersion().component).get(0));
+            JavaRuntimeRelease release = assertDoesNotThrow(() -> JavaDL.getJavaRuntimes().get("windows-x64").get(profile.getJavaVersion().component).get(0));
             List<JavaFile> files = assertDoesNotThrow(() -> JavaDL.getJavaFiles(release.getManifest().getUrl()));
             assertDoesNotThrow(() -> JavaDL.downloadJavaFiles(files, java));
         }
@@ -55,11 +52,14 @@ public class TestForge {
         }
         assertDoesNotThrow(libraries::mkdirs);
 
-        ForgeInstaller installer = assertDoesNotThrow(() -> ForgeInstaller.getForVersion(forgeVersion));
-
-        assertDoesNotThrow(() -> installer.createClient(libraries, mcClient, new File(java, "bin/java"), status -> {
-            System.out.println("Client: " + status.getCurrentFile());
-        }));
+        ForgeInstallerExecutor installer = new ForgeInstallerExecutor(forgeVersion);
+        assertDoesNotThrow(() -> installer.install(
+                libraries,
+                new File(System.getenv("JAVA_HOME"), "bin/java.exe"),
+                status -> {
+                    System.out.println("Status: " + status.getCurrentFile());
+                }
+        ));
 
         assertTrue(new File(libraries, "net/minecraftforge/forge/" + forgeVersion).isDirectory(), "Client jar does not exist");
 
@@ -68,11 +68,8 @@ public class TestForge {
             assertDoesNotThrow(natives::delete);
         }
         assertDoesNotThrow(natives::mkdirs);
-        List<String> libsList = assertDoesNotThrow(() -> installer.downloadLibraries(libraries, new File("forge/download/natives-1.21-51.0.33"), status -> {
-            System.out.println("Library: " + status.getCurrentFile());
-        }));
 
         assertTrue(libraries.isDirectory(), "Libraries directory does not exist");
-        assertTrue(libraries.listFiles().length > 0, "Libraries directory is empty");
+        assertTrue(libraries.listFiles().length > 1, "Libraries directory is empty");
     }
 }

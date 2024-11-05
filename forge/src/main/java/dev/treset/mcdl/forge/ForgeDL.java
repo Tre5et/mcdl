@@ -1,10 +1,14 @@
 package dev.treset.mcdl.forge;
 
 import dev.treset.mcdl.exception.FileDownloadException;
+import dev.treset.mcdl.minecraft.MinecraftProfile;
+import dev.treset.mcdl.util.DownloadStatus;
 import dev.treset.mcdl.util.cache.Caching;
 
+import java.io.File;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ForgeDL {
     // TODO: Support pre-1.5.2 installer-less process
@@ -39,11 +43,26 @@ public class ForgeDL {
     }
 
     /**
+     * Installs the specified forge version and its libraries to the specified directory.
+     * @param version The forge version to install
+     * @param librariesDir The directory to install the libraries to
+     * @param javaExecutable The java executable to run the installer with
+     * @param onStatus The consumer to accept download status updates
+     * @return The profile of the installed forge version
+     * @throws FileDownloadException If there is an error downloading or installing the forge version
+     */
+    public static MinecraftProfile installVersion(String version, File librariesDir, File javaExecutable, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
+        return new ForgeInstallerExecutor(version)
+                .install(librariesDir, javaExecutable, onStatus);
+    }
+
+    /**
      * Gets the forge installer for the specified version.
      * @param forgeVersion The forge version to get the installer for
      * @return The forge installer
      * @throws FileDownloadException If there is an error instantiating the forge installer
      */
+    @Deprecated
     public static ForgeInstaller getForgeInstaller(String forgeVersion) throws FileDownloadException {
         return ForgeInstaller.getForVersion(forgeVersion);
     }

@@ -5,6 +5,7 @@ import dev.treset.mcdl.minecraft.MinecraftLibrary;
 
 import java.util.List;
 
+@Deprecated
 public class ForgeInstallData {
     private String id;
     private String inheritsFrom;

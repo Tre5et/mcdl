@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.List;
 import java.util.function.Consumer;
 
+@Deprecated
 public class ForgeInstallerPre1_5_2 extends ForgeInstaller {
     public ForgeInstallerPre1_5_2(String version) {
         super(version);

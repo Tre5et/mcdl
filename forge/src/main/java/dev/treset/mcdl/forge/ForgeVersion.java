@@ -101,6 +101,7 @@ public class ForgeVersion extends GenericJsonParsable {
         return jarFile;
     }
 
+    @Deprecated
     public ForgeInstallData toInstallData() {
         return new ForgeInstallData(
                 id,

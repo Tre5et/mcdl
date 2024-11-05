@@ -2,6 +2,7 @@ package dev.treset.mcdl.forge.pre1_13;
 
 import java.io.IOException;
 
+@Deprecated
 public class MirrorData {
     private String name;
     private String homepage;

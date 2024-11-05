@@ -1,5 +1,6 @@
 package dev.treset.mcdl.forge;
 
+@Deprecated
 public class ForgeInstallDataPath {
     private String client;
     private String server;

@@ -8,6 +8,7 @@ import dev.treset.mcdl.minecraft.MinecraftLibrary;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class ForgeInstallProfile extends GenericJsonParsable {
     private boolean hideExtract;
     private int spec;

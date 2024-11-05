@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
+@Deprecated
 public class ForgeInstallerModern extends ForgeInstaller {
     private ForgeInstallProfile profile;
 

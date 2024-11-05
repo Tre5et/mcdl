@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+@Deprecated
 public class ForgeInstallProfilePre1_13 {
     private VersionInfo versionInfo;
     private Install install;
