@@ -11,8 +11,9 @@ import java.util.Map;
 import java.util.Set;
 
 public class JsonUtils {
-    private static Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
-    private static Gson gsonCamelCase = new GsonBuilder().setPrettyPrinting().create();
+    static final Gson GSON_SNAKE_CASE = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).setPrettyPrinting().create();
+    static final Gson GSON_CAMEL_CASE = new GsonBuilder().setPrettyPrinting().create();
+    private static Gson gson = GSON_SNAKE_CASE;
 
     /**
      * Converts the element to a json object.
@@ -271,10 +272,18 @@ public class JsonUtils {
     }
 
     /**
+     * Returns a gson instance that uses the snake case naming policy and pretty printing.
+     * @return The gson instance
+     */
+    public static Gson getGsonSnakeCase() {
+        return GSON_SNAKE_CASE;
+    }
+
+    /**
      * Return a gson instance that uses the camel case naming policy and pretty printing.
      * @return The gson instance
      */
     public static Gson getGsonCamelCase() {
-        return gsonCamelCase;
+        return GSON_CAMEL_CASE;
     }
 }
