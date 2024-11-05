@@ -166,6 +166,29 @@ Most of these function are also accessible as methods on their respective object
 
 Specifics about each functions usage can be found in the JavaDoc.
 
+### Setting a User Agent
+A global user agent can be set using `HttpUtil.setUserAgent(String userAgent)`.
+This is highly recommended to do at startup to uniquely identify your application.
+Otherwise, the default `mcdl/{version}` will be used.
+
+A user agent should ideally follow the format `{applicaion-id}/{version}`.
+
+### Initializing the auth module
+To authenticate a user you need to create a Microsoft Identity Platform application and set the client id using `AuthDL.setClientId(String clientId)`.
+
+To create the application you can follow this somewhat decent [tutorial by Microsoft](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app?tabs=certificate). After creating the application, ensure the following settings:
+- In `Authentication`, the platform `Mobile and desktop applications` is added and configured with the default redirect URI `http://localhost:9095` or another redirect URI, as configured using `AuthDL.setRedirectUri(String redirectUri)`.
+- In `Authentication`, `Supported Account types` is set to `Personal Microsoft accounts only`.
+- In `API permissions`, the permission `Micorsoft Graph`: `User.Read` is configured.
+
+To allow Minecraft authentication, you then need to apply for you application to be approved by Mojang using [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR-ajEQ1td1ROpz00KtS8Gd5UNVpPTkVLNFVROVQxNkdRMEtXVjNQQjdXVC4u). This can unfortunately take multiple weeks.
+
+### Initializing the mods module
+To fetch mods from modrinth and curseforge you need to initialize API authentication for both services:
+
+- For Modrinth a User Agent needs to be set. This can be done using `ModsDL.setModrinthUserAgent(String userAgent)`. This user agent must uniquely identify your application. It is not acceptable to copy the default user agent or use any other user agent that only identifies MCDL.
+- For CurseForge you need to set a valid API key using `ModsDL.setCurseForgeApiKey(String key)`. You can obtain a key for your application using the [CurseForge developer console](https://console.curseforge.com/?#/api-keys).
+
 ### Data caching
 Caching can be set for different types of requests. There are three types of caching:
 - `NoCaching`: No data is ever cached, each request is sent to the target server
