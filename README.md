@@ -103,9 +103,7 @@ dependencies {
 <details><summary>Forge</summary>
 
 - Fetching Forge versions
-- Fetching Forge installers
-- Downloading and installing the Forge client (for Minecraft 1.5.2 and above)
-- Downloading Forge libraries
+- Downloading and installing the Forge client and libraries
 </details>
 
 <details><summary>Java</summary>
@@ -134,6 +132,12 @@ dependencies {
 
 - Fetching Minecraft Profiles for UUIDs
 - Fetching Minecraft Users for usernames
+</details>
+
+<details><summary>NeoForge</summary>
+
+- Fetching NeoForge versions
+- Downloading and installing the NeoForge client and libraries
 </details>
 
 <details><summary>QuiltMC</summary>

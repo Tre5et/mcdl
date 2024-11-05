@@ -1,4 +1,4 @@
-package dev.treset.mcdl.forge;
+package dev.treset.mcdl.neoforge;
 
 import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.json.SerializationException;
@@ -17,20 +17,20 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-public class ForgeInstallerExecutor {
+public class NeoForgeInstallerExecutor {
     private final String version;
 
     private final File directory;
     private final File installer;
 
-    public ForgeInstallerExecutor(String version) {
+    public NeoForgeInstallerExecutor(String version) {
         this.version = version;
-        this.directory = new File(FileUtil.getTempDir(), "forge-" + version + "-install");
-        this.installer = new File(directory, "forge-" + version + "-installer.jar");
+        this.directory = new File(FileUtil.getTempDir(), "neoforge-" + version + "-install");
+        this.installer = new File(directory, "neoforge-" + version + "-installer.jar");
     }
 
     /**
-     * Installs the forge version and its libraries to the specified directory.
+     * Installs the neo forge version and its libraries to the specified directory.
      * @param librariesDir The directory to install the libraries to
      * @param javaExecutable The java executable to run the installer with
      * @param onStatus The consumer to accept download status updates
@@ -40,40 +40,40 @@ public class ForgeInstallerExecutor {
     public MinecraftProfile install(File librariesDir, File javaExecutable, Consumer<DownloadStatus> onStatus) throws FileDownloadException {
         onStatus.accept(new DownloadStatus(1, -1, "Install directory"));
         prepareDirectory();
-        onStatus.accept(new DownloadStatus(2, -1, "Forge Installer"));
+        onStatus.accept(new DownloadStatus(2, -1, "NeoForge Installer"));
         downloadInstaller();
         try {
-            onStatus.accept(new DownloadStatus(3, -1, "Forge Version"));
+            onStatus.accept(new DownloadStatus(3, -1, "NeoForge Version"));
             executeInstaller(javaExecutable, onStatus);
             onStatus.accept(new DownloadStatus(4, -1, "Libraries"));
             copyLibraries(librariesDir);
             return parseInstallProfile();
         } catch (IOException e) {
-            throw new FileDownloadException("Failed to install forge", e);
+            throw new FileDownloadException("Failed to install neoforge", e);
         } catch (SerializationException e) {
-            throw new FileDownloadException("Failed to parse forge version profile", e);
+            throw new FileDownloadException("Failed to parse neoforge version profile", e);
         }
     }
 
     public MinecraftProfile parseInstallProfile() throws SerializationException {
         File versionsDir = new File(directory, "versions");
         if(!versionsDir.exists()) {
-            throw new SerializationException("Forge installer versions directory does not exist");
+            throw new SerializationException("NeoForge installer versions directory does not exist");
         }
         File[] versions = versionsDir.listFiles();
         if(versions == null || versions.length == 0) {
-            throw new SerializationException("Forge installer versions directory is empty");
+            throw new SerializationException("NeoForge installer versions directory is empty");
         }
-        File version = Arrays.stream(versions).filter(f -> f.isDirectory() && f.getName().contains("forge")).findFirst().orElse(null);
+        File version = Arrays.stream(versions).filter(f -> f.isDirectory() && f.getName().contains("neoforge")).findFirst().orElse(null);
         if(version == null) {
-            throw new SerializationException("Forge installer versions directory does not contain a forge version");
+            throw new SerializationException("NeoForge installer versions directory does not contain a neoforge version");
         }
         File profile = new File(version, version.getName() + ".json");
         try {
             String content = FileUtil.readFileAsString(profile);
             return MinecraftProfile.fromJson(content);
         } catch (IOException e) {
-            throw new SerializationException("Failed to read forge installer version file", e);
+            throw new SerializationException("Failed to read neoforge installer version file", e);
         }
     }
 
@@ -96,7 +96,7 @@ public class ForgeInstallerExecutor {
                 System.out.println(value);
             });
         } catch (IOException e) {
-            System.err.println("Failed to read forge installer output:\n" + e);
+            System.err.println("Failed to read neoforge installer output:\n" + e);
         }
 
         while(process.isAlive()) {
@@ -112,15 +112,15 @@ public class ForgeInstallerExecutor {
             try(BufferedReader reader = process.errorReader()) {
                 reader.lines().iterator().forEachRemaining(error::add);
             } catch (IOException e) {
-                System.err.println("Forge installer error forwarding failed:\n" + e);
+                System.err.println("NeoForge installer error forwarding failed:\n" + e);
             }
-            throw new FileDownloadException("Forge installer failed: \n" + String.join("\n", error));
+            throw new FileDownloadException("NeoForge installer failed: \n" + String.join("\n", error));
         }
     }
 
     private Process getInstallerProcess(File javaExecutable) throws IOException {
         if(!installer.isFile()) {
-            throw new IOException("Forge installer jar does not exist");
+            throw new IOException("NeoForge installer jar does not exist");
         }
 
         ProcessBuilder pb = new ProcessBuilder(
@@ -136,7 +136,7 @@ public class ForgeInstallerExecutor {
         try {
             process = pb.start();
         } catch (IOException e) {
-            throw new IOException("Failed to start forge installer", e);
+            throw new IOException("Failed to start neoforge installer", e);
         }
         return process;
     }
@@ -148,26 +148,26 @@ public class ForgeInstallerExecutor {
             }
 
             if (!directory.mkdirs()) {
-                throw new FileDownloadException("Failed to create directory for forge installer");
+                throw new FileDownloadException("Failed to create directory for neoforge installer");
             }
 
             File launcherProfilesFile = new File(directory, "launcher_profiles.json");
             FileUtil.writeToFile("{\"profiles\":{}}".getBytes(), launcherProfilesFile);
         } catch (IOException e) {
-            throw new FileDownloadException("Failed to create directory for forge installer", e);
+            throw new FileDownloadException("Failed to create directory for neoforge installer", e);
         }
     }
 
     public File downloadInstaller() throws FileDownloadException {
         if(!installer.exists()) {
             if (!installer.getParentFile().exists() && !installer.getParentFile().mkdirs()) {
-                throw new FileDownloadException("Failed to create directory for forge installer");
+                throw new FileDownloadException("Failed to create directory for neoforge installer");
             }
 
             try {
-                FileUtil.downloadFile(new URL(ForgeDL.getInstallerUrl(version)), installer, ForgeDL.getCaching());
+                FileUtil.downloadFile(new URL(NeoForgeDL.getInstallerUrl(version)), installer, NeoForgeDL.getCaching());
             } catch (MalformedURLException e) {
-                throw new FileDownloadException("Failed to parse forge installer Url", e);
+                throw new FileDownloadException("Failed to parse neoforge installer Url", e);
             }
         }
         installer.deleteOnExit();

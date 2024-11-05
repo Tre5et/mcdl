@@ -11,3 +11,5 @@ include 'quiltmc'
 include 'mojang'
 include 'saves'
 include 'resourcepacks'
+include 'neoforge'
+
