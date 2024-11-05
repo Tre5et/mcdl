@@ -199,11 +199,11 @@ Data will be cached for as long as the data header specifies, or for a default d
 
 #### Setting global caching
 
-The global caching strategy for all requests can be set using ``HttpUtil.setDefaultCaching(Caching.{STRATEGY}> caching)``. Default is `RuntimeCaching`.
+The global caching strategy for all requests can be set using ``HttpUtil.setDefaultCaching(Caching.{STRATEGY} caching)``. Default is `RuntimeCaching`.
 
 #### Setting module specific caching
 
-Most modules allow you to set a caching strategy for the module, which overrides the global caching strategy. This can be set using `{Module]DL.setCaching(Caching.{STRATEGY} caching)`. If it is set to `null` (default) the global caching strategy will be used.
+Most modules allow you to set a caching strategy for the module, which overrides the global caching strategy. This can be set using `{Module}DL.setCaching(Caching.{STRATEGY} caching)`. If it is set to `null` (default) the global caching strategy will be used.
 
 ## Issues And Contributions
 
