@@ -2,7 +2,7 @@ import dev.treset.mcdl.assets.AssetsDL;
 import dev.treset.mcdl.assets.AssetIndex;
 import dev.treset.mcdl.minecraft.MinecraftDL;
 import dev.treset.mcdl.minecraft.MinecraftVersion;
-import dev.treset.mcdl.minecraft.MinecraftVersionDetails;
+import dev.treset.mcdl.minecraft.MinecraftProfile;
 import dev.treset.mcdl.util.FileUtil;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -19,7 +19,7 @@ public class TestAssets {
     public void testDownload(String version) {
         List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftDL::getVersions);
         MinecraftVersion mcVersion = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getId().equals(version)).findFirst().get());
-        MinecraftVersionDetails details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(mcVersion.getUrl()));
+        MinecraftProfile details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(mcVersion.getUrl()));
         File dir = new File("assets");
 
         AssetIndex index = assertDoesNotThrow(() -> AssetsDL.getAssetIndex(details.getAssetIndex().getUrl()));

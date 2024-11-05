@@ -6,7 +6,7 @@ import dev.treset.mcdl.java.JavaRuntimeRelease;
 import dev.treset.mcdl.java.JavaDL;
 import dev.treset.mcdl.minecraft.MinecraftDL;
 import dev.treset.mcdl.minecraft.MinecraftVersion;
-import dev.treset.mcdl.minecraft.MinecraftVersionDetails;
+import dev.treset.mcdl.minecraft.MinecraftProfile;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -36,7 +36,7 @@ public class TestForge {
         File mcClient = new File("download/mc-" + mcVersion + ".jar");
         List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftDL::getVersions);
         MinecraftVersion version = assertDoesNotThrow(() -> versions.stream().filter(v -> v.getId().equals(mcVersion)).findFirst().get());
-        MinecraftVersionDetails details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(version.getUrl()));
+        MinecraftProfile details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(version.getUrl()));
         if(!mcClient.isFile()) {
             assertDoesNotThrow(() -> MinecraftDL.downloadVersionDownload(details.getDownloads().getClient(), mcClient));
         }

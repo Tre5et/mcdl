@@ -1,6 +1,6 @@
 import dev.treset.mcdl.minecraft.MinecraftDL;
 import dev.treset.mcdl.minecraft.MinecraftVersion;
-import dev.treset.mcdl.minecraft.MinecraftVersionDetails;
+import dev.treset.mcdl.minecraft.MinecraftProfile;
 import dev.treset.mcdl.util.FileUtil;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -28,7 +28,7 @@ public class TestMinecraft {
         }
 
         MinecraftVersion version = assertDoesNotThrow(() -> MinecraftDL.getVersion(id));
-        MinecraftVersionDetails details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(version.getUrl()));
+        MinecraftProfile details = assertDoesNotThrow(() -> MinecraftDL.getVersionDetails(version.getUrl()));
         assertDoesNotThrow(() -> MinecraftDL.downloadVersionDownload(details.getDownloads().getClient(), new File("download/client-" + id + ".jar")));
         assertTrue(new File("download/client-" + id + ".jar").isFile(), "Client jar does not exist");
         assertDoesNotThrow(() -> Files.createDirectories(new File("download/libraries-" + id).toPath()));

@@ -90,8 +90,8 @@ public class MinecraftVersion extends GenericJsonParsable {
      * @return The version details
      * @throws FileDownloadException if there is an error downloading the version details
      */
-    public MinecraftVersionDetails getDetails() throws FileDownloadException {
-        return MinecraftVersionDetails.get(getUrl());
+    public MinecraftProfile getDetails() throws FileDownloadException {
+        return MinecraftProfile.get(getUrl());
     }
 
     public boolean isRelease() {

@@ -76,8 +76,8 @@ public class MinecraftDL {
      * @return the minecraft version
      * @throws FileDownloadException if there is an error downloading the version manifest
      */
-    public static MinecraftVersionDetails getVersionDetails(String url) throws FileDownloadException {
-        return MinecraftVersionDetails.get(url);
+    public static MinecraftProfile getVersionDetails(String url) throws FileDownloadException {
+        return MinecraftProfile.get(url);
     }
 
     /**
@@ -86,8 +86,8 @@ public class MinecraftDL {
      * @return the minecraft version
      * @throws FileDownloadException if there is an error downloading the version
      */
-    public static MinecraftVersionDetails getVersionDetailsForVersion(String version) throws FileDownloadException {
-        return MinecraftVersionDetails.getForVersion(version);
+    public static MinecraftProfile getVersionDetailsForVersion(String version) throws FileDownloadException {
+        return MinecraftProfile.getForVersion(version);
     }
 
     private static Caching<HttpResponse<byte[]>> caching = null;
