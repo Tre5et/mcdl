@@ -46,7 +46,7 @@ public class MinecraftVersionDetails extends MinecraftProfile {
      * Deprecated: Use {@link MinecraftProfile#getForVersion(String)} instead
      */
     @Deprecated()
-    public static MinecraftProfile getForVersion(String version) throws FileDownloadException {
+    public static MinecraftVersionDetails getForVersion(String version) throws FileDownloadException {
         return get(MinecraftVersion.get(version).getUrl());
     }
 }

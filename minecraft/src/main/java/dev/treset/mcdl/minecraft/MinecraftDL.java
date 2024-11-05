@@ -76,8 +76,16 @@ public class MinecraftDL {
      * @return the minecraft version
      * @throws FileDownloadException if there is an error downloading the version manifest
      */
-    public static MinecraftProfile getVersionDetails(String url) throws FileDownloadException {
+    public static MinecraftProfile getProfile(String url) throws FileDownloadException {
         return MinecraftProfile.get(url);
+    }
+
+    /**
+     * Deprecated: Use ${@link #getProfile(String)} instead
+     */
+    @Deprecated
+    public static MinecraftVersionDetails getVersionDetails(String url) throws FileDownloadException {
+        return MinecraftVersionDetails.get(url);
     }
 
     /**
@@ -86,8 +94,16 @@ public class MinecraftDL {
      * @return the minecraft version
      * @throws FileDownloadException if there is an error downloading the version
      */
-    public static MinecraftProfile getVersionDetailsForVersion(String version) throws FileDownloadException {
+    public static MinecraftProfile getProfileForVersion(String version) throws FileDownloadException {
         return MinecraftProfile.getForVersion(version);
+    }
+
+    /**
+     * Deprecated: Use ${@link #getProfileForVersion(String)} instead
+     */
+    @Deprecated
+    public static MinecraftVersionDetails getVersionDetailsForVersion(String version) throws FileDownloadException {
+        return MinecraftVersionDetails.getForVersion(version);
     }
 
     private static Caching<HttpResponse<byte[]>> caching = null;
