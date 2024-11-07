@@ -2,6 +2,7 @@ package dev.treset.mcdl.minecraft;
 
 import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.json.GenericJsonParsable;
+import dev.treset.mcdl.json.JsonUtils;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.util.HttpUtil;
 
@@ -23,7 +24,7 @@ public class MinecraftVersionDetails extends MinecraftProfile {
      */
     @Deprecated
     public static MinecraftVersionDetails fromJson(String json) throws SerializationException {
-        MinecraftVersionDetails details = GenericJsonParsable.fromJson(json, MinecraftVersionDetails.class);
+        MinecraftVersionDetails details = GenericJsonParsable.fromJson(json, MinecraftVersionDetails.class, JsonUtils.getGsonCamelCase());
         modifyFromJson(details, json);
         return details;
     }
