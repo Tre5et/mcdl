@@ -134,6 +134,9 @@ public class FormatUtils {
             case 5 -> {
                 return "quilt";
             }
+            case 6 -> {
+                return "neoforge";
+            }
         }
         throw new IllegalArgumentException("Invalid curseforge mod loader: " + cfModLoader);
     }
@@ -163,6 +166,9 @@ public class FormatUtils {
             }
             case "quilt" -> {
                 return 5;
+            }
+            case "neoforge" -> {
+                return 6;
             }
         }
         throw new IllegalArgumentException("Invalid mod loader: " + modLoader);

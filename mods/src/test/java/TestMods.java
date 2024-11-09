@@ -17,7 +17,8 @@ public class TestMods {
         return Stream.of(
                 Arguments.of("fabric-api", List.of("1.21"), List.of("fabric", "quilt")),
                 Arguments.of("macaws-furniture", List.of("1.16.5"), List.of("forge")),
-                Arguments.of("litematica", List.of("1.19.4"), List.of("fabric"))
+                Arguments.of("litematica", List.of("1.19.4"), List.of("fabric")),
+                Arguments.of("macaws-furniture", List.of("1.20.6"), List.of("neoforge"))
         );
     }
 
