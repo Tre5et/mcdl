@@ -7,6 +7,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -55,6 +57,18 @@ public class TestMods {
         return mod;
     }
 
+    public static void testDownload(ModVersionData version) {
+        File parent = new File("downloads");
+        assertDoesNotThrow(() -> Files.createDirectories(parent.toPath()));
+        String[] parts = version.getDownloadUrl().split("/");
+        String fileName = parts[parts.length - 1];
+        File target = new File(parent, fileName);
+
+        assertDoesNotThrow(() -> version.download(parent));
+        byte[] content = assertDoesNotThrow(() -> Files.readAllBytes(target.toPath()));
+        assertTrue(content.length > 0, "File content is empty");
+    }
+
     public static void testVersions(ModData mod, List<String> versions, List<String> loaders) {
         mod.setVersionConstraints(versions, loaders, null);
         List<ModVersionData> modVersions = assertDoesNotThrow(mod::getVersions);
@@ -62,6 +76,7 @@ public class TestMods {
         for(ModVersionData version: modVersions) {
             assertTrue(modVersions.stream().allMatch(v -> versions.stream().anyMatch(ver -> v.getGameVersions().contains(ver)) && loaders.stream().anyMatch(loader -> v.getModLoaders().contains(loader))), "wrong version or loader: " + modVersions);
         }
+        testDownload(modVersions.get(0));
     }
 
     public static void testModrinthVersions(ModData mod, List<String> versions, List<String> loaders) {
@@ -73,6 +88,7 @@ public class TestMods {
             assertInstanceOf(ModrinthVersion.class, version, "not ModrinthVersion: " + version);
             assertTrue(versions.stream().anyMatch(v -> version.getGameVersions().contains(v)) && loaders.stream().anyMatch(l -> version.getModLoaders().contains(l)), "wrong version or loader: " + version);
         }
+        testDownload(modVersions.get(0));
     }
 
     public static void testCurseforgeVersions(ModData mod, List<String> versions, List<String> loaders) {
@@ -84,6 +100,7 @@ public class TestMods {
             assertInstanceOf(CurseforgeFile.class, version, "not CurseforgeFile: " + version);
             assertTrue(versions.stream().anyMatch(v -> version.getGameVersions().contains(v)) && loaders.stream().anyMatch(l -> version.getModLoaders().contains(l)), "wrong version or loader: " + version);
         }
+        testDownload(modVersions.get(0));
     }
 
     public static void textModPreference(ModData mod) {

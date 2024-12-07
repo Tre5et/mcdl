@@ -91,6 +91,20 @@ public class HttpUtil {
      * @throws IOException If there is an error sending the request
      */
     public static HttpResponse<byte[]> get(URL url, Map<String, String> headers, Map<String, String> params, Caching<HttpResponse<byte[]>> caching) throws IOException {
+        return get(url, headers, params, true, caching);
+    }
+
+    /**
+     * Sends a GET request to the specified URL
+     * @param url The URL to send the request to
+     * @param headers The headers to send with the request
+     * @param params The parameters to send with the request
+     * @param autoRedirect Whether requests returning a redirection should be automatically redirected
+     * @param caching The caching strategy to use
+     * @return The response from the server
+     * @throws IOException If there is an error sending the request
+     */
+    public static HttpResponse<byte[]> get(URL url, Map<String, String> headers, Map<String, String> params, boolean autoRedirect, Caching<HttpResponse<byte[]>> caching) throws IOException {
         URI uri = constructParamUri(url, params);
         HttpRequest.Builder builder = HttpRequest.newBuilder().uri(uri);
         if(!headers.containsKey("User-Agent")) {
@@ -102,6 +116,9 @@ public class HttpUtil {
         if(caching != null) {
             HttpResponse<byte[]> cached = caching.get(cacheKey);
             if (cached != null) {
+                if(autoRedirect) {
+                    return returnOrRedirectGet(cached, headers, params, caching);
+                }
                 return cached;
             }
         }
@@ -111,6 +128,9 @@ public class HttpUtil {
             HttpResponse<byte[]> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
             if(caching != null) {
                 caching.put(cacheKey, response, getCacheTime(response.headers()));
+            }
+            if(autoRedirect) {
+                return returnOrRedirectGet(response, headers, params, caching);
             }
             return response;
         } catch (InterruptedException e) {
@@ -142,6 +162,21 @@ public class HttpUtil {
      * @throws IOException If there is an error sending the request
      */
     public static HttpResponse<byte[]> post(URL url, byte[] body, Map<String, String> headers, Map<String, String> params, Caching<HttpResponse<byte[]>> caching) throws IOException {
+        return post(url, body, headers, params, true, caching);
+    }
+
+    /**
+     * Sends a POST request to the specified URL
+     * @param url The URL to send the request to
+     * @param body The body of the request
+     * @param headers The headers to send with the request
+     * @param params The parameters to send with the request
+     * @param autoRedirect Whether requests returning a redirection should be automatically redirected
+     * @param caching The caching strategy to use
+     * @return The response from the server
+     * @throws IOException If there is an error sending the request
+     */
+    public static HttpResponse<byte[]> post(URL url, byte[] body, Map<String, String> headers, Map<String, String> params, boolean autoRedirect, Caching<HttpResponse<byte[]>> caching) throws IOException {
         URI uri = constructParamUri(url, params);
         HttpRequest.Builder builder = HttpRequest.newBuilder().uri(uri);
         builder.POST(HttpRequest.BodyPublishers.ofByteArray(body));
@@ -153,6 +188,9 @@ public class HttpUtil {
         String cacheKey = constructCacheKey("POST", uri, headers, body);
         HttpResponse<byte[]> cached = caching.get(cacheKey);
         if(cached != null) {
+            if(autoRedirect) {
+                return returnOrRedirectPost(cached, body, headers, params, caching);
+            }
             return cached;
         }
 
@@ -160,6 +198,9 @@ public class HttpUtil {
         try {
             HttpResponse<byte[]> response = client.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
             caching.put(cacheKey, response, getCacheTime(response.headers()));
+            if(autoRedirect) {
+                return returnOrRedirectPost(response, body, headers, params, caching);
+            }
             return response;
         } catch (InterruptedException e) {
             throw new IOException(e);
@@ -188,6 +229,28 @@ public class HttpUtil {
      */
     public static void setUserAgent(String userAgent) {
         HttpUtil.userAgent = userAgent;
+    }
+
+    private static HttpResponse<byte[]> returnOrRedirectGet(HttpResponse<byte[]> httpResponse, Map<String, String> headers, Map<String, String> params, Caching<HttpResponse<byte[]>> caching) throws IOException {
+        if(httpResponse.statusCode() >= 301 && httpResponse.statusCode() <= 308) {
+            Optional<String> url = httpResponse.headers().firstValue("location");
+            if(url.isEmpty()) {
+                return httpResponse;
+            }
+            return get(new URL(url.get()), headers, params, true, caching);
+        }
+        return httpResponse;
+    }
+
+    private static HttpResponse<byte[]> returnOrRedirectPost(HttpResponse<byte[]> httpResponse, byte[] body, Map<String, String> headers, Map<String, String> params, Caching<HttpResponse<byte[]>> caching) throws IOException {
+        if(httpResponse.statusCode() >= 301 && httpResponse.statusCode() <= 308) {
+            Optional<String> url = httpResponse.headers().firstValue("location");
+            if(url.isEmpty()) {
+                return httpResponse;
+            }
+            return post(new URL(url.get()), body, headers, params, true, caching);
+        }
+        return httpResponse;
     }
 
     public static Caching<HttpResponse<byte[]>> getDefaultCaching() {
