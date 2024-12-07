@@ -117,9 +117,15 @@ pkmerBoot {
     }
 }
 
-tasks.getByPath("publishToMavenCentralPortal").doFirst {
-    if(!isRelease) {
-        throw IllegalStateException("Refusing to publish non-release version to Maven Central")
+tasks.getByPath("bundleForUpload").apply {
+    subprojects.forEach { dependsOn("${it.name}:publish") }
+}
+
+tasks.getByPath("publishToMavenCentralPortal").apply {
+    doFirst {
+        if (!isRelease) {
+            throw IllegalStateException("Refusing to publish non-release version to Maven Central")
+        }
     }
 }
 
