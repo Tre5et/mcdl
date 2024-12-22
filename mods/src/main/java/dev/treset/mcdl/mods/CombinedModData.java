@@ -104,6 +104,9 @@ public class CombinedModData extends GenericModData {
 
     @Override
     public String getUrl() {
+        if(versionProviders == null) {
+            return null;
+        }
         int index1 = versionProviders.indexOf(parent1.getModProviders().get(0));
         int index2 = versionProviders.indexOf(parent2.getModProviders().get(0));
         if(parent2.getUrl() != null && index2 >= 0 && (index1 < 0 || index2 < index1)) {

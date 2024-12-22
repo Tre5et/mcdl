@@ -182,7 +182,7 @@ public class CurseforgeMod extends GenericModData {
 
     @Override
     public List<ModVersionData> updateVersions() throws FileDownloadException {
-        if(versionProviders != null && !versionProviders.contains(ModProvider.CURSEFORGE)) {
+        if(versionProviders == null || !versionProviders.contains(ModProvider.CURSEFORGE)) {
             return List.of();
         }
         currentVersions = List.copyOf(ModsDL.getCurseforgeVersions(id, this, versionGameVersions, versionModLoaders));

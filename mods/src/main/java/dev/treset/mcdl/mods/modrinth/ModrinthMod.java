@@ -178,7 +178,7 @@ public class ModrinthMod extends GenericModData {
 
     @Override
     public List<ModVersionData> updateVersions() throws FileDownloadException {
-        if(versionProviders != null && !versionProviders.contains(ModProvider.MODRINTH)) {
+        if(versionProviders == null || !versionProviders.contains(ModProvider.MODRINTH)) {
             return List.of();
         }
         currentVersions = List.copyOf(ModsDL.getModrinthVersions(id, this, versionGameVersions, versionModLoaders));
