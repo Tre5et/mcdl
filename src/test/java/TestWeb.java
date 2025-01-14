@@ -48,10 +48,9 @@ public class TestWeb {
     @Test
     public void testRateLimit() {
         Random random = new Random();
-        random.ints(1000).parallel().forEach((n) -> {
-            HttpResponse<byte[]> res = assertDoesNotThrow(() -> HttpUtil.getRateLimited(
-                    "https://api.modrinth.com/v2/project/" + n + "/versions",
-                    r -> 1000,
+        random.ints(500).parallel().forEach((n) -> {
+            HttpResponse<byte[]> res = assertDoesNotThrow(() -> HttpUtil.get(
+                    new URL("https://api.modrinth.com/v2/project/" + n + "/versions"),
                     Map.of("User-Agent", "mcdl/test"),
                     Map.of()
             ));

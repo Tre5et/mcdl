@@ -187,7 +187,7 @@ public class ModsDL {
             throw new FileDownloadException("Modrinth user agent not set");
         }
         try {
-            String result = HttpUtil.getStringRateLimited(getModrinthProjectUrl(modId), r -> 1000, getModrinthHeaders(getModrinthUserAgent()), Map.of());
+            String result = HttpUtil.getString(getModrinthProjectUrl(modId), getModrinthHeaders(getModrinthUserAgent()), Map.of());
             return !result.isBlank();
         } catch (IOException e) {
             throw new FileDownloadException("Unable to check modrinth mod", e);

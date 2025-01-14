@@ -100,7 +100,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
         }
         String content;
         try {
-            content = HttpUtil.getStringRateLimited(ModsDL.getModrinthProjectVersionsUrl(modId), r -> 1000, ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), params, ModsDL.getCaching());
+            content = HttpUtil.getString(ModsDL.getModrinthProjectVersionsUrl(modId), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), params, ModsDL.getCaching());
         } catch (IOException e) {
             throw new FileDownloadException("Unable to download modrinth project versions", e);
         }
@@ -123,7 +123,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
             throw new FileDownloadException("Modrinth user agent not set");
         }
         try {
-            String content = HttpUtil.getStringRateLimited(ModsDL.getModrinthVersionUrl(versionId), r -> 1000, ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), Map.of());
+            String content = HttpUtil.getString(ModsDL.getModrinthVersionUrl(versionId), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), Map.of());
             return ModrinthVersion.fromJson(content, parent);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse modrinth version", e);

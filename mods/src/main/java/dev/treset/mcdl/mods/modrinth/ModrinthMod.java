@@ -105,7 +105,7 @@ public class ModrinthMod extends GenericModData {
             throw new FileDownloadException("Modrinth user agent not set");
         }
         try {
-            String content = HttpUtil.getStringRateLimited(ModsDL.getModrinthProjectUrl(id), r -> 1000, ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), Map.of(), ModsDL.getCaching());
+            String content = HttpUtil.getString(ModsDL.getModrinthProjectUrl(id), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), Map.of(), ModsDL.getCaching());
             return ModrinthMod.fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse modrinth mod", e);
