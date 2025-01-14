@@ -16,6 +16,7 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 public class HttpUtil {
     private static String userAgent = "mcdl/2.1";
@@ -67,6 +68,80 @@ public class HttpUtil {
         return new String(
                 get(new URL(url), headers, params, caching).body()
         );
+    }
+
+    /**
+     * Gets the result from a GET request to the specified URL as a string and, if applicable, waits for the rate limit to be lifted using the default caching strategy
+     * @param url The URL to send the request to
+     * @param waitFunction The function to determine how long to wait until retrying the request after being rate limited
+     * @param headers The headers to send with the request
+     * @param params The parameters to send with the request
+     * @param caching The caching strategy to use
+     * @return The response from the server as a string
+     * @throws IOException If there is an error sending the request
+     */
+    public static String getStringRateLimited(String url, Function<HttpResponse<byte[]>, Integer> waitFunction, Map<String, String> headers, Map<String, String> params, Caching<HttpResponse<byte[]>> caching) throws IOException {
+        return new String(
+                getRateLimited(url, waitFunction, headers, params, caching).body()
+        );
+    }
+
+    /**
+     * Gets the result from a GET request to the specified URL as a string and, if applicable, waits for the rate limit to be lifted using the default caching strategy
+     * @param url The URL to send the request to
+     * @param waitFunction The function to determine how long to wait until retrying the request after being rate limited
+     * @param headers The headers to send with the request
+     * @param params The parameters to send with the request
+     * @return The response from the server as a string
+     * @throws IOException If there is an error sending the request
+     */
+    public static String getStringRateLimited(String url, Function<HttpResponse<byte[]>, Integer> waitFunction, Map<String, String> headers, Map<String, String> params) throws IOException {
+        return getStringRateLimited(url, waitFunction, headers, params, defaultCaching);
+    }
+
+    /**
+     * Sends a GET request to the specified URL and, if applicable, waits for the rate limit to be lifted
+     * @param url The URL to send the request to
+     * @param waitFunction The function to determine how long to wait until retrying the request after being rate limited
+     * @param headers The headers to send with the request
+     * @param params The parameters to send with the request
+     * @param caching The caching strategy to use
+     * @return The response from the server
+     * @throws IOException If there is an error sending the request
+     */
+    public static HttpResponse<byte[]> getRateLimited(String url, Function<HttpResponse<byte[]>, Integer> waitFunction, Map<String, String> headers, Map<String, String> params, Caching<HttpResponse<byte[]>> caching) throws IOException {
+        HttpResponse<byte[]> out = null;
+        for(int count = 0; count < 50; count++) {
+            HttpResponse<byte[]> response = get(new URL(url), headers, params, caching);
+            if(response.statusCode() != 429) {
+                out = response;
+                break;
+            } else {
+                String cacheKey = constructCacheKey("GET", constructParamUri(new URL(url), params), headers, new byte[0]);
+                caching.put(cacheKey, null);
+                int waitTime = waitFunction.apply(response);
+                try {
+                    Thread.sleep(waitTime);
+                } catch (InterruptedException ignored) {}
+            }
+        }
+        if(out == null) {
+            throw new IOException("Rate limited too many times");
+        }
+        return out;
+    }
+
+    /**
+     * Sends a GET request to the specified URL and, if applicable, waits for the rate limit to be lifted using the default caching strategy
+     * @param url The URL to send the request to
+     * @param waitFunction The function to determine how long to wait until retrying the request after being rate limited
+     * @param headers The headers to send with the request
+     * @param params The parameters to send with the request
+     * @return The response from the server
+     * @throws IOException If there is an error sending the request
+     */
+    public static HttpResponse<byte[]> getRateLimited(String url, Function<HttpResponse<byte[]>, Integer> waitFunction, Map<String, String> headers, Map<String, String> params) throws IOException {
+        return getRateLimited(url, waitFunction, headers, params, defaultCaching);
     }
 
     /**
