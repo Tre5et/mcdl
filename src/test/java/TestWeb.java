@@ -2,9 +2,7 @@ import dev.treset.mcdl.util.HttpUtil;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
-import java.net.http.HttpResponse;
 import java.util.Map;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,21 +41,5 @@ public class TestWeb {
         }
         assertEquals(2, foundArgs, "args not found");
         assertEquals(2, foundHeaders, "headers not found");
-    }
-
-    @Test
-    public void testRateLimit() {
-        Random random = new Random();
-        random.ints(500).parallel().forEach((n) -> {
-            HttpResponse<byte[]> res = assertDoesNotThrow(() -> HttpUtil.get(
-                    new URL("https://api.modrinth.com/v2/project/" + n + "/versions"),
-                    Map.of("User-Agent", "mcdl/test"),
-                    Map.of()
-            ));
-            if((res.statusCode() != 200 || !new String(res.body()).trim().startsWith("[")) && res.statusCode() != 404) {
-                fail("Failed to fetch: " + res.statusCode() + " " + new String(res.body()));
-            }
-            System.out.println("Fetched " + n);
-        });
     }
 }

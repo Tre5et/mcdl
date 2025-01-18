@@ -8,7 +8,6 @@ import dev.treset.mcdl.mods.GenericModData;
 import dev.treset.mcdl.mods.ModProvider;
 import dev.treset.mcdl.mods.ModVersionData;
 import dev.treset.mcdl.mods.ModsDL;
-import dev.treset.mcdl.util.HttpUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -105,7 +104,7 @@ public class ModrinthMod extends GenericModData {
             throw new FileDownloadException("Modrinth user agent not set");
         }
         try {
-            String content = HttpUtil.getString(ModsDL.getModrinthProjectUrl(id), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), Map.of(), ModsDL.getCaching());
+            String content = ModsDL.httpGetModrinthString(ModsDL.getModrinthProjectUrl(id), Map.of());
             return ModrinthMod.fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse modrinth mod", e);

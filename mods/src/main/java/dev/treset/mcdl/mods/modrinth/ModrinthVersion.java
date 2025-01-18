@@ -9,7 +9,6 @@ import dev.treset.mcdl.json.JsonParsable;
 import dev.treset.mcdl.json.JsonUtils;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.mods.*;
-import dev.treset.mcdl.util.HttpUtil;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -100,7 +99,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
         }
         String content;
         try {
-            content = HttpUtil.getString(ModsDL.getModrinthProjectVersionsUrl(modId), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), params, ModsDL.getCaching());
+            content = ModsDL.httpGetModrinthString(ModsDL.getModrinthProjectVersionsUrl(modId), params);
         } catch (IOException e) {
             throw new FileDownloadException("Unable to download modrinth project versions", e);
         }
@@ -123,7 +122,7 @@ public class ModrinthVersion extends GenericModVersion implements JsonParsable {
             throw new FileDownloadException("Modrinth user agent not set");
         }
         try {
-            String content = HttpUtil.getString(ModsDL.getModrinthVersionUrl(versionId), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), Map.of());
+            String content = ModsDL.httpGetModrinthString(ModsDL.getModrinthVersionUrl(versionId), Map.of());
             return ModrinthVersion.fromJson(content, parent);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse modrinth version", e);

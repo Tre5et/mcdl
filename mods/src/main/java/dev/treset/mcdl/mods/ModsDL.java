@@ -9,10 +9,14 @@ import dev.treset.mcdl.mods.modrinth.ModrinthSearch;
 import dev.treset.mcdl.mods.modrinth.ModrinthVersion;
 import dev.treset.mcdl.util.HttpUtil;
 import dev.treset.mcdl.util.cache.Caching;
+import io.github.bucket4j.BandwidthBuilder;
+import io.github.bucket4j.Bucket;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.*;
 
 public class ModsDL {
@@ -210,6 +214,39 @@ public class ModsDL {
         } catch (IOException e) {
             throw new FileDownloadException("Unable to check curseforge mod", e);
         }
+    }
+
+    private static final Bucket modrinthBucket = Bucket.builder()
+            .addLimit(
+                    BandwidthBuilder.builder()
+                            .capacity(300)
+                            .refillGreedy(300, Duration.ofMinutes(1))
+                            .build()
+
+            ).build();
+
+    public static HttpResponse<byte[]> httpGetModrinth(URL url, Map<String, String> params) throws IOException {
+        Map<String, String> headers = ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent());
+
+        modrinthBucket.asBlocking().consumeUninterruptibly(1);
+
+        return HttpUtil.get(
+                url,
+                headers,
+                params,
+                true,
+                20,
+                r -> {
+                    modrinthBucket.tryConsumeAsMuchAsPossible();
+                    modrinthBucket.asBlocking().consumeUninterruptibly(1);
+                    return 0;
+                },
+                getCaching()
+        );
+    }
+
+    public static String httpGetModrinthString(String url, Map<String, String> params) throws IOException {
+        return new String(httpGetModrinth(new URL(url), params).body());
     }
 
     private static Caching<HttpResponse<byte[]>> caching = null;

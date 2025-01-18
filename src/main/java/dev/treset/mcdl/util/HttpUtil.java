@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class HttpUtil {
-    private static String userAgent = "mcdl/2.1";
+    private static String userAgent = "mcdl/2.2";
     private static Caching<HttpResponse<byte[]>> defaultCaching = new MemoryCaching();
 
     /**

@@ -3,13 +3,18 @@
 import dev.treset.mcdl.mods.*;
 import dev.treset.mcdl.mods.curseforge.CurseforgeFile;
 import dev.treset.mcdl.mods.modrinth.ModrinthVersion;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
+import java.net.URL;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -174,5 +179,21 @@ public class TestMods {
                 assertTrue(versions.stream().anyMatch(v -> dep3.getGameVersions().contains(v)) && loaders.stream().anyMatch(l -> dep3.getModLoaders().contains(l)), "wrong curseforge dependency version or loader: " + dep3);
             }
         }
+    }
+
+    @Test
+    public void testModrinthRateLimit() {
+        Random random = new Random();
+        ModsDL.setModrinthUserAgent("mcdl/test");
+        random.ints(1000).parallel().forEach((n) -> {
+            HttpResponse<byte[]> res = assertDoesNotThrow(() -> ModsDL.httpGetModrinth(
+                    new URL("https://api.modrinth.com/v2/project/" + n + "/versions"),
+                    Map.of()
+            ));
+            if((res.statusCode() != 200 || !new String(res.body()).trim().startsWith("[")) && res.statusCode() != 404) {
+                fail("Failed to fetch: " + res.statusCode() + " " + new String(res.body()));
+            }
+            System.out.println("Fetched " + n);
+        });
     }
 }

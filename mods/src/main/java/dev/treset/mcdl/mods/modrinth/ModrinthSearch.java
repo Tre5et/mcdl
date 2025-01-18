@@ -4,7 +4,6 @@ import dev.treset.mcdl.exception.FileDownloadException;
 import dev.treset.mcdl.json.GenericJsonParsable;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.mods.ModsDL;
-import dev.treset.mcdl.util.HttpUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -75,7 +74,7 @@ public class ModrinthSearch extends GenericJsonParsable {
             params.put(ModsDL.getModrinthSearchFacetsParam(), facets.toString());
         }
         try {
-            String content = HttpUtil.getString(ModsDL.getModrinthSearchUrl(), ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent()), params, ModsDL.getCaching());
+            String content = ModsDL.httpGetModrinthString(ModsDL.getModrinthSearchUrl(), params);
             return ModrinthSearch.fromJson(content);
         } catch (SerializationException e) {
             throw new FileDownloadException("Unable to parse modrinth search results", e);
