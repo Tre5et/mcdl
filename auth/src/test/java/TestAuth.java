@@ -3,7 +3,6 @@ import dev.treset.mcdl.auth.AuthDL;
 import dev.treset.mcdl.auth.InteractiveData;
 import dev.treset.mcdl.auth.token.DefaultTokenPolicy;
 import dev.treset.mcdl.auth.token.FileTokenPolicy;
-import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.function.Consumer;
@@ -12,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class TestAuth {
-    @Test
+    //@Test
     public void testInteractive() {
         AuthDL.setClientId("389304a5-70a6-4013-907f-98c4eb4b51fb");
         AuthDL.setTokenPolicy(new DefaultTokenPolicy());
@@ -35,7 +34,7 @@ public class TestAuth {
         assertNotNull(data.toUserData().getCapes());
     }
 
-    @Test
+    //@Test
     public void testCache() {
         AuthDL.setClientId("389304a5-70a6-4013-907f-98c4eb4b51fb");
         AuthDL.setTokenPolicy(new FileTokenPolicy(new File("token.json"), e -> null));

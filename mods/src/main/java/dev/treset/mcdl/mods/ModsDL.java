@@ -225,6 +225,13 @@ public class ModsDL {
 
             ).build();
 
+    /**
+     * Makes a Modrinth request while properly respecting the rate limit.
+     * @param url The URL to send the request to
+     * @param params The headers to send with the request
+     * @return The response from the server
+     * @throws IOException If there is an error making the request
+     */
     public static HttpResponse<byte[]> httpGetModrinth(URL url, Map<String, String> params) throws IOException {
         Map<String, String> headers = ModsDL.getModrinthHeaders(ModsDL.getModrinthUserAgent());
 
@@ -245,6 +252,13 @@ public class ModsDL {
         );
     }
 
+    /**
+     * Makes a Modrinth request while properly respecting the rate limit and returns the body string.
+     * @param url The URL to send the request to
+     * @param params The headers to send with the request
+     * @return The response body from the server
+     * @throws IOException If there is an error making the request
+     */
     public static String httpGetModrinthString(String url, Map<String, String> params) throws IOException {
         return new String(httpGetModrinth(new URL(url), params).body());
     }

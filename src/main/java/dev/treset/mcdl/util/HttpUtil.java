@@ -101,6 +101,8 @@ public class HttpUtil {
      * @param headers The headers to send with the request
      * @param params The parameters to send with the request
      * @param autoRedirect Whether requests returning a redirection should be automatically redirected
+     * @param awaitRateLimit The maximum amount to retry this request if a rate limit is hit.
+     * @param rateLimitDelay Function to determine how long to wait until retrying this request after a rate limit.
      * @param caching The caching strategy to use
      * @return The response from the server
      * @throws IOException If there is an error sending the request

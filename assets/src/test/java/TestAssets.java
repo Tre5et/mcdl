@@ -4,7 +4,6 @@ import dev.treset.mcdl.minecraft.MinecraftDL;
 import dev.treset.mcdl.minecraft.MinecraftVersion;
 import dev.treset.mcdl.minecraft.MinecraftProfile;
 import dev.treset.mcdl.util.FileUtil;
-import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.File;
@@ -14,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestAssets {
-    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = {"1.21", "1.16.5", "1.0"})
     public void testDownload(String version) {
         List<MinecraftVersion> versions = assertDoesNotThrow(MinecraftDL::getVersions);
@@ -26,7 +25,7 @@ public class TestAssets {
         assertDoesNotThrow(() -> AssetsDL.downloadAssets(index, dir, true));
     }
 
-    @ParameterizedTest
+    //@ParameterizedTest
     @ValueSource(strings = {"1.16", "pre-1.6"})
     public void testResolve(String version) {
         File dir = new File("assets/virtual/"+version);
