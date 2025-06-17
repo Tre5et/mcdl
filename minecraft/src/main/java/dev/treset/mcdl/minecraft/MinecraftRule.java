@@ -3,11 +3,12 @@ package dev.treset.mcdl.minecraft;
 import dev.treset.mcdl.util.OsUtil;
 
 import java.util.List;
+import java.util.Map;
 
 public class MinecraftRule {
     private String action;
     private Os os;
-    private Features features;
+    private Map<String, Boolean> features;
 
     public static class Os {
         private String name;
@@ -49,40 +50,18 @@ public class MinecraftRule {
         }
     }
 
-    public static class Features {
-        private boolean hasCustomResolution;
-        private boolean isDemoUser;
-
-        public Features(boolean hasCustomResolution, boolean isDemoUser) {
-            this.hasCustomResolution = hasCustomResolution;
-            this.isDemoUser = isDemoUser;
-        }
-
-        public boolean isAllow(List<String> features) {
-            return (!isHasCustomResolution() || features.contains("has_custom_resolution")) && (isDemoUser() || features.contains("is_demo_user"));
-        }
-
-        public boolean isHasCustomResolution() {
-            return hasCustomResolution;
-        }
-
-        public void setHasCustomResolution(boolean hasCustomResolution) {
-            this.hasCustomResolution = hasCustomResolution;
-        }
-
-        public boolean isDemoUser() {
-            return isDemoUser;
-        }
-
-        public void setDemoUser(boolean demoUser) {
-            isDemoUser = demoUser;
-        }
-    }
-
-    public MinecraftRule(String action, Os os, Features features) {
+    public MinecraftRule(String action, Os os, Map<String, Boolean> features) {
         this.action = action;
         this.os = os;
         this.features = features;
+    }
+
+    public boolean isAllowFeatures(List<String> features) {
+        if (this.features == null) {
+            return true;
+        }
+        return this.features.entrySet().stream()
+                .allMatch(entry -> entry.getValue() == features.contains(entry.getKey()));
     }
 
     public boolean isApplicable(List<String> features) {
@@ -90,9 +69,9 @@ public class MinecraftRule {
             return true;
         }
         if(getAction().equals("allow")) {
-            return (getOs() == null || getOs().isAllow()) && (getFeatures() == null || getFeatures().isAllow(features));
+            return (getOs() == null || getOs().isAllow()) && isAllowFeatures(features);
         } else if(action.equals("disallow")) {
-            return (getOs() == null || !getOs().isAllow()) && (getFeatures() == null || !getFeatures().isAllow(features));
+            return (getOs() == null || !getOs().isAllow()) && (features == null || !isAllowFeatures(features));
         }
         return true;
     }
@@ -113,11 +92,11 @@ public class MinecraftRule {
         this.os = os;
     }
 
-    public Features getFeatures() {
+    public Map<String, Boolean> getFeatures() {
         return features;
     }
 
-    public void setFeatures(Features features) {
+    public void setFeatures(Map<String, Boolean> features) {
         this.features = features;
     }
 }

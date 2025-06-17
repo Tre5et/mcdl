@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestMinecraft {
     @ParameterizedTest
-    @ValueSource(strings = {"1.0", "1.2.1", "1.5.1", "1.7.10", "1.12.2", "1.16.5", "1.21"})
+    @ValueSource(strings = {"1.21.6", "1.0", "1.2.1", "1.5.1", "1.7.10", "1.12.2", "1.16.5", "1.21"})
     public void testVersion(String id) {
         if(new File("download/client-" + id + ".jar").isFile()) {
             assertDoesNotThrow(() -> FileUtil.delete(new File("download/client-" + id + ".jar")));
