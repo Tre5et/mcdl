@@ -15,11 +15,6 @@ Import the base module as well as the modules you require using your preferred b
 ```xml
 <dependencies>
     <dependency>
-        <groupId>dev.treset.mcdl</groupId>
-        <artifactId>mcdl</artifactId>
-        <version>{version}</version>
-    </dependency>
-    <dependency>
       <groupId>dev.treset.mcdl</groupId>
       <artifactId>mcdl-{module-name}</artifactId>
       <version>{version}</version>
@@ -33,7 +28,6 @@ Import the base module as well as the modules you require using your preferred b
 
 ```groovy
 dependencies {
-    implementation 'dev.treset.mcdl:mcdl:{version}'
     implementation 'dev.treset.mcdl:mcdl-{module-name}:{version}'
 }
 ```
@@ -44,7 +38,6 @@ dependencies {
 > def mcdlVersion = '{version}'
 > def mcdlModules = ['{module-name1}', '{module-name2}']
 > dependencies {
->     implementation 'dev.treset.mcdl:mcdl:$mcdlVersion'
 >     for(module in mcdlModules) {
 >         implementation 'dev.treset.mcdl:mcdl-$module:$mcdlVersion'
 >     }
@@ -57,7 +50,6 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("dev.treset.mcdl:mcdl:{version}")
     implementation("dev.treset.mcdl:mcdl-{module-name}:{version}")
 }
 ```
@@ -68,7 +60,6 @@ dependencies {
 > val mcdlVersion = "{version}"
 > val mcdlModules = arrayOf("{module-name1}", "{module-name2}")
 > dependencies {
->     implementation("dev.treset.mcdl:mcdl:$mcdlVersion")
 >     for(module in mcdlModules) {
 >         implementation("dev.treset.mcdl:mcdl-$module:$mcdlVersion")
 >     }
@@ -157,6 +148,11 @@ dependencies {
 
 - Parsing Minecraft world directories to get world name, description and icon
 - Parsing Minecraft Server files to get server data
+</details>
+
+<details><summary>Server-Management</summary>
+
+- Receiving and requesting data from the minecraft server management protocol
 </details>
 
 ## Usage

@@ -21,6 +21,7 @@
             <option value="$PROJECT_DIR$/quiltmc" />
             <option value="$PROJECT_DIR$/resourcepacks" />
             <option value="$PROJECT_DIR$/saves" />
+            <option value="$PROJECT_DIR$/server-management" />
           </set>
         </option>
       </GradleProjectSettings>

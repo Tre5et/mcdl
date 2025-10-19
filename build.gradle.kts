@@ -74,7 +74,7 @@ allprojects {
                         scm {
                             connection.set("scm:git:git://github.com/Tre5et/mcdl.git")
                             developerConnection.set("scm:git:ssh://github.com/Tre5et/mcdl.git")
-                            url.set("https://github.com/Tre5et/mcdl/tree/main")
+                            url.set("https://github.com/Tre5et/mcdl")
                         }
                     }
 
