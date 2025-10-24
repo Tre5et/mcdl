@@ -16,8 +16,8 @@ public class ParameterlessNotificationHandler extends NotificationHandler {
         if(!notification.method().equals(method)) {
             throw new IOException("Unexpected notification method, expected: " + method + ", got: " + notification.method());
         }
-        if(!notification.params().isEmpty()) {
-            throw new IOException("Unexpected number of parameters, expected: 0, got: " + notification.params().size());
+        if(notification.params() != null) {
+            throw new IOException("Unexpected parameters, expected none, got: " + notification.params().size());
         }
 
         handler.run();

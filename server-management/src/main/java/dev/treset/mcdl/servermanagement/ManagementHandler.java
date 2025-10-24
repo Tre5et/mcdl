@@ -122,6 +122,13 @@ public class ManagementHandler {
     }
 
     /**
+     * Force closes the connection and doesn't wait for success.
+     */
+    public void forceDisconnect() {
+        client.closeConnection(-1, "Force close by client");
+    }
+
+    /**
      * Whether a connection to the management server is open.
      * @return {@code true} if the connection is open, otherwise {@code false}.
      */
