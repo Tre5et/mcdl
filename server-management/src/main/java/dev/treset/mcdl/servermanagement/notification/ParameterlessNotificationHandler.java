@@ -1,5 +1,7 @@
 package dev.treset.mcdl.servermanagement.notification;
 
+import dev.treset.mcdl.json.SerializationException;
+
 import java.io.IOException;
 
 public class ParameterlessNotificationHandler extends NotificationHandler {
@@ -12,12 +14,12 @@ public class ParameterlessNotificationHandler extends NotificationHandler {
     }
 
     @Override
-    public void handle(RpcNotification notification) throws IOException {
+    public void handle(RpcNotification notification) throws SerializationException {
         if(!notification.method().equals(method)) {
-            throw new IOException("Unexpected notification method, expected: " + method + ", got: " + notification.method());
+            throw new SerializationException("Unexpected notification method, expected: " + method + ", got: " + notification.method());
         }
         if(notification.params() != null) {
-            throw new IOException("Unexpected parameters, expected none, got: " + notification.params().size());
+            throw new SerializationException("Unexpected parameters, expected none, got: " + notification.params().size());
         }
 
         handler.run();

@@ -1,10 +1,10 @@
 package dev.treset.mcdl.servermanagement;
 
 import dev.treset.mcdl.servermanagement.data.TriConsumer;
+import dev.treset.mcdl.servermanagement.exception.RpcConnectionException;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -24,7 +24,7 @@ public class ManagementClient extends WebSocketClient {
             Consumer<ServerHandshake> openHandler,
             TriConsumer<Integer,String,Boolean> closeHandler,
             Consumer<Exception> errorHandler
-    ) throws IOException {
+    ) throws RpcConnectionException {
         super(
                 uri,
                 Map.of("Authorization", "Bearer " + secret)
@@ -36,10 +36,10 @@ public class ManagementClient extends WebSocketClient {
         try {
             boolean connected = this.connectBlocking();
             if(!connected) {
-                throw new IOException("Could not connect to server.");
+                throw new RpcConnectionException("Could not connect to server.");
             }
         } catch (InterruptedException e) {
-            throw new IOException("Failed to connect to Server", e);
+            throw new RpcConnectionException("Failed to connect to Server", e);
         }
     }
 

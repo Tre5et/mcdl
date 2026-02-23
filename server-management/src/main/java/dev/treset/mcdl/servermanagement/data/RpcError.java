@@ -1,17 +1,16 @@
 package dev.treset.mcdl.servermanagement.data;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.Strictness;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import dev.treset.mcdl.json.JsonUtils;
+import dev.treset.mcdl.json.SerializationException;
 
 import java.io.IOException;
 
 public record RpcError(
         int code,
         String message,
-        Object data
+        JsonElement data
 ) {
     public static final Gson GSON = new GsonBuilder().setStrictness(Strictness.STRICT).create();
 
@@ -29,6 +28,15 @@ public record RpcError(
         } catch (JsonSyntaxException e) {
             throw new IOException("Failed to parse content", e);
         }
+    }
+
+    public static RpcError fromJson(JsonElement e) throws SerializationException {
+        JsonObject o = JsonUtils.getAsJsonObject(e);
+        return new RpcError(
+                JsonUtils.getAsInt(o, "code"),
+                JsonUtils.getAsString(o, "message"),
+                o.has("data") ? o.get("data") : null
+        );
     }
 }
 

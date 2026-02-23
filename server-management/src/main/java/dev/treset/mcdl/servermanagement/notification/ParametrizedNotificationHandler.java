@@ -2,6 +2,7 @@ package dev.treset.mcdl.servermanagement.notification;
 
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
+import dev.treset.mcdl.json.SerializationException;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -17,20 +18,19 @@ public class ParametrizedNotificationHandler<T> extends NotificationHandler {
         this.handler = handler;
     }
 
-    public void handle(RpcNotification notification) throws IOException {
+    public void handle(RpcNotification notification) throws SerializationException {
         if(!notification.method().equals(method)) {
-            throw new IOException("Unexpected notification method, expected: " + method + ", got: " + notification.method());
+            throw new SerializationException("Unexpected notification method, expected: " + method + ", got: " + notification.method());
         }
         if(notification.params().size() != 1) {
-            throw new IOException("Unexpected number of parameters, expected: 1, got: " + notification.params().size());
+            throw new SerializationException("Unexpected number of parameters, expected: 1, got: " + notification.params().size());
         }
-        String serializedContent = GSON.toJson(notification.params().get(0));
 
         try {
-            T content = GSON.fromJson(serializedContent, token);
+            T content = GSON.fromJson(notification.params().get(0), token);
             handler.accept(content);
         } catch (JsonSyntaxException e) {
-            throw new IOException("Failed to parse notification parameter for method: " + method, e);
+            throw new SerializationException("Failed to parse notification parameter for method: " + method, e);
         }
     }
 }

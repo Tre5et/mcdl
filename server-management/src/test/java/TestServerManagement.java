@@ -1,6 +1,8 @@
 import dev.treset.mcdl.servermanagement.ManagementHandler;
 import dev.treset.mcdl.servermanagement.ServerManagementDL;
-import dev.treset.mcdl.servermanagement.request.RpcResponse;
+import dev.treset.mcdl.servermanagement.data.RpcResponse;
+import dev.treset.mcdl.servermanagement.outgoing.OutgoingMethod;
+import dev.treset.mcdl.servermanagement.serialization.DataSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -22,19 +24,21 @@ public class TestServerManagement {
         handler.onError(e -> System.out.println("Error: " + e));
         handler.onWarning((m, e) -> System.out.println("Warning: " + m + ": " + e));
 
-        handler.addNotificationHandler(
+        handler.addNotificationReceiver(
                 "discman:notification/players/death",
-                RpcDeath.class,
+                DataSerializer.forType(RpcDeath.class),
                 (d) -> System.out.println(d.player.name)
         );
 
         assertDoesNotThrow(() -> handler.connect());
 
-        RpcResponse res = assertDoesNotThrow(() -> handler.request("discman:server/time"));
-        int result = assertDoesNotThrow(res::resultAsInt);
+        OutgoingMethod.Parameterless<Integer> method = OutgoingMethod.of("discman:server/time")
+                .withResponse(DataSerializer.INTEGER);
+
+        int result = assertDoesNotThrow(() -> method.sendBlocking(handler));
         System.out.println("Time=" + result);
 
-        RpcDeath death = assertDoesNotThrow(() -> handler.awaitNotification("discman:notification/players/death", RpcDeath.class, 20_000));
+        RpcDeath death = assertDoesNotThrow(() -> handler.awaitNotification("discman:notification/players/death", DataSerializer.forType(RpcDeath.class), () -> {}));
         System.out.println(death.message.literal);
 
         assertDoesNotThrow(handler::disconnect);

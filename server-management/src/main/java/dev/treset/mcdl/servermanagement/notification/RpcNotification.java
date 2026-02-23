@@ -1,10 +1,24 @@
 package dev.treset.mcdl.servermanagement.notification;
 
-import java.util.List;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import dev.treset.mcdl.servermanagement.data.DataProvider;
+import dev.treset.mcdl.servermanagement.data.IdentificationProvider;
+import dev.treset.mcdl.servermanagement.exception.RpcCommunicationException;
 
-public interface RpcNotification {
+public interface RpcNotification extends DataProvider, IdentificationProvider<String> {
     String jsonrpc();
     String method();
-    List<Object> params();
+    JsonArray params();
+
+    @Override
+    default JsonElement data() throws RpcCommunicationException {
+        return params().isEmpty() ? null : params().get(0);
+    }
+
+    @Override
+    default String identification() {
+        return method();
+    }
 }
 

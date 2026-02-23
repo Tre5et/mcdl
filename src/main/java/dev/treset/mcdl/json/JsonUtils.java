@@ -81,6 +81,22 @@ public class JsonUtils {
     }
 
     /**
+     * Converts the element to a double.
+     * @param element The element to convert
+     * @return The int or -1 if the element is null
+     * @throws SerializationException If the element is not a json int
+     */
+    public static double getAsDouble(JsonElement element) throws SerializationException {
+        if(element == null) {
+            return -1;
+        }
+        if(element.isJsonPrimitive() && element.getAsJsonPrimitive().isNumber()) {
+            return element.getAsJsonPrimitive().getAsDouble();
+        }
+        throw new SerializationException("Not a json int: " + element);
+    }
+
+    /**
      * Converts the element to a boolean.
      * @param element The element to convert
      * @return The string or false if the element is null
@@ -160,6 +176,23 @@ public class JsonUtils {
         }
         if(obj.get(memberName).isJsonPrimitive() && obj.getAsJsonPrimitive(memberName).isNumber()) {
             return obj.getAsJsonPrimitive(memberName).getAsInt();
+        }
+        throw new SerializationException("Not a json int: " + obj.get(memberName));
+    }
+
+    /**
+     * Converts a member of the json object to a double.
+     * @param obj The json object to get the member from
+     * @param memberName The name of the member to be converted
+     * @return The int or -1 if the member is null
+     * @throws SerializationException If the member is not a json int
+     */
+    public static double getAsDouble(JsonObject obj, String memberName) throws SerializationException {
+        if(obj == null || obj.get(memberName) == null) {
+            return -1;
+        }
+        if(obj.get(memberName).isJsonPrimitive() && obj.getAsJsonPrimitive(memberName).isNumber()) {
+            return obj.getAsJsonPrimitive(memberName).getAsDouble();
         }
         throw new SerializationException("Not a json int: " + obj.get(memberName));
     }

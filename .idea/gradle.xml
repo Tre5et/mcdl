@@ -22,6 +22,7 @@
             <option value="$PROJECT_DIR$/resourcepacks" />
             <option value="$PROJECT_DIR$/saves" />
             <option value="$PROJECT_DIR$/server-management" />
+            <option value="$PROJECT_DIR$/server-management-advanced" />
           </set>
         </option>
       </GradleProjectSettings>

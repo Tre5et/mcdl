@@ -13,3 +13,5 @@ include 'saves'
 include 'server-management'
 include 'resourcepacks'
 include 'neoforge'
+
+include 'server-management-advanced'
