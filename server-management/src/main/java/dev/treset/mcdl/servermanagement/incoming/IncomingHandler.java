@@ -5,21 +5,21 @@ import dev.treset.mcdl.servermanagement.data.IdentificationProvider;
 import dev.treset.mcdl.servermanagement.notification.RpcNotification;
 import dev.treset.mcdl.servermanagement.data.RpcResponse;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
-public class IncomingHandler<T extends DataProvider & IdentificationProvider<I>,I> implements MapContainer<I,IncomingReceiver<T,?,I>> {
-    Map<I, IncomingReceiver<T,?,I>> receivers = new HashMap<>();
+public class IncomingHandler<T extends DataProvider & IdentificationProvider<I>,I> {
+    Map<I, List<IncomingReceiver<T,?,I>>> receivers = new HashMap<>();
 
     public void handle(T message) {
-        IncomingReceiver<T,?,I> receiver = receivers.get(message.identification());
-        if(receiver != null) {
-            receiver.receive(message);
+        List<IncomingReceiver<T,?,I>> receivers = this.receivers.get(message.identification());
+        if(receivers != null) {
+            for(IncomingReceiver<T,?,I> r : new ArrayList<>(receivers)) { // new list to prevent concurrent modification
+                r.receive(message);
+            }
         }
     }
 
-    public IncomingReceiver<T,?,I> get(I identifier) {
+    public List<IncomingReceiver<T,?,I>> get(I identifier) {
         return receivers.get(identifier);
     }
 
@@ -31,9 +31,19 @@ public class IncomingHandler<T extends DataProvider & IdentificationProvider<I>,
         return isRegistered(object.identification());
     }
 
-    @Override
-    public Map<I, IncomingReceiver<T, ?, I>> map() {
-        return this.receivers;
+    public void register(IncomingReceiver<T,?,I> receiver) {
+        if(isRegistered(receiver)) {
+            get(receiver.identification()).add(receiver);
+        } else {
+            receivers.put(receiver.identification(), new ArrayList<>(List.of(receiver)));
+        }
+    }
+
+    public boolean unregister(IncomingReceiver<T,?,I> receiver) {
+        if(!isRegistered(receiver)) {
+            return false;
+        }
+        return get(receiver.identification()).removeIf(r -> r.equals(receiver));
     }
 
     public static class Notification extends IncomingHandler<RpcNotification,String> {}

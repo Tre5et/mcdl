@@ -144,15 +144,36 @@ public class ManagementHandler {
      * Registers a notification receiver for a specific RPC method.
      * @param receiver The receiver to register.
      */
-    public void registerNotificationReceiver(IncomingReceiver.Notification<?> receiver) {
+    public void addNotificationMethod(IncomingReceiver.Notification<?> receiver) {
         receiver.register(notificationHandler);
     }
 
-    public <T> void addNotificationReceiver(String method, DataSerializer<T> serializer, Consumer<T> resultConsumer) {
-        IncomingReceiver.Notification<T> receiver = new IncomingReceiver.Notification<>(
+
+    /**
+     * Registers a notification receiver for a specific RPC method.
+     * @param method The notification method to register.
+     * @param serializer The serializer to deserialize the notification parameter with.
+     * @param resultConsumer A method that is called with the notification parameter when it is received.
+     * @param <T> The type of the notification parameter.
+     */
+    public <T> void addNotificationMethod(String method, DataSerializer<T> serializer, Consumer<T> resultConsumer) {
+        IncomingReceiver.Notification<T> receiver = IncomingReceiver.notification(
                 method,
                 serializer,
                 resultConsumer
+        );
+        receiver.register(notificationHandler);
+    }
+
+    /**
+     * Registers a parameterless notification receiver for a specific RPC method.
+     * @param method The notification method to register.
+     * @param onReceived A method that is called when a notification is received.
+     */
+    public void addNotificationMethod(String method, Runnable onReceived) {
+        IncomingReceiver.ParameterlessNotification receiver = IncomingReceiver.notification(
+                method,
+                onReceived
         );
         receiver.register(notificationHandler);
     }
@@ -162,7 +183,20 @@ public class ManagementHandler {
      * @param method The RPC request method to send.
      * @param data The parameter to send
      * @param responseCallback A method that is called when the response to the request is received.
-     * @param errorCallback A method that is called if an error occurs.
+     * @param errorCallback A method that is called if an error occurs sending the request, receiving the response or the server returns an error.
+     * @param timeout The maximum time to wait for a response in milliseconds.
+     * @return The id of the request.
+     */
+    public <S,R> int send(OutgoingMethod<S,R> method, S data, Consumer<R> responseCallback, Consumer<RpcCommunicationException> errorCallback, long timeout) {
+        return method.send(data, responseCallback, errorCallback, this, timeout);
+    }
+
+    /**
+     * Sends an RPC request to the management server.
+     * @param method The RPC request method to send.
+     * @param data The parameter to send
+     * @param responseCallback A method that is called when the response to the request is received.
+     * @param errorCallback A method that is called if an error occurs sending the request, receiving the response or the server returns an error.
      * @return The id of the request.
      */
     public <S,R> int send(OutgoingMethod<S,R> method, S data, Consumer<R> responseCallback, Consumer<RpcCommunicationException> errorCallback) {
@@ -170,7 +204,19 @@ public class ManagementHandler {
     }
 
     /**
-     * Sends an RPC request to the management server.
+     * Sends a parameterless RPC request to the management server.
+     * @param method The RPC request method to send.
+     * @param responseCallback A method that is called when the response to the request is received.
+     * @param errorCallback A method that is called if an error occurs sending the request, receiving the response or the server returns an error.
+     * @param timeout The maximum time to wait for a response in milliseconds.
+     * @return The id of the request.
+     */
+    public <R> int send(OutgoingMethod.Parameterless<R> method, Consumer<R> responseCallback, Consumer<RpcCommunicationException> errorCallback, long timeout) {
+        return method.send(responseCallback, errorCallback, this, timeout);
+    }
+
+    /**
+     * Sends a parameterless RPC request to the management server.
      * @param method The RPC request method to send.
      * @param responseCallback A method that is called when the response to the request is received.
      * @param errorCallback A method that is called if an error occurs.
@@ -180,30 +226,145 @@ public class ManagementHandler {
         return method.send(responseCallback, errorCallback, this);
     }
 
+    /**
+     * Sends an RPC request and waits for a response.
+     * @param method The method to request.
+     * @param data The request parameter to send.
+     * @param timeout The maximum time to wait for a response in milliseconds.
+     * @return The parameter of the response.
+     * @param <S> The type of the request parameter.
+     * @param <R> The type of the response parameter.
+     * @throws RpcCommunicationException If there is an error sending the request, receiving the response or the server returns an error.
+     */
+    public <S,R> R request(OutgoingMethod<S,R> method, S data, long timeout) throws RpcCommunicationException {
+        return method.sendBlocking(data, this, timeout);
+    }
+
+    /**
+     * Sends an RPC request and waits for a response.
+     * @param method The method to request.
+     * @param data The request parameter to send.
+     * @return The parameter of the response.
+     * @param <S> The type of the request parameter.
+     * @param <R> The type of the response parameter.
+     * @throws RpcCommunicationException If there is an error sending the request, receiving the response or the server returns an error.
+     */
     public <S,R> R request(OutgoingMethod<S,R> method, S data) throws RpcCommunicationException {
         return method.sendBlocking(data, this);
     }
 
+    /**
+     * Sends a parameterless RPC request and waits for a response.
+     * @param method The method to request.
+     * @return The parameter of the response.
+     * @param <R> The type of the response parameter.
+     * @throws RpcCommunicationException If there is an error sending the request, receiving the response or the server returns an error.
+     */
     public <R> R request(OutgoingMethod.Parameterless<R> method) throws RpcCommunicationException {
         return method.sendBlocking(this);
     }
 
-    public <T> T awaitNotification(String method, DataSerializer<T> serializer, IncomingReceiver.CheckedAction actionBefore) throws RpcCommunicationException {
-        if(notificationHandler.isRegistered(method)) {
-            try {
-                return (T) notificationHandler.get(method).waitForNext(actionBefore);
-            } catch (ClassCastException e) {
-                throw new RpcCommunicationException("Notification did not return expected type", e);
-            }
+    /** Sends a parameterless RPC request and waits for a response.
+     * @param method The method to request.
+     * @param timeout The maximum time to wait for a response in milliseconds.
+     * @return The parameter of the response.
+     * @param <R> The type of the response parameter.
+     * @throws RpcCommunicationException If there is an error sending the request, receiving the response or the server returns an error.
+     */
+    public <R> R request(OutgoingMethod.Parameterless<R> method, long timeout) throws RpcCommunicationException {
+        return method.sendBlocking(this, timeout);
+    }
+
+    /**
+     * Waits for the next notification caught by a receiver. <br><br>
+     *
+     * Example to wait for saving to complete after triggering it, with a maximum wait time of 10 seconds:
+     * <pre>
+     * {@code
+     *  managementHandler.awaitNotification(
+     *      RpcNotifications.Server.saved(),
+     *      () -> { if(!managementHandler.request(RpcMethods.Server.SAVE, true)) throw new IOException("Failed to trigger save"); },
+     *      10_000L
+     *  );
+     * }
+     * </pre>
+     *
+     * @param notificationReceiver The receiver to wait for.
+     * @param triggerAction A function that may be used to execute any events that trigger the notification to wait for. It is guaranteed, that any notifications received by this receiver during and after the execution of {@code triggerAction} will be returned here.
+     * @param timeout The maximum time to wait for a notification in milliseconds.
+     * @return The notification parameter.
+     * @param <T> The type of the notification parameter.
+     * @throws RpcCommunicationException If there is an error receiving the notification.
+     */
+    public <T> T awaitNotification(IncomingReceiver.Notification<T> notificationReceiver, IncomingReceiver.CheckedAction triggerAction, long timeout) throws RpcCommunicationException {
+        notificationReceiver.register(notificationHandler);
+        return notificationReceiver.waitForNext(triggerAction, timeout);
+    }
+
+
+    /**
+     * Waits for the next notification caught by a receiver. <br><br>
+     *
+     * Example to wait for saving to complete after triggering it:
+     * <pre>
+     * {@code
+     *  managementHandler.awaitNotification(
+     *      RpcNotifications.Server.saved(),
+     *      () -> { if(!managementHandler.request(RpcMethods.Server.SAVE, true)) throw new IOException("Failed to trigger save"); }
+     *  );
+     * }
+     * </pre>
+     *
+     * @param notificationReceiver The receiver to wait for.
+     * @param triggerAction A function that may be used to execute any events that trigger the notification to wait for. It is guaranteed, that any notifications received by this receiver during and after the execution of {@code triggerAction} will be returned here.
+     * @return The notification parameter.
+     * @param <T> The type of the notification parameter.
+     * @throws RpcCommunicationException If there is an error receiving the notification.
+     */
+    public <T> T awaitNotification(IncomingReceiver.Notification<T> notificationReceiver, IncomingReceiver.CheckedAction triggerAction) throws RpcCommunicationException {
+        notificationHandler.register(notificationReceiver);
+        try {
+            T res = notificationReceiver.waitForNext(triggerAction);
+            notificationHandler.unregister(notificationReceiver);
+            return res;
+        } catch (RpcCommunicationException e) {
+            notificationHandler.unregister(notificationReceiver);
+            throw e;
         }
-        IncomingReceiver.Notification<T> receiver = new IncomingReceiver.Notification<>(
+    }
+
+    /**
+     * Waits for the next notification on a method.
+     * @param method The notification method to wait for.
+     * @param serializer The serializer to deserialize the notification parameter with.
+     * @param triggerAction A function that may be used to execute any events that trigger the notification to wait for. It is guaranteed, that any notifications received by this receiver during and after the execution of {@code triggerAction} will be returned here.
+     * @param timeout The maximum time to wait for a notification in milliseconds.
+     * @return The notification parameter.
+     * @param <T> The type of the notification parameter.
+     * @throws RpcCommunicationException If there is an error receiving the notification.
+     */
+    public <T> T awaitNotification(String method, DataSerializer<T> serializer, IncomingReceiver.CheckedAction triggerAction, long timeout) throws RpcCommunicationException {
+        return awaitNotification(IncomingReceiver.notification(
                 method,
                 serializer,
-                r -> {},
                 true
-        );
-        receiver.register(notificationHandler);
-        return receiver.waitForNext(actionBefore);
+        ), triggerAction, timeout);
+    }
+
+    /**
+     * Waits for the next notification on a method.
+     * @param method The notification method to wait for.
+     * @param serializer The serializer to deserialize the notification parameter with.
+     * @param triggerAction A function that may be used to execute any events that trigger the notification to wait for. It is guaranteed, that any notifications received by this receiver during and after the execution of {@code triggerAction} will be returned here.
+     * @return The notification parameter.
+     * @param <T> The type of the notification parameter.
+     * @throws RpcCommunicationException If there is an error receiving the notification.
+     */
+    public <T> T awaitNotification(String method, DataSerializer<T> serializer, IncomingReceiver.CheckedAction triggerAction) throws RpcCommunicationException {
+        return awaitNotification(IncomingReceiver.notification(
+                method,
+                serializer
+        ), triggerAction);
     }
 
     public void sendConstructedMessage(String message) throws RpcCommunicationException {

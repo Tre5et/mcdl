@@ -65,6 +65,11 @@ public class RpcCommunicationException extends IOException {
         }
     }
 
+    @Override
+    public String toString() {
+        return String.format("Code: %d, Message: %s, Data: %s, caused by: %s", code, getMessage(), data, getCause());
+    }
+
     public static RpcCommunicationException fromError(JsonElement e) throws SerializationException {
         JsonObject o = JsonUtils.getAsJsonObject(e);
         return new RpcCommunicationException(

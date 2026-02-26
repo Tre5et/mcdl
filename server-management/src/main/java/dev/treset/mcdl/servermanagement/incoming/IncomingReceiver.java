@@ -1,5 +1,6 @@
 package dev.treset.mcdl.servermanagement.incoming;
 
+import com.google.gson.reflect.TypeToken;
 import dev.treset.mcdl.servermanagement.data.DataProvider;
 import dev.treset.mcdl.servermanagement.data.IdentificationProvider;
 import dev.treset.mcdl.servermanagement.exception.RpcCommunicationException;
@@ -8,21 +9,20 @@ import dev.treset.mcdl.servermanagement.data.RpcResponse;
 import dev.treset.mcdl.servermanagement.serialization.DataSerializer;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 public class IncomingReceiver<R extends DataProvider & IdentificationProvider<I>, T, I> implements IdentificationProvider<I> {
-    private static final long DEFAULT_WAIT_TIMEOUT = 30_000;
+    static final long DEFAULT_WAIT_TIMEOUT = 30_000;
 
-    private final I identification;
-    private final DataSerializer<T> serializer;
-    private final Consumer<T> resultConsumer;
-    private final Consumer<RpcCommunicationException> errorConsumer;
-    private final boolean unregisterOnResult;
+    final I identification;
+    final DataSerializer<T> serializer;
+    final Consumer<T> resultConsumer;
+    final Consumer<RpcCommunicationException> errorConsumer;
+    final boolean unregisterOnResult;
 
-    private final Set<MapContainer<I, IncomingReceiver<R,?,I>>> registeredOn = new HashSet<>();
+    final Set<IncomingHandler<R,I>> registeredOn = new HashSet<>();
 
     private final Object lock = new Object(){};
     private final AtomicReference<Boolean> received = new AtomicReference<>(false);
@@ -44,16 +44,36 @@ public class IncomingReceiver<R extends DataProvider & IdentificationProvider<I>
             onError(e);
         }
         if(unregisterOnResult) {
-            for(MapContainer<I, IncomingReceiver<R,?,I>> container : registeredOn) {
-                unregister(container);
+            for(IncomingHandler<R,I> handler : registeredOn) {
+                unregister(handler);
             }
         }
     }
 
-    public T waitForNext(CheckedAction before, long timeout) throws RpcCommunicationException {
+    /**
+     * Waits for the next message to this receiver. <br><br>
+     *
+     * Example to wait for saving to complete after triggering it, with a maximum wait time of 10 seconds:
+     * <pre>
+     * {@code
+     *  IncomingReceiver.ParameterlessNotification receiver = RpcNotifications.Server.saved();
+     *  receiver.register(managementHandler.notificationHandler);
+     *  receiver.waitForNext(
+     *      () -> { if(!RpcMethods.Server.SAVE.sendBlocking(true, managementHandler)) throw new IOException("Failed to trigger save"); },
+     *      10_000
+     *  );
+     * }
+     * </pre>
+     *
+     * @param triggerAction A function that may be used to execute any events that trigger the message to wait for. It is guaranteed, that any messages received by this receiver during and after the execution of {@code triggerAction} will be returned here.
+     * @param timeout The maximum time to wait for a message in milliseconds.
+     * @return The message parameter.
+     * @throws RpcCommunicationException If there is an error receiving the message.
+     */
+    public T waitForNext(CheckedAction triggerAction, long timeout) throws RpcCommunicationException {
         synchronized (lock) {
             try {
-                before.run();
+                triggerAction.run();
             } catch (Exception e) {
                 throw new RpcCommunicationException("Failed to execute action before waiting", e);
             }
@@ -89,23 +109,45 @@ public class IncomingReceiver<R extends DataProvider & IdentificationProvider<I>
         return res;
     }
 
-    public T waitForNext(CheckedAction before) throws RpcCommunicationException {
-        return waitForNext(before, DEFAULT_WAIT_TIMEOUT);
+    /**
+     * Waits for the next message to this receiver. <br><br>
+     *
+     * Example to wait for saving to complete after triggering it:
+     * <pre>
+     * {@code
+     *  IncomingReceiver.ParameterlessNotification receiver = RpcNotifications.Server.saved();
+     *  receiver.register(managementHandler.notificationHandler);
+     *  receiver.waitForNext(
+     *      () -> { if(!RpcMethods.Server.SAVE.sendBlocking(true, managementHandler)) throw new IOException("Failed to trigger save"); }
+     *  );
+     * }
+     * </pre>
+     *
+     * @param triggerAction A function that may be used to execute any events that trigger the message to wait for. It is guaranteed, that any messages received by this receiver during and after the execution of {@code triggerAction} will be returned here.
+     * @return The message parameter.
+     * @throws RpcCommunicationException If there is an error receiving the message.
+     */
+    public T waitForNext(CheckedAction triggerAction) throws RpcCommunicationException {
+        return waitForNext(triggerAction, DEFAULT_WAIT_TIMEOUT);
     }
 
-    public void register(MapContainer<I, IncomingReceiver<R,?,I>> container, long timeout) {
-        Map<I, IncomingReceiver<R,?,I>> map = container.map();
-        map.put(identification(), this);
-        registeredOn.add(container);
+    /**
+     * Registers this receiver on an incoming handler for a specified time, causing it to receive messages from it.
+     * @param handler The management handler to register on.
+     * @param timeout The time after which this receiver is unregistered, in milliseconds.
+     */
+    public void register(IncomingHandler<R,I> handler, long timeout) {
+        handler.register(this);
+        registeredOn.add(handler);
         if(timeout > 0) {
             new Thread(() -> {
                 try {
                     Thread.sleep(timeout);
-                    if (unregister(container)) {
+                    if (unregister(handler)) {
                         onError(new RpcCommunicationException.Timeout(timeout));
                     }
                 } catch (InterruptedException e) {
-                    if (unregister(container)) {
+                    if (unregister(handler)) {
                         onError(new RpcCommunicationException("Failed to wait for response", e));
                     }
                 }
@@ -113,19 +155,21 @@ public class IncomingReceiver<R extends DataProvider & IdentificationProvider<I>
         }
     }
 
-    public void register(MapContainer<I, IncomingReceiver<R,?,I>> container) {
-        register(container, -1);
+    /**
+     * Registers this receiver on an incoming handler, causing it to receive messages from it.
+     * @param handler The handler to register on.
+     */
+    public void register(IncomingHandler<R,I> handler) {
+        register(handler, -1);
     }
 
-    public boolean unregister(MapContainer<I, IncomingReceiver<R,?,I>> container) {
-        Map<I, IncomingReceiver<R,?,I>> map = container.map();
-        IncomingReceiver<R,?,I> current = map.get(identification());
-        if (current != this) {
-            return false;
-        }
-        map.remove(identification());
-        registeredOn.remove(container);
-        return true;
+    /**
+     * Unregisters this receiver from an incoming handler, causing it to no longer receive messages from it.
+     * @param handler The handler to unregister from.
+     * @return {@code true} if the handler was unregistered, {@code false} if the handler was not registered.
+     */
+    public boolean unregister(IncomingHandler<R,I> handler) {
+        return handler.unregister(this);
     }
 
     @Override
@@ -133,7 +177,7 @@ public class IncomingReceiver<R extends DataProvider & IdentificationProvider<I>
         return identification;
     }
 
-    private void onResult(T result) {
+    void onResult(T result) {
         resultConsumer.accept(result);
         synchronized (lock) {
             this.result.set(result);
@@ -142,7 +186,7 @@ public class IncomingReceiver<R extends DataProvider & IdentificationProvider<I>
         }
     }
 
-    private void onError(RpcCommunicationException error) {
+    void onError(RpcCommunicationException error) {
         errorConsumer.accept(error);
         synchronized (lock) {
             this.error.set(error);
@@ -152,18 +196,14 @@ public class IncomingReceiver<R extends DataProvider & IdentificationProvider<I>
     }
 
     public static class Notification<T> extends IncomingReceiver<RpcNotification, T, String> {
-        public Notification(String method, DataSerializer<T> serializer, Consumer<T> resultConsumer) {
-            super(method, serializer, resultConsumer, e -> {}, false);
-        }
-
         public Notification(String method, DataSerializer<T> serializer, Consumer<T> resultConsumer, boolean unregisterOnReceive) {
             super(method, serializer, resultConsumer, e -> {}, unregisterOnReceive);
         }
     }
 
     public static class ParameterlessNotification extends Notification<Void> {
-        public ParameterlessNotification(String method, Runnable onReceived) {
-            super(method, DataSerializer.VOID, r -> onReceived.run());
+        public ParameterlessNotification(String method, Runnable onReceived, boolean unregisterOnReceive) {
+            super(method, DataSerializer.VOID, r -> onReceived.run(), unregisterOnReceive);
         }
     }
 
@@ -171,9 +211,170 @@ public class IncomingReceiver<R extends DataProvider & IdentificationProvider<I>
         public Response(int identification, DataSerializer<T> serializer, Consumer<T> resultConsumer, Consumer<RpcCommunicationException> errorConsumer) {
             super(identification, serializer, resultConsumer, errorConsumer, true);
         }
+
+        @Override
+        public void receive(RpcResponse message) {
+            if(message.error() != null) {
+                onError(message.error());
+                return;
+            }
+            super.receive(message);
+        }
     }
 
     public interface CheckedAction {
         void run() throws Exception;
+    }
+
+    /**
+     * Constructs a notification receiver.
+     * @param method The method to receiver notifications on.
+     * @param serializer The serializer to deserialize the notification parameter with.
+     * @param resultConsumer A method that is called with the notification parameter when a notification is received.
+     * @param unregisterOnReceive If {@code true}, the handler will be unregistered after the first notification was received.
+     * @return The notification receiver.
+     * @param <T> The type of the notification parameter.
+     */
+    public static <T> Notification<T> notification(String method, DataSerializer<T> serializer, Consumer<T> resultConsumer, boolean unregisterOnReceive) {
+        return new Notification<>(method, serializer, resultConsumer, unregisterOnReceive);
+    }
+
+    /**
+     * Constructs a notification receiver without a result consumer. This should only be used for awaiting notifications.
+     * @param method The method to receiver notifications on.
+     * @param serializer The serializer to deserialize the notification parameter with.
+     * @param unregisterOnReceive If {@code true}, the handler will be unregistered after the first notification was received.
+     * @return The notification receiver.
+     * @param <T> The type of the notification parameter.
+     */
+    public static <T> Notification<T> notification(String method, DataSerializer<T> serializer, boolean unregisterOnReceive) {
+        return notification(method, serializer, r -> {}, unregisterOnReceive);
+    }
+
+    /**
+     * Constructs a notification receiver.
+     * @param method The method to receiver notifications on.
+     * @param serializer The serializer to deserialize the notification parameter with.
+     * @param resultConsumer A method that is called with the notification parameter when a notification is received.
+     * @return The notification receiver.
+     * @param <T> The type of the notification parameter.
+     */
+    public static <T> Notification<T> notification(String method, DataSerializer<T> serializer, Consumer<T> resultConsumer) {
+        return notification(method, serializer, resultConsumer, false);
+    }
+
+    /**
+     * Constructs a notification receiver without a result consumer. This should only be used for awaiting notifications.
+     * @param method The method to receiver notifications on.
+     * @param serializer The serializer to deserialize the notification parameter with.
+     * @return The notification receiver.
+     * @param <T> The type of the notification parameter.
+     */
+    public static <T> Notification<T> notification(String method, DataSerializer<T> serializer) {
+        return notification(method, serializer, r -> {});
+    }
+
+    /**
+     * Constructs a notification receiver.
+     * @param method The method to receiver notifications on.
+     * @param responseType A TypeToken, which is used to deserialize the notification parameter.
+     * @param resultConsumer A method that is called with the notification parameter when a notification is received.
+     * @param unregisterOnReceive If {@code true}, the handler will be unregistered after the first notification was received.
+     * @return The notification receiver.
+     * @param <T> The type of the notification parameter.
+     */
+    public static <T> Notification<T> notification(String method, TypeToken<T> responseType, Consumer<T> resultConsumer, boolean unregisterOnReceive) {
+        return notification(method, DataSerializer.forType(responseType), resultConsumer, unregisterOnReceive);
+    }
+
+    /**
+     * Constructs a notification receiver without a result consumer. This should only be used for awaiting notifications.
+     * @param method The method to receiver notifications on.
+     * @param responseType A TypeToken, which is used to deserialize the notification parameter.
+     * @param unregisterOnReceive If {@code true}, the handler will be unregistered after the first notification was received.
+     * @return The notification receiver.
+     * @param <T> The type of the notification parameter.
+     */
+    public static <T> Notification<T> notification(String method, TypeToken<T> responseType, boolean unregisterOnReceive) {
+        return notification(method, responseType, r -> {}, unregisterOnReceive);
+    }
+
+    /**
+     * Constructs a notification receiver.
+     * @param method The method to receiver notifications on.
+     * @param responseType A TypeToken, which is used to deserialize the notification parameter.
+     * @param resultConsumer A method that is called with the notification parameter when a notification is received.
+     * @return The notification receiver.
+     * @param <T> The type of the notification parameter.
+     */
+    public static <T> Notification<T> notification(String method, TypeToken<T> responseType, Consumer<T> resultConsumer) {
+        return notification(method, DataSerializer.forType(responseType), resultConsumer, false);
+    }
+
+    /**
+     * Constructs a notification receiver without a result consumer. This should only be used for awaiting notifications.
+     * @param method The method to receiver notifications on.
+     * @param responseType A TypeToken, which is used to deserialize the notification parameter.
+     * @return The notification receiver.
+     * @param <T> The type of the notification parameter.
+     */
+    public static <T> Notification<T> notification(String method, TypeToken<T> responseType) {
+        return notification(method, DataSerializer.forType(responseType), r -> {});
+    }
+
+    /**
+     * Constructs a notification receiver with an empty notification parameter.
+     * @param method The method to receiver notifications on.
+     * @param onReceive A method that is called when a notification is received.
+     * @param unregisterOnReceive If {@code true}, the handler will be unregistered after the first notification was received.
+     * @return The notification receiver.
+     */
+    public static ParameterlessNotification notification(String method, Runnable onReceive, boolean unregisterOnReceive) {
+        return new ParameterlessNotification(method, onReceive, unregisterOnReceive);
+    }
+
+    /**
+     * Constructs a notification receiver with an empty notification parameter and without a result consumer. This should only be used for awaiting notifications.
+     * @param method The method to receiver notifications on.
+     * @param unregisterOnReceive If {@code true}, the handler will be unregistered after the first notification was received.
+     * @return The notification receiver.
+     */
+    public static ParameterlessNotification notification(String method, boolean unregisterOnReceive) {
+        return notification(method, () -> {}, unregisterOnReceive);
+    }
+
+    /**
+     * Constructs a notification receiver with an empty notification parameter.
+     * @param method The method to receiver notifications on.
+     * @param onReceive A method that is called when a notification is received.
+     * @return The notification receiver.
+     */
+    public static ParameterlessNotification notification(String method, Runnable onReceive) {
+        return notification(method, onReceive, false);
+    }
+
+    /**
+     * Constructs a notification receiver with an empty notification parameter and without a result consumer. This should only be used for awaiting notifications.
+     * @param method The method to receiver notifications on.
+     * @return The notification receiver.
+     */
+    public static ParameterlessNotification notification(String method) {
+        return notification(method, () -> {});
+    }
+
+    public static <T> Response<T> response(int identification, DataSerializer<T> serializer, Consumer<T> resultConsumer, Consumer<RpcCommunicationException> errorConsumer) {
+        return new Response<>(identification, serializer, resultConsumer, errorConsumer);
+    }
+
+    public static <T> Response<T> response(int identification, DataSerializer<T> serializer) {
+        return response(identification, serializer, r -> {}, e -> {});
+    }
+
+    public static <T> Response<T> response(int identification, TypeToken<T> responseType, Consumer<T> resultConsumer, Consumer<RpcCommunicationException> errorConsumer) {
+        return response(identification, DataSerializer.forType(responseType), resultConsumer, errorConsumer);
+    }
+
+    public static <T> Response<T> response(int identification, TypeToken<T> responseType) {
+        return response(identification, responseType, r -> {}, e -> {});
     }
 }

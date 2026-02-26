@@ -1,14 +1,14 @@
 package dev.treset.mcdl.servermanagement.serialization;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import dev.treset.mcdl.servermanagement.exception.RpcCommunicationException;
 
+import java.time.Instant;
+
 public interface DataSerializer<T> {
     JsonElement serialize(T data);
+
     T deserialize(JsonElement json) throws RpcCommunicationException;
 
     DataSerializer<Void> VOID = new DataSerializer<>() {
@@ -35,7 +35,7 @@ public interface DataSerializer<T> {
         }
     };
 
-    DataSerializer<Integer> INTEGER = new DataSerializer<Integer>() {
+    DataSerializer<Integer> INTEGER = new DataSerializer<>() {
         @Override
         public JsonElement serialize(Integer data) {
             return new JsonPrimitive(data);
@@ -43,14 +43,24 @@ public interface DataSerializer<T> {
 
         @Override
         public Integer deserialize(JsonElement json) throws RpcCommunicationException {
-            if(!json.isJsonPrimitive() || !json.getAsJsonPrimitive().isNumber() || json.getAsInt() != json.getAsDouble()) {
+            if (!json.isJsonPrimitive() || !json.getAsJsonPrimitive().isNumber() || json.getAsInt() != json.getAsDouble()) {
                 throw new RpcCommunicationException("Data is not an integer", json);
             }
             return json.getAsInt();
         }
     };
 
-    Gson GSON = new Gson();
+    Gson GSON = gsonBuilder()
+            .setFieldNamingStrategy(FieldNamingPolicy.IDENTITY)
+            .enableComplexMapKeySerialization()
+            .registerTypeAdapter(Instant.class, new InstantTypeAdapter())
+            .create();
+
+    static GsonBuilder gsonBuilder() {
+        //System.setProperty("gson.allowCapturingTypeVariables", "true");
+        return new GsonBuilder();
+    }
+
     static <T> DataSerializer<T> forType(TypeToken<T> typeToken) {
         return new DataSerializer<>() {
             @Override
@@ -71,5 +81,6 @@ public interface DataSerializer<T> {
 
     static <T> DataSerializer<T> forType(Class<T> clazz) {
         return forType(TypeToken.get(clazz));
+
     }
 }

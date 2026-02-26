@@ -13,7 +13,7 @@ public interface RpcNotification extends DataProvider, IdentificationProvider<St
 
     @Override
     default JsonElement data() throws RpcCommunicationException {
-        return params().isEmpty() ? null : params().get(0);
+        return params() == null ? null : (params().isEmpty() ? null : params().get(0));
     }
 
     @Override
