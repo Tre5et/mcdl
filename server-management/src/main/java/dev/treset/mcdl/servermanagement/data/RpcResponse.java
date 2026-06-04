@@ -6,28 +6,32 @@ import dev.treset.mcdl.json.JsonUtils;
 import dev.treset.mcdl.json.SerializationException;
 import dev.treset.mcdl.servermanagement.exception.RpcCommunicationException;
 
-public interface RpcResponse extends DataProvider, IdentificationProvider<Integer> {
-    Gson GSON = new GsonBuilder().create();
+public record RpcResponse(
+        Integer id,
+        JsonElement result,
+        RpcCommunicationException error
+) implements DataProvider, IdentificationProvider<Integer> {
+    static Gson GSON = new GsonBuilder().create();
 
-    String jsonrpc();
-    Integer id();
-    /**
-     * The result, set if the request was successfully executed.
-     * @return The result.
-     */
-    JsonElement result();
-    /**
-     * The error, set if the request failed to execute.
-     * @return The error.
-     */
-    RpcCommunicationException error();
+    public String serialize() {
+        JsonObject obj = new JsonObject();
+        obj.add("jsonrpc", new JsonPrimitive("2.0"));
+        obj.add("id", new JsonPrimitive(id));
+        if(result != null) {
+            obj.add("result", result);
+        }
+        if(error != null) {
+            obj.add("error", GSON.toJsonTree(error));
+        }
+        return obj.toString();
+    }
 
-    default boolean hasResult() {
+    boolean hasResult() {
         return result() != null;
     }
 
     @Override
-    default JsonElement data() throws RpcCommunicationException {
+    public JsonElement data() throws RpcCommunicationException {
         if(error() != null) {
             throw error();
         }
@@ -35,7 +39,7 @@ public interface RpcResponse extends DataProvider, IdentificationProvider<Intege
     }
 
     @Override
-    default Integer identification() {
+    public Integer identification() {
         return id();
     }
 
@@ -46,7 +50,7 @@ public interface RpcResponse extends DataProvider, IdentificationProvider<Intege
      * @param <T> The type to be converted to.
      * @throws SerializationException If there is an error converting to the type.
      */
-    default <T> T resultAs(TypeToken<T> typeToken) throws SerializationException {
+    public <T> T resultAs(TypeToken<T> typeToken) throws SerializationException {
         if(!hasResult()) {
             throw new SerializationException("Response has no result");
         }
@@ -69,7 +73,7 @@ public interface RpcResponse extends DataProvider, IdentificationProvider<Intege
      * @param <T> The type to be converted to.
      * @throws SerializationException If there is an error converting to the type.
      */
-    default <T> T resultAs(Class<T> type) throws SerializationException {
+    public <T> T resultAs(Class<T> type) throws SerializationException {
         return resultAs(TypeToken.get(type));
     }
 
@@ -78,7 +82,7 @@ public interface RpcResponse extends DataProvider, IdentificationProvider<Intege
      * @return The result as a boolean.
      * @throws SerializationException If there is an error converting the result to a boolean.
      */
-    default boolean resultAsBoolean() throws SerializationException {
+    public boolean resultAsBoolean() throws SerializationException {
         if(!hasResult()) {
             throw new SerializationException("Response has no result");
         }
@@ -90,7 +94,7 @@ public interface RpcResponse extends DataProvider, IdentificationProvider<Intege
      * @return The result as a double.
      * @throws SerializationException If there is an error converting the result to a double.
      */
-    default double resultAsDouble() throws SerializationException {
+    public double resultAsDouble() throws SerializationException {
         if(!hasResult()) {
             throw new SerializationException("Response has no result");
         }
@@ -102,7 +106,7 @@ public interface RpcResponse extends DataProvider, IdentificationProvider<Intege
      * @return The result as an integer.
      * @throws SerializationException If there is an error converting the result to an integer.
      */
-    default int resultAsInt() throws SerializationException {
+    public int resultAsInt() throws SerializationException {
         double number = resultAsDouble();
         if(number % 1 != 0) {
             throw new SerializationException("Result is a number but not a integer: " + number);
@@ -115,7 +119,7 @@ public interface RpcResponse extends DataProvider, IdentificationProvider<Intege
      * @return The result as a string.
      * @throws SerializationException If there is an error converting the result to a string.
      */
-    default String resultAsString() throws SerializationException {
+    public String resultAsString() throws SerializationException {
         if (!hasResult()) {
             throw new SerializationException("Response has no result");
         }

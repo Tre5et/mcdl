@@ -1,8 +1,13 @@
 package dev.treset.mcdl.servermanagement.incoming;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
+import dev.treset.mcdl.servermanagement.ManagementHandler;
 import dev.treset.mcdl.servermanagement.data.DataProvider;
 import dev.treset.mcdl.servermanagement.data.IdentificationProvider;
+import dev.treset.mcdl.servermanagement.data.RpcRequest;
 import dev.treset.mcdl.servermanagement.exception.RpcCommunicationException;
 import dev.treset.mcdl.servermanagement.notification.RpcNotification;
 import dev.treset.mcdl.servermanagement.data.RpcResponse;
@@ -204,6 +209,59 @@ public class IncomingReceiver<R extends DataProvider & IdentificationProvider<I>
     public static class ParameterlessNotification extends Notification<Void> {
         public ParameterlessNotification(String method, Runnable onReceived, boolean unregisterOnReceive) {
             super(method, DataSerializer.VOID, r -> onReceived.run(), unregisterOnReceive);
+        }
+    }
+
+    public static class Method<T, R> extends IncomingReceiver<RpcRequest, RequestCompound<T>, String> {
+        public Method(String method, DataSerializer<T> incomingSerializer, DataSerializer<R> outgoingSerializer, RpcErrorFunction<T,R> methodFunction, Consumer<RpcCommunicationException> errorConsumer, ManagementHandler handler, boolean unregisterOnResult) {
+            super(method, requestSerializer(incomingSerializer), r -> handleRequest(r, outgoingSerializer, methodFunction, errorConsumer, handler), errorConsumer, unregisterOnResult);
+        }
+
+        private static <T> DataSerializer<RequestCompound<T>> requestSerializer(DataSerializer<T> dataSerializer) {
+            return new DataSerializer<>() {
+                @Override
+                public JsonElement serialize(RequestCompound<T> data) {
+                    JsonObject o = new JsonObject();
+                    o.add("id", new JsonPrimitive(data.id()));
+                    o.add("data", dataSerializer.serialize(data.data()));
+                    return o;
+                }
+
+                @Override
+                public RequestCompound<T> deserialize(JsonElement json) throws RpcCommunicationException {
+                    if (!json.isJsonObject())
+                        throw new RpcCommunicationException(-32000, "Data is not a request object");
+                    JsonObject o = json.getAsJsonObject();
+                    if (!o.has("id")) throw new RpcCommunicationException(-32000, "Request contains no id");
+                    if (!o.has("data")) throw new RpcCommunicationException(-32000, "Request contains no data");
+                    JsonElement id = o.get("id");
+                    if (!id.isJsonPrimitive() || !id.getAsJsonPrimitive().isNumber())
+                        throw new RpcCommunicationException(-32000, "Request id is not a number");
+                    return new RequestCompound<>(
+                            id.getAsInt(),
+                            dataSerializer.deserialize(o.get("data"))
+                    );
+                }
+            };
+        }
+
+        private static <T,R> void handleRequest(RequestCompound<T> request, DataSerializer<R> outgoingSerializer, RpcErrorFunction<T,R> resultFunction, Consumer<RpcCommunicationException> errorHandler, ManagementHandler handler) {
+            R result = null;
+            RpcCommunicationException error = null;
+            try {
+                result = resultFunction.apply(request.data());
+            } catch (RpcCommunicationException e) {
+                error = e;
+            }
+            try {
+                handler.sendConstructedMessage(new RpcResponse(
+                        request.id(),
+                        result == null ? null : outgoingSerializer.serialize(result),
+                        error
+                ).serialize());
+            } catch (RpcCommunicationException e) {
+                errorHandler.accept(e);
+            }
         }
     }
 

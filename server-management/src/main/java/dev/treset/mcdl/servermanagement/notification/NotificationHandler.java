@@ -5,8 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import dev.treset.mcdl.json.SerializationException;
 
-import java.io.IOException;
-
 public abstract class NotificationHandler {
     public static final Gson GSON = new GsonBuilder()
             .setStrictness(Strictness.STRICT)

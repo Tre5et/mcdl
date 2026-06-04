@@ -23,35 +23,22 @@ public record RpcMessage(
     }
 
     public RpcResponse asResponse() {
-        return new RpcResponse() {
-            @Override
-            public String jsonrpc() {
-                return jsonrpc;
+        RpcCommunicationException ex;
+        if(error == null) {
+            ex = null;
+        } else {
+            try {
+                ex = RpcCommunicationException.fromError(error);
+            } catch (SerializationException e) {
+                ex = new RpcCommunicationException("Unable to deserialize error", error, e);
             }
+        }
 
-            @Override
-            public Integer id() {
-                return id;
-            }
+        return new RpcResponse(id, result, ex);
+    }
 
-            @Override
-            public JsonElement result() {
-                return result;
-            }
-
-            @Override
-            public RpcCommunicationException error() {
-                if(error == null) {
-                    return null;
-                }
-
-                try {
-                    return RpcCommunicationException.fromError(error);
-                } catch (SerializationException e) {
-                    return new RpcCommunicationException("Unable to deserialize error", error, e);
-                }
-            }
-        };
+    public boolean isNotification() {
+        return Objects.equals(jsonrpc, "2.0") && method != null && id == null;
     }
 
     public RpcNotification asNotification() {
@@ -73,8 +60,16 @@ public record RpcMessage(
         };
     }
 
-    public boolean isNotification() {
-        return Objects.equals(jsonrpc, "2.0") && method != null;
+    public boolean isRequest() {
+        return Objects.equals(jsonrpc, "2.0") && id != null && method != null;
+    }
+
+    public RpcRequest asRequest() {
+        return new RpcRequest(
+                id,
+                method,
+                params
+        );
     }
 
     public static RpcMessage fromJson(String json) throws SerializationException {

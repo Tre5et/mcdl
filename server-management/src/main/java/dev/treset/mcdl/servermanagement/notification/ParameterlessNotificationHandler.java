@@ -2,8 +2,6 @@ package dev.treset.mcdl.servermanagement.notification;
 
 import dev.treset.mcdl.json.SerializationException;
 
-import java.io.IOException;
-
 public class ParameterlessNotificationHandler extends NotificationHandler {
     private final String method;
     private final Runnable handler;

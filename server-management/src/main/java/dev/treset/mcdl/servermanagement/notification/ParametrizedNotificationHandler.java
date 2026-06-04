@@ -4,7 +4,6 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import dev.treset.mcdl.json.SerializationException;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 public class ParametrizedNotificationHandler<T> extends NotificationHandler {

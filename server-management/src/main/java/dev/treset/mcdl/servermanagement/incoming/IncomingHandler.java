@@ -2,6 +2,7 @@ package dev.treset.mcdl.servermanagement.incoming;
 
 import dev.treset.mcdl.servermanagement.data.DataProvider;
 import dev.treset.mcdl.servermanagement.data.IdentificationProvider;
+import dev.treset.mcdl.servermanagement.data.RpcRequest;
 import dev.treset.mcdl.servermanagement.notification.RpcNotification;
 import dev.treset.mcdl.servermanagement.data.RpcResponse;
 
@@ -47,6 +48,8 @@ public class IncomingHandler<T extends DataProvider & IdentificationProvider<I>,
     }
 
     public static class Notification extends IncomingHandler<RpcNotification,String> {}
+
+    public static class Request extends IncomingHandler<RpcRequest, String> {}
 
     public static class Response extends IncomingHandler<RpcResponse,Integer> {
         private static final Random RANDOM = new Random();

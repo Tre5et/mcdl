@@ -6,6 +6,7 @@ import dev.treset.mcdl.servermanagement.data.TriConsumer;
 import dev.treset.mcdl.servermanagement.exception.RpcConnectionException;
 import dev.treset.mcdl.servermanagement.exception.RpcCommunicationException;
 import dev.treset.mcdl.servermanagement.incoming.IncomingHandler;
+import dev.treset.mcdl.servermanagement.incoming.IncomingMethod;
 import dev.treset.mcdl.servermanagement.incoming.IncomingReceiver;
 import dev.treset.mcdl.servermanagement.outgoing.OutgoingMethod;
 import dev.treset.mcdl.servermanagement.serialization.DataSerializer;
@@ -25,6 +26,7 @@ public class ManagementHandler {
     private Consumer<Exception> errorHandler = e -> {};
 
     private ManagementClient client = null;
+    public final IncomingHandler.Request requestHandler = new IncomingHandler.Request();
     public final IncomingHandler.Notification notificationHandler = new IncomingHandler.Notification();
     public final IncomingHandler.Response responseHandler = new IncomingHandler.Response();
 
@@ -176,6 +178,11 @@ public class ManagementHandler {
                 onReceived
         );
         receiver.register(notificationHandler);
+    }
+
+    public void addIncomingMethod(IncomingMethod<?,?> method) {
+        IncomingReceiver.Method<?,?> receiver = method.constructReceiver(this);
+        receiver.register(requestHandler);
     }
 
     /**
@@ -381,6 +388,10 @@ public class ManagementHandler {
     private void handleMessage(String content) {
         try {
             RpcMessage message = RpcMessage.fromJson(content);
+            if(message.isRequest()) {
+                requestHandler.handle(message.asRequest());
+                return;
+            }
             if(message.isResponse()) {
                 responseHandler.handle(message.asResponse());
                 return;
